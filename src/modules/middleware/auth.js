@@ -10,6 +10,7 @@ const auth = (req, res, next) => {
         res.json({ message: "invalid token" });
       } else {
         req.userId = decoded.userId;
+        req.role=decoded.role
         next();
       }
     });
