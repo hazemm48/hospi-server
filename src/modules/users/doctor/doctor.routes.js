@@ -2,9 +2,8 @@ import  express  from "express";
 const router = express.Router()
 import * as doctorController from './controller/doctor.controller.js'
 
-router.get("/",doctorController.getAlldoctor)
-router.post("/",doctorController.adddoctor)
-router.put("/",doctorController.updatedoctor)
-router.delete("/",doctorController.deletedoctor)
+router.get("/getDoc",doctorController.getDoctor)
+router.put("/updateDoc",doctorController.updateDoctor)
+router.delete("/deleteDoc",doctorController.deleteDoctor)
 
 export default router

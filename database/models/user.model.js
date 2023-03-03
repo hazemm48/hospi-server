@@ -14,6 +14,8 @@ const userSchema = new mongoose.Schema({
         ref: "DoctorInfo",
       },
     phone:String
+},{
+    timestamps:true
 })
 
 const userModel=mongoose.model("User",userSchema)

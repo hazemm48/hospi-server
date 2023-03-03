@@ -1,11 +1,13 @@
 import mongoose from "mongoose"
 
 const reserveSchema = new mongoose.Schema({
-    speciality:String,
+    specialty:String,
     room:String,
     turnNum:Number,
     date:Date,
     time:String,
+    phone:String,
+    name:String,
     patientId:{
         type: mongoose.Types.ObjectId,
         ref: "User",
@@ -14,6 +16,8 @@ const reserveSchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: "User",
       }
+},{
+    timestamps:true
 })
 
 const reserveModel=mongoose.model("Reservation",reserveSchema)
