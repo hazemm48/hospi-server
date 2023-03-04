@@ -1,17 +1,24 @@
 import mongoose from "mongoose";
 
+const historySchema = new mongoose.Schema({
+    patientId:{
+        type:mongoose.Types.ObjectId,
+        ref:"User"
+    },
+    doctorId:{
+        type:mongoose.Types.ObjectId,
+        ref:"User"
+    },
+    date:Date
+}
+)
+
 const roomSchema = new mongoose.Schema({
 roomNum:Number,
-date:Date,
+level:String,
 time:String,
-patientId:{
-    type:mongoose.Types.ObjectId,
-    ref:"User"
-},
-doctorId:{
-    type:mongoose.Types.ObjectId,
-    ref:"User"
-}
+history:[historySchema]
+
 },
 {
     timestamps:true
