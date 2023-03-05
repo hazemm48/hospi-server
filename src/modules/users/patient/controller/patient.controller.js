@@ -1,10 +1,10 @@
 import userModel from "../../../../../database/models/user.model.js";
 import reserveModel from "../../../../../database/models/reserve.model.js";
-import patientModel from "../../../../../database/models/patient.model.js";
+import labModel from "../../../../../database/models/lab.model.js";
 
 const getPatient = async (req, res) => {
   try {
-    const patient = await userModel.find(req.userId).populate("patientInfo");
+    const patient = await userModel.findById(req.userId);
     res.json({ message: "patient info", patient });
   } catch (error) {
     res.json({ message: "error", error });
@@ -26,9 +26,8 @@ const updatePatient = async (req, res) => {
 const deletePatient = async (req, res) => {
   try {
     const deleted = await userModel.deleteOne(req.userId);
-    const infoDelete = await patientModel.deleteOne({ main: req.userId });
     const reserveDelete = await reserveModel.deleteMany({ patientId: _id });
-    res.json({ message: "delete patient", deleted, infoDelete });
+    res.json({ message: "delete patient", deleted, reserveDelete });
   } catch (error) {
     res.json({ message: "error", error });
   }
@@ -36,11 +35,9 @@ const deletePatient = async (req, res) => {
 
 const getAllDiseases = async (req, res) => {
   try {
-    const patientDiseases = await userModel
+    const patient = await userModel
       .findById(req.userId)
-      .select("patientInfo-_id")
-      .populate({ path: "info", select: "diseases-_id" });
-    const diseases = patientDiseases.patientInfo.diseases;
+    const diseases = patient.patientInfo.diseases
     res.json({ message: "all diseases", diseases });
   } catch (error) {
     res.json({ message: "error", error });
@@ -82,19 +79,19 @@ const getReserve = async (req, res) => {
 const medicReport = async (req, res) => {
   let report = {};
   try {
-    let diseases = await userModel
+    let patient = await userModel
       .findById(req.userId)
-      .select("patientInfo-_id")
-      .populate({ path: "patientInfo", select: "diseases-_id" });
+    let diseases= patient.patientInfo.diseases
+    console.log(diseases);
     report.chronic = diseases.chronic;
-    report.diseases = diseases.patientInfo.diseases;
+    report.diseases = diseases.diseases;
+    console.log(report);
     let lastReserve = await reserveModel
       .find({ patientId: req.userId })
       .sort({ createdAt: -1 })
       .limit(2);
     let lastReserveDate = lastReserve[0].date.getTime();
     let current = new Date(Date.now()).getTime();
-    console.log(lastReserveDate, current);
     if (lastReserveDate >= current) {
       report.nextVisit = lastReserve[0].date.toLocaleDateString();
       report.lastVisit = lastReserve[1].date.toLocaleDateString();
@@ -104,20 +101,11 @@ const medicReport = async (req, res) => {
     }
     res.json({ message: "report", report });
   } catch (error) {
+    console.log(error);
     res.json({ message: "error", error });
   }
 };
 
-const getDoctors = async (req, res) => {
-  try {
-    let doctors = await userModel
-      .find({ role: "doctor" })
-      .populate("doctorInfo");
-    res.json({ message: "all doctors", doctors });
-  } catch (error) {
-    res.json({ message: "error", error });
-  }
-};
 
 const buyMedicine = async (req, res) => {
   try {
@@ -131,6 +119,42 @@ const buyMedicine = async (req, res) => {
   }
 };
 
+//reserve lab
+const reserveLab = async (req, res) => {
+  let all = req.body;
+  all.patientId = req.userId;
+  try {
+    const reservedlab = await labModel.insertMany(all);
+    res.json({ message: "reservation success", reservedlab });
+  } catch (error) {
+    res.json({ message: "error", error });
+  }
+};
+
+//getReserve Lab
+
+const getReserveLab = async (req, res) => {
+  let all = req.body;
+  try {
+    if (all.oper == "all") {
+      const allReservedLab = await labModel.find({ patientId: req.userId });
+      res.json({ message: "all reservations", allReservedLab });
+    } else if (all.oper == "one") {
+      const reserved = await labModel
+        .findById(all._id)
+        .populate("patientId");
+      if (reserveLab.patientId._id == req.userId) {
+        res.json({ message: "reservation found", reserved });
+      } else {
+        res.json({ message: "not authorized" });
+      }
+    }
+  } catch (error) {
+    res.json({ message: "error", error });
+  }
+};
+
+
 export {
   getPatient,
   updatePatient,
@@ -139,6 +163,7 @@ export {
   reserveDoctor,
   getReserve,
   medicReport,
-  getDoctors,
   buyMedicine,
+  getReserveLab,
+  reserveLab
 };

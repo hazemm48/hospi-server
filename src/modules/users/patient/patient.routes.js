@@ -7,7 +7,6 @@ import * as validSchema from "../../middleware/user.validation.js"
 router.get("/getAll",patientController.getPatient)
 router.get("/getDisease",patientController.getAllDiseases)
 router.get("/report",patientController.medicReport)
-router.get("/getDoctors",patientController.getDoctors)
 router.get("/getReserve",patientController.getReserve)
 router.post("/reserveDoc",patientController.reserveDoctor)
 router.put("/buyMed",patientController.buyMedicine)

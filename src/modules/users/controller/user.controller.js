@@ -1,5 +1,4 @@
 import userModel from "../../../../database/models/user.model.js"
-import patientModel from "../../../../database/models/patient.model.js"
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -14,17 +13,27 @@ const signUp = async(req,res)=>{
       query.email=all.email
     }
     let check = await userModel.findOne({$or:[{"phone":query.phone},{"email":query.email}]});
+    console.log(check);
     if (check) {
       res.json({ message: "already registered" });
     } else {
+      console.log(check);
       let hashedPass = bcrypt.hashSync(all.password,Number(process.env.ROUNDS));
       all.password=[hashedPass,all.password]
-      let added = await userModel.insertMany(all);
-      all.main = added[0]._id.toHexString()
-      let patientInfo = await patientModel.insertMany(all)
-      all.info=patientInfo[0]._id.toHexString()
-      let userInfo = await userModel.findByIdAndUpdate(added[0]._id,{patientInfo:all.info},{new:true})
-      res.json({ message: "user added", userInfo,patientInfo });
+      if(all.role == "patient"){
+        let added = await userModel.insertMany(all);
+      res.json({ message: "patient added",added});
+      }else if (all.role =="doctor" && req.role == "admin" ){
+        let added = await userModel.insertMany(all);
+        res.json({ message: "doctor added",added});
+      }else if (all.role =="admin" && req.email == process.env.ADMIN){
+        let added = await userModel.insertMany(all);
+        res.json({ message: "admin added",added});
+      }else{
+        res.json({ message: "not authorized"});
+      }
+
+      
     }
 }
 
@@ -37,6 +46,7 @@ const signIn = async (req, res) => {
       query.email=email
     }
     let check = await userModel.findOne(query);
+    console.log(check,phone,email);
     if (check) {
       let matched = bcrypt.compareSync(password, check.password[0]);
       if (matched) {

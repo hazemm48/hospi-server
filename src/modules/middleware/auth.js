@@ -30,6 +30,7 @@ const adminAuth = (req, res, next) => {
         req.userId = decoded.userId;
         if (decoded.role == "admin") {
           req.role=decoded.role
+          req.email=decoded.email
           next();
         }else{
           res.json({ message: "not authorized user" });

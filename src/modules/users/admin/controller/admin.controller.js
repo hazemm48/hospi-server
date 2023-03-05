@@ -1,8 +1,6 @@
 import userModel from "../../../../../database/models/user.model.js";
-import doctorModel from "../../../../../database/models/doctor.model.js";
 import bcrypt from "bcrypt";
 import generalModel from "../../../../../database/models/general.model.js";
-import patientModel from "../../../../../database/models/patient.model.js";
 import reserveModel from "../../../../../database/models/reserve.model.js";
 
 const getAllUsers = async (req, res) => {
@@ -30,26 +28,6 @@ const addUser = async (req, res) => {
           all.password = [hashedPass, all.password];
           let added = await userModel.insertMany(all);
           all.main = added[0]._id.toHexString();
-          console.log(all.role);
-          if (all.role == "doctor") {
-            let doctorInfo = await doctorModel.insertMany(all);
-            all.info = doctorInfo[0]._id.toHexString();
-            let userInfo = await userModel.findByIdAndUpdate(
-              added[0]._id,
-              { doctorInfo: all.info },
-              { new: true }
-            );
-            res.json({ message: "doctor added", userInfo, doctorInfo });
-          } else if (all.role == "patient") {
-            let patientInfo = await patientModel.insertMany(all);
-            all.info = patientInfo[0]._id.toHexString();
-            let userInfo = await userModel.findByIdAndUpdate(
-              added[0]._id,
-              { patientInfo: all.info },
-              { new: true }
-            );
-            res.json({ message: "patient added", userInfo });
-          }
           res.json({ message: "user added", added });
         }
       };
