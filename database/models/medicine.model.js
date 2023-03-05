@@ -6,7 +6,6 @@ const medicineSchema = new mongoose.Schema({
     price :String,
     description :String,
     quantity:String,
-    type:String,
     available:{
         type:Boolean,
         default:false
