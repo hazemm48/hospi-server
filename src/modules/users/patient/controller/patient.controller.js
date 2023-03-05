@@ -76,6 +76,41 @@ const getReserve = async (req, res) => {
   }
 };
 
+//reserve lab
+const reserveLab = async (req, res) => {
+  let all = req.body;
+  all.patientId = req.userId;
+  try {
+    const reservedlab = await labModel.insertMany(all);
+    res.json({ message: "reservation success", reservedlab });
+  } catch (error) {
+    res.json({ message: "error", error });
+  }
+};
+
+//getReserve Lab
+
+const getReserveLab = async (req, res) => {
+  let all = req.body;
+  try {
+    if (all.oper == "all") {
+      const allReservedLab = await labModel.find({ patientId: req.userId });
+      res.json({ message: "all reservations", allReservedLab });
+    } else if (all.oper == "one") {
+      const reserved = await labModel
+        .findById(all._id)
+        .populate("patientId");
+      if (reserveLab.patientId._id == req.userId) {
+        res.json({ message: "reservation found", reserved });
+      } else {
+        res.json({ message: "not authorized" });
+      }
+    }
+  } catch (error) {
+    res.json({ message: "error", error });
+  }
+};
+
 const medicReport = async (req, res) => {
   let report = {};
   try {
@@ -162,6 +197,8 @@ export {
   getAllDiseases,
   reserveDoctor,
   getReserve,
+  reserveLab,
+  getReserveLab,
   medicReport,
   buyMedicine,
   getReserveLab,
