@@ -47,12 +47,12 @@ const getAllDiseases = async (req, res) => {
 const reserveDoctor = async (req, res) => {
   let all = req.body;
   all.patientId = req.userId;
-  try {
     const reserve = await reserveModel.insertMany(all);
-    res.json({ message: "reservation success", reserve });
-  } catch (error) {
-    res.json({ message: "error", error });
-  }
+    const user = await userModel.findById(req.userId)
+    user.patientInfo.reservations.push(reserve[0]._id)
+    user.save()
+    res.json({ message: "reservation success", reserve,user });
+ 
 };
 
 const getReserve = async (req, res) => {
@@ -117,10 +117,8 @@ const medicReport = async (req, res) => {
     let patient = await userModel
       .findById(req.userId)
     let diseases= patient.patientInfo.diseases
-    console.log(diseases);
     report.chronic = diseases.chronic;
     report.diseases = diseases.diseases;
-    console.log(report);
     let lastReserve = await reserveModel
       .find({ patientId: req.userId })
       .sort({ createdAt: -1 })
@@ -154,6 +152,13 @@ const buyMedicine = async (req, res) => {
   }
 };
 
+const getMyDoctors = async (req,res)=>{
+  let user = await userModel.findById(req.userId);
+  let doctorsList = user.patientInfo.reservations.map(async(doctor) => {
+    let doctorInfo = await userModel.findById(doctor)
+  })
+  console.log(doctorsList);
+}
 
 export {
   getPatient,
@@ -166,4 +171,5 @@ export {
   getReserveLab,
   medicReport,
   buyMedicine,
+  getMyDoctors
 };

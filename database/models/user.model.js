@@ -12,12 +12,16 @@ const patientSchema = new mongoose.Schema(
       default: false,
     },
     reservations: {
-      type: mongoose.Types.ObjectId,
+      type: [mongoose.Types.ObjectId],
       ref: "Reservation",
     },
     medicines:{
       type: [mongoose.Types.ObjectId],
       ref: "Pharma",
+    },
+    myDoctors:{
+      type: [mongoose.Types.ObjectId],
+      ref: "User",
     }
   },
   {
