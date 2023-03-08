@@ -154,10 +154,11 @@ const buyMedicine = async (req, res) => {
 
 const getMyDoctors = async (req,res)=>{
   let user = await userModel.findById(req.userId);
-  let doctorsList = user.patientInfo.reservations.map(async(doctor) => {
+  let doctorsList = user.patientInfo.myDoctors.map(async(doctor) => {
     let doctorInfo = await userModel.findById(doctor)
+    return doctorInfo 
   })
-  console.log(doctorsList);
+  res.json({message: "done",doctorsList})
 }
 
 export {

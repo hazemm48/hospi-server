@@ -4,6 +4,7 @@ import * as userController from './users/controller/user.controller.js'
 import patientRoutes from './users/patient/patient.routes.js'
 import pharmacyRoutes from './pharmacy/pharmacy.routes.js'
 import doctorRoutes from './users/doctor/doctor.routes.js'
+import examin from './examinations/examinations.routes.js'
 import adminRoutes from './users/admin/admin.routes.js'
 import labRoutes from './lab/lab.routes.js'
 import roomRoutes from './room/room.routes.js'
@@ -18,6 +19,7 @@ router.use('/doctor',auth,doctorRoutes)
 router.use('/lab',auth,labRoutes)
 router.use('/room',auth,roomRoutes)
 router.use('/pharmacy',auth,pharmacyRoutes)
+router.use('/examin',auth,examin)
 router.post('/signUp',userController.signUp)
 router.post('/signIn',validation(validSchema.signInSchema),userController.signIn)
 
