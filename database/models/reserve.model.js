@@ -8,6 +8,7 @@ const reserveSchema = new mongoose.Schema({
     time:String,
     phone:String,
     name:String,
+    anotherPerson:Boolean,
     patientId:{
         type: mongoose.Types.ObjectId,
         ref: "User",

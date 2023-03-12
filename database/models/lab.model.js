@@ -5,6 +5,8 @@ name:String,
 price:String,
 category:String,
 date:Date,
+anotherPerson:Boolean,
+phone:String,
 patientId :{
     type : mongoose.Types.ObjectId,
     ref:"User"
@@ -13,6 +15,6 @@ patientId :{
 )
 
 
-const labModel = mongoose.model('lab',labSchema)
+const labModel = mongoose.model('Lab',labSchema)
 
 export default labModel;

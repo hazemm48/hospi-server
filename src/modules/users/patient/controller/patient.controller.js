@@ -52,7 +52,6 @@ const reserveDoctor = async (req, res) => {
     user.patientInfo.reservations.push(reserve[0]._id)
     user.save()
     res.json({ message: "reservation success", reserve,user });
- 
 };
 
 const getReserve = async (req, res) => {

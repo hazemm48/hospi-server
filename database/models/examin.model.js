@@ -5,6 +5,8 @@ name:String,
 price:String,
 category:String,
 date:Date,
+anotherPerson:Boolean,
+phone:String,
 patientId :{
     type : mongoose.Types.ObjectId,
     ref:"User"

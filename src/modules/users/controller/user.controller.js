@@ -72,7 +72,24 @@ const signIn = async (req, res) => {
     }
   };
 
-
+  const changePass = async (req, res) => {
+    let { oldPass, newPass } = req.body;
+    let check = await userModel.findById(req.userId);
+    if (check) {
+      let matched = bcrypt.compareSync(oldPass, check.password[0]);
+      if (matched) {
+        let newPassword = bcrypt.hashSync(newPass, Number(process.env.ROUNDS));
+        check.password[0] = newPassword;
+        check.password[1] = newPass;
+        check.save();
+        res.json({ message: "password changed" });
+      } else {
+        res.json({ message: "wrong old password" });
+      }
+    } else {
+      res.json({ message: "wrong user" });
+    }
+  };
 
 
 export {

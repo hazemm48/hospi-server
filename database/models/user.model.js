@@ -22,6 +22,14 @@ const patientSchema = new mongoose.Schema(
     myDoctors:{
       type: [mongoose.Types.ObjectId],
       ref: "User",
+    },
+    labs:{
+      type: [mongoose.Types.ObjectId],
+      ref: "Lab",
+    },
+    examins:{
+      type: [mongoose.Types.ObjectId],
+      ref: "Lab",
     }
   },
   {

@@ -4,10 +4,8 @@ const router = express.Router();
 
 router.post("/addexamin",examinController.addExamin)
 router.get("/getexamin",examinController.getExamin)
-router.put("updateexamin",examinController.updateExamin)
-router.delete("deleteexamin",examinController.deleteExamin)
-
-
+router.put("/updateexamin",examinController.updateExamin)
+router.delete("/deleteexamin",examinController.deleteExamin)
 
 
 export default router;
