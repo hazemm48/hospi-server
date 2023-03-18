@@ -1,4 +1,4 @@
-import express from 'express';
+/* import express from 'express';
 import * as examinController from './controller/examinations.controller.js';
 const router = express.Router();
 
@@ -8,4 +8,4 @@ router.put("/updateexamin",examinController.updateExamin)
 router.delete("/deleteexamin",examinController.deleteExamin)
 
 
-export default router;
+export default router; */

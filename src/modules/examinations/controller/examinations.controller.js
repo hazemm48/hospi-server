@@ -1,4 +1,4 @@
-import examinModel from "../../../../database/models/examin.model.js";
+/* import examinModel from "../../../../database/models/examin.model.js";
 import userModel from "../../../../database/models/user.model.js";
 
 const addExamin = async (req, res) => {
@@ -58,3 +58,4 @@ const deleteExamin = async (req, res) => {
 };
 
 export { addExamin, getExamin, updateExamin, deleteExamin };
+ */

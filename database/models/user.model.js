@@ -1,41 +1,5 @@
 import mongoose from "mongoose"
-
-const patientSchema = new mongoose.Schema(
-  {
-    age: Number,
-    address: String,
-    city: String,
-    gender: String,
-    diseases: { chronic: [String], diseases: [String] },
-    confirmedEmail: {
-      type: Boolean,
-      default: false,
-    },
-    reservations: {
-      type: [mongoose.Types.ObjectId],
-      ref: "Reservation",
-    },
-    medicines:{
-      type: [mongoose.Types.ObjectId],
-      ref: "Pharma",
-    },
-    myDoctors:{
-      type: [mongoose.Types.ObjectId],
-      ref: "User",
-    },
-    labs:{
-      type: [mongoose.Types.ObjectId],
-      ref: "Lab",
-    },
-    examins:{
-      type: [mongoose.Types.ObjectId],
-      ref: "Lab",
-    }
-  },
-  {
-    _id:false
-  }
-);
+import { patientSchema } from "./patient.model.js"
 
 const doctorSchema = new mongoose.Schema({
   age:Number,
@@ -44,9 +8,33 @@ const doctorSchema = new mongoose.Schema({
   specaility:String,
   bio:String,
   fees:Number,
-  available:Boolean,
-  room:Number,
-  appointment:[String],
+  schedule:[{
+    day:String,
+    time:String,
+    patients:[{
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+    }],
+    limit:Number
+  }],
+  available:{
+    type:Boolean,
+    default:true
+  },
+  room:{
+    type: mongoose.Types.ObjectId,
+    ref: "Room",
+  },
+  appointment:[{
+    patID:{
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+    },
+    reserveID:{
+      type: mongoose.Types.ObjectId,
+      ref: "Reservation",
+    }
+  }],
 },{
   _id:false
 })
@@ -58,7 +46,16 @@ const userSchema = new mongoose.Schema({
   role:String,
   patientInfo:patientSchema,
   doctorInfo:doctorSchema,
-  phone:String
+  phone:String,
+  resetCode:Number,
+  confirmedEmail: {
+    type: Boolean,
+    default: false,
+  }, 
+  isLoggedIn: {
+    type: Boolean,
+    default: false,
+  },
 },{
   timestamps:true
 })
