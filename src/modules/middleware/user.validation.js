@@ -23,7 +23,6 @@ const signUpSchema = {
         .length(11)
         .pattern(/^[0-9]+$/),
       role:joi.string(),
-      diseases:joi.object()
     }),
     
 };

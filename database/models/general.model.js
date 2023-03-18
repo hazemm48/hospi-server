@@ -1,10 +1,17 @@
 import mongoose from "mongoose"
 
 const generalSchema = new mongoose.Schema({
-    specialties:[String],
-    rooms:[String],
+    docSpecialties:[String],
     aid:[String],
-    medicine:[String]
+    medicine:[String],
+    lab:[{
+        name:String,
+        price:Number
+    }],
+    examin:[{
+        name:String,
+        price:Number
+    }]
 },{
     timestamps:true
 })

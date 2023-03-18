@@ -1,27 +1,22 @@
 import mongoose from "mongoose";
 
-const historySchema = new mongoose.Schema({
-    patientId:{
-        type:mongoose.Types.ObjectId,
-        ref:"User"
-    },
-    doctorId:{
-        type:mongoose.Types.ObjectId,
-        ref:"User"
-    },
-    date:Date
-},
-{
-    timestamps:true
-}
-)
-
 const roomSchema = new mongoose.Schema({
-num:Number,
-level:String,
-history:[historySchema]
-}
-)
+  num: Number,
+  level: String,
+  history: [
+    {
+      patientId: {
+        type: mongoose.Types.ObjectId,
+        ref: "User",
+      },
+      doctorId: {
+        type: mongoose.Types.ObjectId,
+        ref: "User",
+      },
+      date: Date,
+    },
+  ],
+});
 
-const roomModel = mongoose.model('room',roomSchema);
+const roomModel = mongoose.model("Room", roomSchema);
 export default roomModel;

@@ -1,25 +1,51 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
-const reserveSchema = new mongoose.Schema({
-    specialty:String,
-    room:String,
-    turnNum:Number,
-    date:Date,
-    time:String,
-    phone:String,
-    name:String,
-    patientId:{
-        type: mongoose.Types.ObjectId,
-        ref: "User",
-      },
-    doctorId:{
-        type: mongoose.Types.ObjectId,
-        ref: "User",
-      }
-},{
-    timestamps:true
+const reportSchema = new mongoose.Schema({
+  prescription:String,
+  note:String,
+  files:[String],
 })
 
-const reserveModel=mongoose.model("Reservation",reserveSchema)
+const reserveSchema = new mongoose.Schema(
+  {
+    patName: String,
+    docName: String,
+    type: {
+      type:String,
+      enum:["doctor","lab","rad"]
+    },
+    name: String,
+    specialty: String,
+    fees:Number,
+    turnNum: Number,
+    date: String,
+    time: String,
+    phone: String,
+    visitType: String,
+    anotherPerson: {
+      type:Boolean,
+      default:false
+    },
+    room: String,
+    report: {
+      prescription:String,
+      note:String,
+      files:[String],
+    },
+    patientId: {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+    },
+    doctorId: {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-export default reserveModel
+const reserveModel = mongoose.model("Reservation", reserveSchema);
+
+export default reserveModel;
