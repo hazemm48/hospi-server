@@ -1,11 +1,5 @@
 import mongoose from "mongoose";
 
-const reportSchema = new mongoose.Schema({
-  prescription:String,
-  note:String,
-  files:[String],
-})
-
 const reserveSchema = new mongoose.Schema(
   {
     patName: String,
@@ -22,6 +16,10 @@ const reserveSchema = new mongoose.Schema(
     time: String,
     phone: String,
     visitType: String,
+    status:{
+      type:Boolean,
+      default:false
+    },
     anotherPerson: {
       type:Boolean,
       default:false

@@ -4,12 +4,10 @@ import reserveModel from "../../../../../database/models/reserve.model.js";
 const getPatient = async (req, res) => {
   const patient = await userModel.findById(req.userId);
   res.json({ message: "patient info", patient });
-  res.json({ message: "error", error });
 };
 
 const updatePatient = async (req, res) => {
   let all = req.body;
-
   const updated = await userModel.findByIdAndUpdate(req.userId, all, {
     new: true,
   });
@@ -41,40 +39,11 @@ const getMedicalRecord = async (req, res) => {
   };
   if (all.oper == "all") {
     res.json({ message: "all medical record", medicRec });
-  } else if (["medicCond", "lab", "rad","surgery","medicine"].includes(all.oper)) {
+  } else if (
+    ["medicCond", "lab", "rad", "surgery", "medicine"].includes(all.oper)
+  ) {
     let reserve = condition(all.oper);
     res.json({ message: `all ${all.oper}s`, reserve });
-  } else {
-    res.json({ message: "invalid input" });
-  }
-};
-
-const reserve = async (req, res) => {
-  let all = req.body;
-  all.patientId = req.userId;
-  let add = await reserveModel.insertMany(all);
-  let patient = await userModel.findByIdAndUpdate(req.userId, {
-    $push: { "patientInfo.reservations": add[0]._id },
-  });
-  res.json({ message: "reserve added", add });
-};
-
-const getReserve = async (req, res) => {
-  let all = req.body;
-  const patient = await userModel.findById(req.userId);
-  const reservations = await reserveModel.find({ patientId: req.userId });
-  let condition = (con) => {
-    return reservations.filter((e) => {
-      if (e.type == con) {
-        return e;
-      }
-    });
-  };
-  if (all.oper == "all") {
-    res.json({ message: "all reservations", reservations });
-  } else if (["doctor", "lab", "rad"].includes(all.oper)) {
-    let reserve = condition(all.oper);
-    res.json({ message: `all ${all.oper} reservations`, reserve });
   } else {
     res.json({ message: "invalid input" });
   }
@@ -111,10 +80,12 @@ const buyMedicine = async (req, res) => {
 };
 
 const addFavDoctors = async (req, res) => {
-  let {_id}=req.body
-  let add = await userModel.findByIdAndUpdate(req.userId, {$push:{"patientInfo.favDoctors":_id}})
-  res.json({ message: "done", add })
-}
+  let { _id } = req.body;
+  let add = await userModel.findByIdAndUpdate(req.userId, {
+    $push: { "patientInfo.favDoctors": _id },
+  });
+  res.json({ message: "done", add });
+};
 
 const getFavDoctors = async (req, res) => {
   let user = await userModel.findById(req.userId);
@@ -123,6 +94,71 @@ const getFavDoctors = async (req, res) => {
     return doctorInfo;
   });
   res.json({ message: "done", doctorsList });
+};
+
+const getReserve = async (req, res) => {
+  let all = req.body;
+  const patient = await userModel.findById(req.userId);
+  const reservations = await reserveModel.find({ patientId: req.userId });
+  let condition = (con) => {
+    return reservations.filter((e) => {
+      if (e.type == con) {
+        return e;
+      }
+    });
+  };
+  if (all.oper == "all") {
+    res.json({ message: "all reservations", reservations });
+  } else if (["doctor", "lab", "rad"].includes(all.oper)) {
+    let reserve = condition(all.oper);
+    res.json({ message: `all ${all.oper} reservations`, reserve });
+  } else {
+    res.json({ message: "invalid input" });
+  }
+};
+
+const reserve = async (req, res) => {
+  let all = req.body;
+  let reserves = await reserveModel.find({
+    patientId: req.userId,
+    type: all.type,
+    status: false,
+  });
+  let resDayLength = reserves.filter((e) => {
+    return e.createdAt.toLocaleDateString() == new Date().toLocaleDateString();
+  });
+  if (reserves.length <= 10) {
+    if (resDayLength.length <= 5) {
+      let x = false;
+      let check = reserves.some((e) => {
+        if (all.doctorId == e.doctorId) {
+          if (e.date == all.date) {
+            return (x = true);
+          } else {
+            return x;
+          }
+        }
+      });
+      if (!check) {
+        all.patientId = req.userId;
+        let add = await reserveModel.insertMany(all);
+        let updatePat = await userModel.findByIdAndUpdate(req.userId, {
+          $push: { "patientInfo.reservations": add[0]._id },
+        });
+        let updateDoc = await userModel.findByIdAndUpdate(all.doctorId, {
+          $push: {
+            "doctorInfo.reservations.appointment": {
+              patID: req.userId,
+              reserveId: add[0]._id,
+            },
+          },
+        });
+        res.json({ message: "booked", add });
+      } else {
+        res.json({ message: "already booked this doctor" });
+      }
+    }
+  }
 };
 
 export {
