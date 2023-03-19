@@ -42,4 +42,7 @@ const addReport = async (req, res) => {
   res.json({ message: "report added", add });
 }
 
+
+
+
 export { getDoctor, updateDoctor, deleteDoctor, addReport };

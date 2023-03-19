@@ -12,13 +12,13 @@ import validation from "./middleware/validation.js";
 
 import * as validSchema from "./middleware/user.validation.js"
 import {auth,adminAuth,emailAuth,verifyCodeAuth} from "./middleware/auth.js";
-import { myMulter } from "../services/multer.js";
+import { HME, myMulter, validationTypes } from "../services/multer.js";
 
 
 router.use('/admin',adminAuth,adminRoutes)
 router.use('/patient',auth,patientRoutes)
 router.use('/doctor',auth,doctorRoutes)
-router.get('/profilepic',myMulter().single("image"),userController.profilePic)
+router.get('/profilepic',myMulter(validationTypes.image,"profile").single("image"),HME,userController.profilePic)
 // router.use('/radiation',radRoutes)
 /* router.use('/lab',auth,labRoutes) */
 router.use('/room',auth,roomRoutes)

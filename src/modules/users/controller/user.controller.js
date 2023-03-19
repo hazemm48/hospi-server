@@ -171,10 +171,15 @@ const changePass = async (req, res) => {
   }
 };
 
-//Profile Picture
+//Profile Picture bs mmkn n5yr mkanha
 const profilePic = (req,res) =>{
   console.log(res.file)
-  res.json({message:"Done"})
+  if(req.imageError){
+    res.json({message:"Invalid Format"})
+  }else{
+    res.json({message:"Done"})
+  }
+  
 };
 
 export {

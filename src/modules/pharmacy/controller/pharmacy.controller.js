@@ -36,7 +36,7 @@ const updateMedicine = async (req, res) => {
     const updated = await medicineModel.findByIdAndUpdate(all._id, all, {
       new: true,
     });
-    res.json({ message: "Updated", updated });
+    res.json({ message: "Medicine Updated", updated });
   } catch (error) {
     res.json({ message: "error", error });
   }
@@ -46,7 +46,7 @@ const deleteMedicine = async (req, res) => {
   try {
     const { _id } = req.body;
     const deleted = await pharmaModel.deleteOne(_id);
-    res.json({ message: "Deleted", deleted });
+    res.json({ message: "Medicine Deleted", deleted });
   } catch (error) {
     res.json({ message: "Not Deleted", error });
   }
