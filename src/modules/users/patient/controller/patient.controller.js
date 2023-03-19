@@ -96,80 +96,14 @@ const getFavDoctors = async (req, res) => {
   res.json({ message: "done", doctorsList });
 };
 
-const getReserve = async (req, res) => {
-  let all = req.body;
-  const patient = await userModel.findById(req.userId);
-  const reservations = await reserveModel.find({ patientId: req.userId });
-  let condition = (con) => {
-    return reservations.filter((e) => {
-      if (e.type == con) {
-        return e;
-      }
-    });
-  };
-  if (all.oper == "all") {
-    res.json({ message: "all reservations", reservations });
-  } else if (["doctor", "lab", "rad"].includes(all.oper)) {
-    let reserve = condition(all.oper);
-    res.json({ message: `all ${all.oper} reservations`, reserve });
-  } else {
-    res.json({ message: "invalid input" });
-  }
-};
-
-const reserve = async (req, res) => {
-  let all = req.body;
-  let reserves = await reserveModel.find({
-    patientId: req.userId,
-    type: all.type,
-    status: false,
-  });
-  let resDayLength = reserves.filter((e) => {
-    return e.createdAt.toLocaleDateString() == new Date().toLocaleDateString();
-  });
-  if (reserves.length <= 10) {
-    if (resDayLength.length <= 5) {
-      let x = false;
-      let check = reserves.some((e) => {
-        if (all.doctorId == e.doctorId) {
-          if (e.date == all.date) {
-            return (x = true);
-          } else {
-            return x;
-          }
-        }
-      });
-      if (!check) {
-        all.patientId = req.userId;
-        let add = await reserveModel.insertMany(all);
-        let updatePat = await userModel.findByIdAndUpdate(req.userId, {
-          $push: { "patientInfo.reservations": add[0]._id },
-        });
-        let updateDoc = await userModel.findByIdAndUpdate(all.doctorId, {
-          $push: {
-            "doctorInfo.reservations.appointment": {
-              patID: req.userId,
-              reserveId: add[0]._id,
-            },
-          },
-        });
-        res.json({ message: "booked", add });
-      } else {
-        res.json({ message: "already booked this doctor" });
-      }
-    }
-  }
-};
 
 export {
   getPatient,
   updatePatient,
-  reserve,
   addMedicalRecord,
   deletePatient,
   getMedicalRecord,
   buyMedicine,
   getFavDoctors,
   addFavDoctors,
-  getReserve,
 };

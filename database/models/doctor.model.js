@@ -10,9 +10,9 @@ export const doctorSchema = new mongoose.Schema({
   schedule:[{
     day:String,
     time:String,
-    patients:[{
+    appointments:[{
       type: mongoose.Types.ObjectId,
-      ref: "User",
+      ref: "Reservation"
     }],
     limit:Number
   }],
@@ -20,20 +20,7 @@ export const doctorSchema = new mongoose.Schema({
     type:Boolean,
     default:true
   },
-  room:{
-    type: mongoose.Types.ObjectId,
-    ref: "Room",
-  },
-  appointment:[{
-    patID:{
-      type: mongoose.Types.ObjectId,
-      ref: "User",
-    },
-    reserveID:{
-      type: mongoose.Types.ObjectId,
-      ref: "Reservation",
-    }
-  }],
+  room:String,
 },{
   _id:false
 })

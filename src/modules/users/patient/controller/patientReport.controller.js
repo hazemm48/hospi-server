@@ -17,7 +17,7 @@ const generatePDF = (data) => {
 };
 
 const qrCode = async (data) => {
-  QRCode.toString(`www.facebook.com`, { type: "terminal" }, function (err, url) {
+  QRCode.toString(`hellooo`, { type: "terminal" }, function (err, url) {
     console.log(url);
   });
 };
@@ -30,12 +30,12 @@ const getReport = async (req, res) => {
 
 const presc = async (req, res) => {
   let { oper, resId } = req.body;
-  //slet reserve = await reserveModel.findById(resId);
+  let reserve = await reserveModel.findById(resId);
   let data = {
-    presc: "reserve.report.prescription",
-    patName: "reserve.patName",
-    docName: "reserve.docName",
-    date: "reserve.date",
+    presc: reserve.report.prescription,
+    patName: reserve.patName,
+    docName: reserve.docName,
+    date: reserve.date,
   };
   if (oper == "pdf") {
     generatePDF(data);
