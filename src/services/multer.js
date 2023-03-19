@@ -23,7 +23,7 @@ export const myMulter = (acceptType,customPath) =>{
   if(!customPath){
     customPath = "general"
   }
-  const fullPath = path.join(_dirname,`../uploads\${customPath}`)
+  const fullPath = path.join(_dirname,`../uploads/${customPath}`)
   if(!fs.existsSync(fullPath)){
     fs.mkdirSync(fullPath,{recursive:true})
   }

@@ -11,7 +11,8 @@ const generalSchema = new mongoose.Schema({
     radiation:[{
         name:String,
         price:Number
-    }]
+    }],
+ 
 },{
     timestamps:true
 })
