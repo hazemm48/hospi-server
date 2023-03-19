@@ -1,3 +1,4 @@
+import reserveModel from "../../../../../database/models/reserve.model.js";
 import userModel from "../../../../../database/models/user.model.js";
 
 const getDoctor = async (req, res) => {
