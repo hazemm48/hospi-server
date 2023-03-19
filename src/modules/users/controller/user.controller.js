@@ -171,6 +171,12 @@ const changePass = async (req, res) => {
   }
 };
 
+//Profile Picture
+const profilePic = (req,res) =>{
+  console.log(res.file)
+  res.json({message:"Done"})
+};
+
 export {
   signUp,
   signIn,
@@ -178,4 +184,6 @@ export {
   forgetPassword,
   verifyResetcode,
   resetPassword,
+  changePass,
+  profilePic
 };

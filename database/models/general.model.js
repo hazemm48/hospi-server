@@ -8,7 +8,7 @@ const generalSchema = new mongoose.Schema({
         name:String,
         price:Number
     }],
-    examin:[{
+    radiation:[{
         name:String,
         price:Number
     }]

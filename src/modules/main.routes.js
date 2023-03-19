@@ -4,18 +4,22 @@ import * as userController from './users/controller/user.controller.js'
 import patientRoutes from './users/patient/patient.routes.js'
 import pharmacyRoutes from './pharmacy/pharmacy.routes.js'
 import doctorRoutes from './users/doctor/doctor.routes.js'
-/* import examin from './examinations/examinations.routes.js'
- */import adminRoutes from './users/admin/admin.routes.js'
+import adminRoutes from './users/admin/admin.routes.js'
+// import radRoutes from './radiation/radiation.routes.js'
 /* import labRoutes from './lab/lab.routes.js'
  */import roomRoutes from './room/room.routes.js'
 import validation from "./middleware/validation.js";
+
 import * as validSchema from "./middleware/user.validation.js"
 import {auth,adminAuth,emailAuth,verifyCodeAuth} from "./middleware/auth.js";
+import { myMulter } from "../services/multer.js";
 
 
 router.use('/admin',adminAuth,adminRoutes)
 router.use('/patient',auth,patientRoutes)
 router.use('/doctor',auth,doctorRoutes)
+router.get('/profilepic',myMulter().single("image"),userController.profilePic)
+// router.use('/radiation',radRoutes)
 /* router.use('/lab',auth,labRoutes) */
 router.use('/room',auth,roomRoutes)
 router.use('/pharmacy',auth,pharmacyRoutes)
