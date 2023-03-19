@@ -9,7 +9,10 @@ export const doctorSchema = new mongoose.Schema({
   fees:Number,
   schedule:[{
     day:String,
-    time:String,
+    time:{
+      from:String,
+      to:String
+    },
     appointments:[{
       type: mongoose.Types.ObjectId,
       ref: "Reservation"
