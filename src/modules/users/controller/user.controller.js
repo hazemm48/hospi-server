@@ -2,6 +2,7 @@ import userModel from "../../../../database/models/user.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendMAil } from "../../../services/sendMail.js";
+import cloudinary from "../../../services/cloudinary.js";
 
 const signUp = async (req, res) => {
   let all = req.body;
@@ -172,14 +173,13 @@ const changePass = async (req, res) => {
 };
 
 //Profile Picture bs mmkn n5yr mkanha
-const profilePic = (req,res) =>{
+const profilePic = async(req,res) =>{
+  let {image} = req.body
   console.log(res.file)
-  if(req.imageError){
-    res.json({message:"Invalid Format"})
-  }else{
-    res.json({message:"Done"})
-  }
-  
+  let x =await cloudinary.uploader.upload(req.file.path,{
+    folder:"User"
+  })
+  res.json({message:"Done"})
 };
 
 export {

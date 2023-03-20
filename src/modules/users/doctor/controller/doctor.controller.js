@@ -65,4 +65,5 @@ const getSchedule = async (req, res) => {
 
 
 
+
 export { getDoctor, updateDoctor, deleteDoctor, addReport,getSchedule };
