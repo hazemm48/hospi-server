@@ -29,6 +29,7 @@ const reserveSchema = new mongoose.Schema(
       prescription:String,
       note:String,
       files:[String],
+      link:String
     },
     patientId: {
       type: mongoose.Types.ObjectId,

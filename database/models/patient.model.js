@@ -20,10 +20,9 @@ const patientMedicalRecord = new mongoose.Schema({
 
 export const patientSchema = new mongoose.Schema(
   {
-    age: Number,
+    birthDate:String,
     address: String,
     city: String,
-    gender: String,
     reservations: [{
       type: mongoose.Types.ObjectId,
       ref: "Reservation",

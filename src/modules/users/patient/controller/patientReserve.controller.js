@@ -37,10 +37,13 @@ const reserve = async (req, res) => {
         $push: { "patientInfo.reservations": add[0]._id },
       });
       if (all.type == "doctor") {
-        doctor.doctorInfo.schedule[scheduleDayIndex].appointments.push(
-          add[0]._id
-        );
+        let appointments =
+          doctor.doctorInfo.schedule[scheduleDayIndex].appointments;
+        appointments.push(add[0]._id);
         doctor.save();
+        let turnNumber = appointments.indexOf(add[0]._id);
+        add[0].turnNum = turnNumber + 1;
+        add[0].save();
       }
       res.json({ message: `${all.type} Booked`, add });
     } else {
@@ -158,37 +161,48 @@ const cancelReserve = async (req, res) => {
   let { resId } = req.body;
   let reserve = await reserveModel.findById(resId);
   if (reserve) {
-    if (reserve.type == "doctor") {
-      let resDate = moment(
-        reserve.date + " " + reserve.time,
-        "DD/MM/YYYY HH:mm"
-      );
-      let date = moment();
-      if (resDate.diff(date, "minutes") > 120) {
+    if (reserve.status == false) {
+      if (reserve.type == "doctor") {
+        let resDate = moment(
+          reserve.date + " " + reserve.time,
+          "DD/MM/YYYY HH:mm"
+        );
+        let date = moment();
+        if (resDate.diff(date, "minutes") > 120) {
+          let patient = await userModel.findByIdAndUpdate(
+            req.userId,
+            { $pull: { "patientInfo.reservations": resId } },
+            { new: true }
+          );
+          let doctor = await userModel.findById(reserve.doctorId);
+          let scheduleDayIndex = doctor.doctorInfo.schedule.findIndex(
+            (e) => e.day == reserve.date
+          );
+          let appointments =
+            doctor.doctorInfo.schedule[scheduleDayIndex].appointments;
+          appointments.pull(resId);
+          doctor.save();
+          await reserveModel.deleteOne({ _id: resId });
+          let turnUpdate = appointments.map(async (e, index) => {
+            let reserveUpdate = await reserveModel.findById(e);
+            reserveUpdate.turnNum = index + 1;
+            await reserveUpdate.save();
+          });
+          res.json({ message: "reservation cancelled", patient });
+        } else {
+          res.json({ message: "can't cancel reservation" });
+        }
+      } else {
         let patient = await userModel.findByIdAndUpdate(
           req.userId,
           { $pull: { "patientInfo.reservations": resId } },
           { new: true }
         );
-        let doctor = await userModel.findById(reserve.doctorId);
-        let scheduleDayIndex = doctor.doctorInfo.schedule.findIndex(
-          (e) => e.day == reserve.date
-        );
-        doctor.doctorInfo.schedule[scheduleDayIndex].appointments.pop(resId);
-        doctor.save();
         await reserveModel.deleteOne({ _id: resId });
         res.json({ message: "reservation cancelled", patient });
-      } else {
-        res.json({ message: "can't cancel reservation" });
       }
     } else {
-      let patient = await userModel.findByIdAndUpdate(
-        req.userId,
-        { $pull: { "patientInfo.reservations": resId } },
-        { new: true }
-      );
-      await reserveModel.deleteOne({ _id: resId });
-      res.json({ message: "reservation cancelled", patient });
+      res.json({ message: "reservation status is done" });
     }
   } else {
     res.json({ message: "reservation already cancelled" });

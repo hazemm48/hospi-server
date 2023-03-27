@@ -24,7 +24,7 @@ const auth = (req, res, next) => {
 
 const adminAuth = (req, res, next) => {
   let auth = req.headers["authorization"];
-  if (!auth || (auth && auth.startsWith("Bearer") == false)) {
+  if (!auth || (auth && auth.startsWith("SIM") == false)) {
     res.json({ message: "invalid token syntax" });
   } else {
     let token = auth.split(" ")[1];
