@@ -46,3 +46,5 @@ export const patientSchema = new mongoose.Schema(
   }
 );
 
+// export default patientSchema;
+

@@ -38,11 +38,19 @@ const deleteDoctor = async (req, res) => {
 };
 
 const addReport = async (req, res) => {
+ try {
   let all = req.body;
   let add = await reserveModel.findByIdAndUpdate(all.resId,{report:all},{new:true})
   res.json({ message: "report added", add });
+ } catch (error) {
+  res.json({ message: "Error", error });
+ }
 }
 
 
 
+
+
+
 export { getDoctor, updateDoctor, deleteDoctor, addReport };
+
