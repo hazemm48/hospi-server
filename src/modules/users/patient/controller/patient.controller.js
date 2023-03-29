@@ -1,34 +1,35 @@
 import userModel from "../../../../../database/models/user.model.js";
 import reserveModel from "../../../../../database/models/reserve.model.js";
+import { asyncHandler } from "../../../../services/asyncHandler.js";
 
-const getPatient = async (req, res) => {
+const getPatient = asyncHandler( async (req, res) => {
   const patient = await userModel.findById(req.userId);
   res.json({ message: "patient info", patient });
-};
+});
 
-const updatePatient = async (req, res) => {
+const updatePatient =asyncHandler( async (req, res) => {
   let all = req.body;
   const updated = await userModel.findByIdAndUpdate(req.userId, all, {
     new: true,
   });
   res.json({ message: "patient updated", updated });
-};
+});
 
-const deletePatient = async (req, res) => {
+const deletePatient =asyncHandler( async (req, res) => {
   const deleted = await userModel.deleteOne(req.userId);
   const reserveDelete = await reserveModel.deleteMany({ patientId: _id });
   res.json({ message: "delete patient", deleted, reserveDelete });
-};
+});
 
-const addMedicalRecord = async (req, res) => {
+const addMedicalRecord =asyncHandler( async (req, res) => {
   let all = req.body;
   let patient = await userModel.findById(req.userId);
   let add = patient.patientInfo.medicalRecord.push(all);
   patient.save();
   res.json({ message: "medical Record added", add });
-};
+});
 
-const getMedicalRecord = async (req, res) => {
+const getMedicalRecord =asyncHandler( async (req, res) => {
   let all = req.body;
   const patient = await userModel.findById(req.userId);
   const medicRec = patient.patientInfo.medicalRecord;
@@ -47,7 +48,7 @@ const getMedicalRecord = async (req, res) => {
   } else {
     res.json({ message: "invalid input" });
   }
-};
+});
 
 /*const medicReport = async (req, res) => {
   let report = {};
@@ -71,30 +72,32 @@ const getMedicalRecord = async (req, res) => {
   res.json({ message: "report", report });
 }; */
 
-const buyMedicine = async (req, res) => {
+const buyMedicine =asyncHandler( async (req, res) => {
   let all = req.body;
   let addMed = await userModel.findByIdAndUpdate(req.userId, {
     $push: { "patientInfo.pharmMedicines": all.medicine },
   });
   res.json({ message: "medicine added", addMed });
-};
+});
 
-const addFavDoctors = async (req, res) => {
+
+const addFavDoctors =asyncHandler( async (req, res) => {
   let { _id } = req.body;
   let add = await userModel.findByIdAndUpdate(req.userId, {
     $push: { "patientInfo.favDoctors": _id },
   });
   res.json({ message: "done", add });
-};
+});
 
-const getFavDoctors = async (req, res) => {
+
+const getFavDoctors =asyncHandler( async (req, res) => {
   let user = await userModel.findById(req.userId);
   let doctorsList = user.patientInfo.favDoctors.map(async (doctor) => {
     let doctorInfo = await userModel.findById(doctor);
     return doctorInfo;
   });
   res.json({ message: "done", doctorsList });
-};
+});
 
 
 export {

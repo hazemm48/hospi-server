@@ -1,8 +1,9 @@
 import userModel from "../../../../../database/models/user.model.js";
 import reserveModel from "../../../../../database/models/reserve.model.js";
 import moment from "moment";
+import { asyncHandler } from "../../../../services/asyncHandler.js";
 
-const reserve = async (req, res) => {
+const reserve =asyncHandler( async (req, res) => {
   let all = req.body;
   let [apLength, resPerDay, allRes] = [4, 6, 10];
   let reserves = await reserveModel.find({
@@ -113,9 +114,9 @@ const reserve = async (req, res) => {
   } else {
     res.json({ message: "exceeded number of reservations" });
   }
-};
+});
 
-const getReserve = async (req, res) => {
+const getReserve =asyncHandler( async (req, res) => {
   let all = req.body;
   const patient = await userModel.findById(req.userId);
   const reservations = await reserveModel.find({ patientId: req.userId });
@@ -155,9 +156,9 @@ const getReserve = async (req, res) => {
   } else {
     res.json({ message: "invalid input" });
   }
-};
+});
 
-const cancelReserve = async (req, res) => {
+const cancelReserve =asyncHandler( async (req, res) => {
   let { resId } = req.body;
   let reserve = await reserveModel.findById(resId);
   if (reserve) {
@@ -207,6 +208,6 @@ const cancelReserve = async (req, res) => {
   } else {
     res.json({ message: "reservation already cancelled" });
   }
-};
+});
 
 export { reserve, getReserve, cancelReserve };

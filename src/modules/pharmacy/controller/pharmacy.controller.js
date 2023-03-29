@@ -1,8 +1,9 @@
 import medicineModel from "../../../../database/models/medicine.model.js";
+import { asyncHandler } from "../../../services/asyncHandler.js";
 
-const addMedicine = async (req, res) => {
+const addMedicine =asyncHandler( async (req, res) => {
   let all = req.body;
-  try {
+ 
     const check = await medicineModel.findOne({ name: all.name });
     if (check) {
       res.json({ message: "Medicine already added" });
@@ -10,14 +11,12 @@ const addMedicine = async (req, res) => {
       const added = await medicineModel.insertMany(all);
       res.json({ message: "Added new medicine", added });
     }
-  } catch (error) {
-    res.json({ message: "error", error });
-  }
-};
 
-const getMedicine = async (req, res) => {
+});
+
+const getMedicine =asyncHandler( async (req, res) => {
   all = req.body;
-  try {
+ 
     if (all.oper == "all") {
       const allMed = await medicineModel.find();
       res.json({ message: "all Medicines", allMed });
@@ -25,31 +24,25 @@ const getMedicine = async (req, res) => {
       const medicine = await medicineModel.find(all);
       res.json({ message: "all medicine", medicine });
     }
-  } catch (error) {
-    res.json({ message: "error", error });
-  }
-};
 
-const updateMedicine = async (req, res) => {
+});
+
+const updateMedicine =asyncHandler( async (req, res) => {
   let all = req.body;
-  try {
+
     const updated = await medicineModel.findByIdAndUpdate(all._id, all, {
       new: true,
     });
     res.json({ message: "Updated", updated });
-  } catch (error) {
-    res.json({ message: "error", error });
-  }
-};
 
-const deleteMedicine = async (req, res) => {
-  try {
+});
+
+const deleteMedicine =asyncHandler( async (req, res) => {
+ 
     const { _id } = req.body;
     const deleted = await pharmaModel.deleteOne(_id);
     res.json({ message: "Deleted", deleted });
-  } catch (error) {
-    res.json({ message: "Not Deleted", error });
-  }
-};
+
+});
 
 export { deleteMedicine, addMedicine, getMedicine, updateMedicine };

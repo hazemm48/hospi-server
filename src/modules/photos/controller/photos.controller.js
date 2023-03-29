@@ -1,7 +1,8 @@
 import photoModel from "../../../../database/models/photos.model.js";
+import { asyncHandler } from "../../../services/asyncHandler.js";
 import cloudinary from "../../../utils/cloudinary.js";
 
-export const addPhoto = async (req, res, next) => {
+export const addPhoto =asyncHandler( async (req, res, next) => {
   console.log(req.file);
 
   if (!req.file) {
@@ -11,4 +12,4 @@ export const addPhoto = async (req, res, next) => {
    let { createdBy } = req.body;
   await photoModel.insertMany({ path: secure_url, createdBy });
   res.json({ message: "done" });
-};
+});

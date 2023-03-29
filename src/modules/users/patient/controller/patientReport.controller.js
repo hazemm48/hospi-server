@@ -1,9 +1,10 @@
 import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
 import reserveModel from "../../../../../database/models/reserve.model.js";
+import { asyncHandler } from "../../../../services/asyncHandler.js";
 import cloudinary from "../../../../utils/cloudinary.js";
 
-const generatePDF = async (data) => {
+const generatePDF =asyncHandler( async (data) => {
   var pdf = new jsPDF({
     orientation: "p",
     unit: "mm",
@@ -15,9 +16,9 @@ const generatePDF = async (data) => {
   pdf.text(`Date: ${data.date}`, 20, 40);
   pdf.text(`${data.presc}`, 20, 50);
   pdf.save(`./src/reportPDF/${data.resId}.pdf`);
-};
+});
 
-const qrCode = async (data) => {
+const qrCode =asyncHandler( async (data) => {
   let path = `./src/reportPDF/${data.resId}.pdf`;
   let reserve = await reserveModel.findById(data.resId);
   let pdfLink = reserve.report.link;
@@ -39,15 +40,15 @@ const qrCode = async (data) => {
     });
     return qr;
   }
-};
+});
 
-const getReport = async (req, res) => {
+const getReport =asyncHandler( async (req, res) => {
   let resId = req.body;
   let report = await reserveModel.findById(resId).select("report -_id");
   res.json({ message: "done", report });
-};
+});
 
-const presc = async (req, res) => {
+const presc =asyncHandler( async (req, res) => {
   let { oper, resId } = req.body;
   let reserve = await reserveModel.findById(resId);
   let data = {
@@ -64,6 +65,6 @@ const presc = async (req, res) => {
     let qr = await qrCode(data);
     res.json({ message: "qrcode generated", qr });
   }
-};
+});
 
 export { presc, getReport };

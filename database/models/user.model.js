@@ -6,7 +6,10 @@ const userSchema = new mongoose.Schema({
   name:String,
   email:String,
   password:[String],
-  role:String,
+  role:{
+    type:String,
+    enum:['patient','doctor','admin']
+  },
   birthDate:String,
   patientInfo:patientSchema,
   doctorInfo:doctorSchema,
