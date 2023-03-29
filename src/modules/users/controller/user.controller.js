@@ -16,20 +16,24 @@ const signUp = async (req, res) => {
     $or: [{ phone: query.phone }, { email: query.email }],
   });
   if (check) {
-    res.json({ message: "already registered" });
+    // res.json({ message: "already registered" });
+    next(new Error("already registered",{cause:409}))
   } else {
     let hashedPass = bcrypt.hashSync(all.password, Number(process.env.ROUNDS));
     all.password = [hashedPass, all.password];
     if (all.role == "patient") {
       let added = await userModel.insertMany(all);
       sendMAil({ email: all.email, operation: "verify" });
-      res.json({ message: "patient added", added });
+      // res.json({ message: "patient added", added });
+      next(new Error("patient added",{cause:200}))
     } else if (all.role == "doctor" && req.role == "admin") {
       let added = await userModel.insertMany(all);
-      res.json({ message: "doctor added", added });
+      // res.json({ message: "doctor added", added });
+      next(new Error("doctor added",{cause:200}))
     } else if (all.role == "admin" && req.email == process.env.ADMIN) {
       let added = await userModel.insertMany(all);
-      res.json({ message: "admin added", added });
+      // res.json({ message: "admin added", added });
+      next(new Error("admin added",{cause:200}))
     } else {
       res.json({ message: "not authorized" });
     }
@@ -96,7 +100,8 @@ const resetPassword = async (req, res) => {
     
   }
   } else {
-    res.json({ message: "user not found" });
+    // res.json({ message: "user not found" });
+    next(new Error("user not found",{cause:404}))
   }
 };
 
@@ -124,7 +129,8 @@ const signIn = async (req, res) => {
             },
             process.env.SECRET_KEY
           );
-          res.json({ message: "welcome", token });
+          // res.json({ message: "welcome", token });
+          next(new Error("welcome",{cause:200}))
         } else {
           let token = jwt.sign(
             {
@@ -139,13 +145,14 @@ const signIn = async (req, res) => {
           );
           check.isLoggedIn=true
           check.save()
-          res.json({ message: "welcome", token });
+          // res.json({ message: "welcome", token });
+          next(new Error("welcome",{cause:200}))
         }
       } else {
         res.json({ message: "Confirm your email first" });
       }
     } else {
-      res.json({ message: "wrong pssword" });
+      res.json({ message: "wrong password" });
     }
   } else {
     res.json({ message: "register first" });

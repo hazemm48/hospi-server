@@ -7,6 +7,7 @@ dotenv.config()
 const app = express()
 import { connection } from "./database/connection.js"
 import mainRoutes from './src/modules/main.routes.js'
+import { globalError } from "./src/services/asyncHandler.js"
 
 
 const server = http.createServer(app);
@@ -14,7 +15,7 @@ const server = http.createServer(app);
 
 
 
-
+app.use(globalError)
 app.use(cors());
 app.use(express.json())
 app.use('/uploads',express.static("uploads"));
