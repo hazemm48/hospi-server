@@ -1,12 +1,19 @@
 import  express  from "express"
 import * as dotenv from "dotenv"
-import server from 'http'
-import io from 'socket.io'
+import http from 'http'
+// import io from 'socket.io'
 import cors from 'cors'
 dotenv.config()
 const app = express()
 import { connection } from "./database/connection.js"
 import mainRoutes from './src/modules/main.routes.js'
+
+
+const server = http.createServer(app);
+
+
+
+
 
 app.use(cors());
 app.use(express.json())
