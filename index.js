@@ -8,13 +8,14 @@ const app = express()
 import { connection } from "./database/connection.js"
 import mainRoutes from './src/modules/main.routes.js'
 import { globalError } from "./src/services/asyncHandler.js"
+import morgan from 'morgan'
 
 
 const server = http.createServer(app);
 
 
 
-
+app.use(morgan("combined"))
 app.use(globalError)
 app.use(cors());
 app.use(express.json())
