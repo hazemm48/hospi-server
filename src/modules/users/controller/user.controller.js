@@ -178,4 +178,5 @@ export {
   forgetPassword,
   verifyResetcode,
   resetPassword,
+  changePass
 };

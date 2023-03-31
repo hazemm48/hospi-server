@@ -1,49 +1,33 @@
 import userModel from "../../../../../database/models/user.model.js";
 import bcrypt from "bcrypt";
-import  jwt  from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import generalModel from "../../../../../database/models/general.model.js";
 import reserveModel from "../../../../../database/models/reserve.model.js";
+import moment from "moment";
 
 const getAllUsers = async (req, res) => {
-  let { role } = req.body;
+  let { role, id, sort } = req.body;
   if (role) {
-    const users = await userModel.find({ role });
-    res.json({ messgae: `all ${role}s`, length: users.length, users });
-  } else if(req.userId){
-    const users = await userModel.findById(req.userId);
-    res.json({ messgae: "user", length: users.length, users });
-  }else{
-    const users = await userModel.find();
-    res.json({ messgae: "all users", length: users.length, users });
-  }
-};
-
-const addUser = async (req, res) => {
-  let all = req.body;
-  try {
-    let add = async (check) => {
-      if (check) {
-        res.json({ message: "already registered" });
-      } else {
-        let hashedPass = bcrypt.hashSync(
-          all.password,
-          Number(process.env.ROUNDS)
-        );
-        all.password = [hashedPass, all.password];
-        let added = await userModel.insertMany(all);
-        all.main = added[0]._id.toHexString();
-        res.json({ message: "user added", added });
-      }
-    };
-    if (all.phone) {
-      let check = await userModel.findOne({ phone: all.phone });
-      add(check);
-    } else if (all.email) {
-      let check = await userModel.findOne({ email: all.email });
-      add(check);
+    if (role == "patient" || role == "doctor") {
+      const users = await userModel
+        .find({ role })
+        .collation({ locale: "en" })
+        .sort(sort);
+      res.json({ messgae: `all ${role}s`, users });
+    } else if (role == "admin" && req.userId) {
+      const users = await userModel.findById(req.userId);
+      res.json({ messgae: "Admin", users });
+    } else if (role == "all") {
+      const users = await userModel.find();
+      res.json({ messgae: "all users", users });
+    } else {
+      res.json({ messgae: "invalid input" });
     }
-  } catch (error) {
-    res.json({ message: "error", error });
+  } else if (id) {
+    const users = await userModel.findById(id);
+    res.json({ messgae: "user found", users });
+  } else {
+    res.json({ messgae: "invalid input" });
   }
 };
 
@@ -83,7 +67,7 @@ const deleteUser = async (req, res) => {
 
 const signIn = async (req, res) => {
   let { email, password } = req.body;
-  let check = await userModel.findOne({email});
+  let check = await userModel.findOne({ email });
   if (check) {
     if (check.role == "admin") {
       let matched = bcrypt.compareSync(password, check.password[0]);
@@ -93,7 +77,7 @@ const signIn = async (req, res) => {
             userId: check._id,
             name: check.name,
             email: email,
-            role:check.role,
+            role: check.role,
             isLoggedIn: true,
           },
           process.env.SECRET_KEY
@@ -108,4 +92,16 @@ const signIn = async (req, res) => {
   }
 };
 
-export { getAllUsers, addUser, addGeneral, deleteUser, signIn };
+const updateUser = async (req, res) => {
+  let all = req.body;
+  const updated = await userModel.findByIdAndUpdate(all.id, all.details, {
+    new: true,
+  });
+  if (updated) {
+    res.json({ message: "update success", updated });
+  } else {
+    res.json({ message: "update failed" });
+  }
+};
+
+export { getAllUsers, addGeneral, deleteUser, signIn, updateUser };

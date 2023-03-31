@@ -2,7 +2,9 @@ import mongoose from "mongoose";
 
 export const doctorSchema = new mongoose.Schema({
   age:Number,
-  specaility:String,
+  speciality:String,
+  birthDate:Date,
+  city:String,
   bio:String,
   fees:Number,
   schedule:[{

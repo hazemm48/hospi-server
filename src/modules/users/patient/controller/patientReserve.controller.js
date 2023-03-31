@@ -6,7 +6,7 @@ const reserve = async (req, res) => {
   let all = req.body;
   let [apLength, resPerDay, allRes] = [4, 6, 10];
   let reserves = await reserveModel.find({
-    patientId: req.userId,
+    patientId: req.role == "patient" ? req.userId : all.id,
     type: all.type,
     status: false,
   });
@@ -31,7 +31,7 @@ const reserve = async (req, res) => {
 
   let addRes = async (check) => {
     if (!check) {
-      all.patientId = req.userId;
+      all.patientId = req.role == "patient" ? req.userId : all.id;
       let add = await reserveModel.insertMany(all);
       let updatePat = await userModel.findByIdAndUpdate(req.userId, {
         $push: { "patientInfo.reservations": add[0]._id },
@@ -116,44 +116,15 @@ const reserve = async (req, res) => {
 };
 
 const getReserve = async (req, res) => {
-  let all = req.body;
-  const patient = await userModel.findById(req.userId);
-  const reservations = await reserveModel.find({ patientId: req.userId });
-  if (all.oper == "all") {
-    if (all.status == false) {
-      const comingRes = reservations.filter((e) => {
-        return e.status == false;
-      });
-      res.json({ message: "all upcoming reservations", comingRes });
-    } else if (all.status == true) {
-      const historyRes = reservations.filter((e) => {
-        return e.status == true;
-      });
-      res.json({ message: "all history reservations", historyRes });
-    } else {
-      res.json({ message: "all reservations", reservations });
-    }
-  } else if (["doctor", "lab", "rad"].includes(all.oper)) {
-    let reserves = reservations.filter((e) => {
-      if (e.type == all.oper) {
-        return e;
-      }
-    });
-    if (all.status == true) {
-      const historyRes = reserves.filter((e) => {
-        return e.status == true;
-      });
-      res.json({ message: "all history reservations", historyRes });
-    } else if (all.status == false) {
-      const comingRes = reservations.filter((e) => {
-        return e.status == false;
-      });
-      res.json({ message: "all upcoming reservations", comingRes });
-    } else {
-      res.json({ message: `all ${all.oper} reservations`, reserves });
-    }
+  let { filter } = req.body;
+  if (req.role == "patient") {
+    !filter.patientId ? (filter.patientId = req.userId) : {};
+  }
+  const reservations = await reserveModel.find(filter);
+  if (reservations) {
+    res.json({ message: "all reservations", reservations });
   } else {
-    res.json({ message: "invalid input" });
+    res.json({ message: "not found" });
   }
 };
 
@@ -209,4 +180,15 @@ const cancelReserve = async (req, res) => {
   }
 };
 
-export { reserve, getReserve, cancelReserve };
+const adminRes = (req, res) => {
+  let params = req.params;
+  if (params.oper == "reserve") {
+    reserve(req, res);
+  } else if (params.oper == "get") {
+    getReserve(req, res);
+  } else if (params.oper == "cancel") {
+    cancelReserve(req, res);
+  }
+};
+
+export { reserve, getReserve, cancelReserve, adminRes };

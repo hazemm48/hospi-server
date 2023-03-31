@@ -14,13 +14,11 @@ const patientMedicalRecord = new mongoose.Schema({
   doctorName:String,
   chronic:Boolean,
   },
-  {
-    _id:false
-  })
+  )
 
 export const patientSchema = new mongoose.Schema(
   {
-    birthDate:String,
+    birthDate:Date,
     address: String,
     city: String,
     reservations: [{
@@ -34,10 +32,6 @@ export const patientSchema = new mongoose.Schema(
     favDoctors:[{
       type: mongoose.Types.ObjectId,
       ref: "User",
-    }],
-    Reports:[{
-      type: mongoose.Types.ObjectId,
-      ref: "Report",
     }],
     medicalRecord:[patientMedicalRecord]
   },
