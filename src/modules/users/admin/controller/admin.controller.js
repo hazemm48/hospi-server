@@ -3,22 +3,23 @@ import bcrypt from "bcrypt";
 import  jwt  from "jsonwebtoken";
 import generalModel from "../../../../../database/models/general.model.js";
 import reserveModel from "../../../../../database/models/reserve.model.js";
+import { asyncHandler } from "../../../../services/asyncHandler.js";
 
-const getAllUsers = async (req, res) => {
+const getAllUsers =asyncHandler( async (req, res) => {
   let { role } = req.body;
   if (role) {
     const users = await userModel.find({ role });
-    res.json({ messgae: `all ${role}s`, length: users.length, users });
+    res.json({ message: `all ${role}s`, length: users.length, users });
   } else if(req.userId){
     const users = await userModel.findById(req.userId);
     res.json({ messgae: "user", length: users.length, users });
   }else{
     const users = await userModel.find();
-    res.json({ messgae: "all users", length: users.length, users });
+    res.json({ message: "all users", length: users.length, users });
   }
-};
+});
 
-const addUser = async (req, res) => {
+const addUser =asyncHandler( async (req, res) => {
   let all = req.body;
   try {
     let add = async (check) => {
@@ -45,9 +46,9 @@ const addUser = async (req, res) => {
   } catch (error) {
     res.json({ message: "error", error });
   }
-};
+});
 
-const addGeneral = async (req, res) => {
+const addGeneral =asyncHandler( async (req, res) => {
   let all = req.body;
   try {
     let added = await generalModel.insertMany(all);
@@ -55,9 +56,9 @@ const addGeneral = async (req, res) => {
   } catch (error) {
     res.json({ message: "error", error });
   }
-};
+});
 
-const deleteUser = async (req, res) => {
+const deleteUser =asyncHandler( async (req, res) => {
   let { _id } = req.body;
   try {
     let user = await userModel.findById(_id);
@@ -79,9 +80,9 @@ const deleteUser = async (req, res) => {
   } catch (error) {
     res.json({ message: "error", error });
   }
-};
+});
 
-const signIn = async (req, res) => {
+const signIn =asyncHandler( async (req, res) => {
   let { email, password } = req.body;
   let check = await userModel.findOne({email});
   if (check) {
@@ -100,12 +101,12 @@ const signIn = async (req, res) => {
         );
         res.status(200).json({ message: "ok", token: token, user: check });
       } else {
-        res.json({ message: "wrong pssword" });
+        res.json({ message: "wrong password" });
       }
     }
   } else {
     res.json({ message: "not authorized" });
   }
-};
+});
 
 export { getAllUsers, addUser, addGeneral, deleteUser, signIn };

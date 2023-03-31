@@ -2,8 +2,9 @@ import userModel from "../../../../database/models/user.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendMAil } from "../../../services/sendMail.js";
+import { asyncHandler } from "../../../services/asyncHandler.js";
 
-const signUp = async (req, res) => {
+const signUp =asyncHandler( async (req, res) => {
   let all = req.body;
   let query = {};
   if (all.phone) {
@@ -38,9 +39,9 @@ const signUp = async (req, res) => {
       res.json({ message: "not authorized" });
     }
   }
-};
+});
 
-const verify = async (req, res) => {
+const verify =asyncHandler( async (req, res) => {
   let updated = await userModel.findOneAndUpdate(
     { email: req.email },
     { confirmedEmail: true },
@@ -48,9 +49,9 @@ const verify = async (req, res) => {
   );
   updated.password = undefined;
   res.json({ message: "verified", updated });
-};
+});
 
-const forgetPassword = async (req, res) => {
+const forgetPassword =asyncHandler( async (req, res) => {
   let { email } = req.body;
   let user = await userModel.findOne({ email });
   if (user) {
@@ -61,9 +62,9 @@ const forgetPassword = async (req, res) => {
   } else {
     res.json({ message: "email not registered" });
   }
-};
+});
 
-const verifyResetcode = async (req, res) => {
+const verifyResetcode =asyncHandler( async (req, res) => {
   let code = req.body.resetCode;
   let email = req.body.email;
   let user = await userModel.findOne({ email });
@@ -82,9 +83,9 @@ const verifyResetcode = async (req, res) => {
   } else {
     res.json({ message: "Wrong code" });
   }
-};
+});
 
-const resetPassword = async (req, res) => {
+const resetPassword =asyncHandler( async (req, res) => {
   let email = req.email;
   let user = await userModel.findOne({ email });
   if (user) {
@@ -103,9 +104,9 @@ const resetPassword = async (req, res) => {
     // res.json({ message: "user not found" });
     next(new Error("user not found",{cause:404}))
   }
-};
+});
 
-const signIn = async (req, res) => {
+const signIn =asyncHandler( async (req, res) => {
   let { email, phone, password, rememberMe } = req.body;
   let query = {};
   if (phone) {
@@ -157,9 +158,9 @@ const signIn = async (req, res) => {
   } else {
     res.json({ message: "register first" });
   }
-};
+});
 
-const changePass = async (req, res) => {
+const changePass =asyncHandler( async (req, res) => {
   let { oldPass, newPass } = req.body;
   let check = await userModel.findById(req.userId);
   if (check) {
@@ -176,7 +177,7 @@ const changePass = async (req, res) => {
   } else {
     res.json({ message: "wrong user" });
   }
-};
+});
 
 export {
   signUp,
