@@ -12,7 +12,7 @@ const getAllUsers =asyncHandler( async (req, res) => {
     res.json({ message: `all ${role}s`, length: users.length, users });
   } else if(req.userId){
     const users = await userModel.findById(req.userId);
-    res.json({ messgae: "user", length: users.length, users });
+    res.json({ message: "user", length: users.length, users });
   }else{
     const users = await userModel.find();
     res.json({ message: "all users", length: users.length, users });

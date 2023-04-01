@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { sendMAil } from "../../../services/sendMail.js";
 import { asyncHandler } from "../../../services/asyncHandler.js";
 
-const signUp =asyncHandler( async (req, res) => {
+const signUp =asyncHandler( async (req, res,next) => {
   let all = req.body;
   let query = {};
   if (all.phone) {
@@ -85,7 +85,7 @@ const verifyResetcode =asyncHandler( async (req, res) => {
   }
 });
 
-const resetPassword =asyncHandler( async (req, res) => {
+const resetPassword =asyncHandler( async (req, res,next) => {
   let email = req.email;
   let user = await userModel.findOne({ email });
   if (user) {
@@ -106,7 +106,7 @@ const resetPassword =asyncHandler( async (req, res) => {
   }
 });
 
-const signIn =asyncHandler( async (req, res) => {
+const signIn =asyncHandler( async (req, res,next) => {
   let { email, phone, password, rememberMe } = req.body;
   let query = {};
   if (phone) {
