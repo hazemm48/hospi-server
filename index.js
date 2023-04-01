@@ -11,5 +11,5 @@ app.use(express.json())
 app.use('/uploads',express.static("uploads"));
 connection()
 app.use('/api/v1',mainRoutes)
-app.get('/',(req,res)=> res.send("running"))
+app.get('/',(req,res)=> res.send("hellooo"))
 app.listen(3000,()=> console.log('listening'))
