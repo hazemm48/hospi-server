@@ -5,16 +5,14 @@ import { sendMAil } from "../../../services/sendMail.js";
 
 const signUp = async (req, res) => {
   let all = req.body;
-  let query = {};
+  let query = [];
   if (all.phone) {
-    query.phone = all.phone;
+    query.push({phone:all.phone});
   }
   if (all.email) {
-    query.email = all.email;
+    query.push({email:all.email});
   }
-  let check = await userModel.findOne({
-    $or: [{ phone: query.phone }, { email: query.email }],
-  });
+  let check = await userModel.findOne({ $or: query });
   if (check) {
     res.json({ message: "already registered" });
   } else {
@@ -51,9 +49,9 @@ const forgetPassword = async (req, res) => {
   let user = await userModel.findOne({ email });
   if (user) {
     let resetCode = Math.floor(100000 + Math.random() * 900000);
-    let updated = await userModel.findOneAndUpdate({email},{resetCode})
+    let updated = await userModel.findOneAndUpdate({ email }, { resetCode });
     sendMAil({ email: email, operation: "reset", code: resetCode });
-    res.json({ message: "email sent" ,updated});
+    res.json({ message: "email sent", updated });
   } else {
     res.json({ message: "email not registered" });
   }
@@ -85,16 +83,18 @@ const resetPassword = async (req, res) => {
   let user = await userModel.findOne({ email });
   if (user) {
     let password = req.body.newPassword;
-    if(user.password[1]==password){
-    res.json({ message: "Same old password"});
-    }else{
-    let hashedPassword = bcrypt.hashSync(password, Number(process.env.ROUNDS));
-    user.password[0] = hashedPassword;
-    user.password[1] = password;
-    user.save()
-    res.json({ message: "user updated" });
-    
-  }
+    if (user.password[1] == password) {
+      res.json({ message: "Same old password" });
+    } else {
+      let hashedPassword = bcrypt.hashSync(
+        password,
+        Number(process.env.ROUNDS)
+      );
+      user.password[0] = hashedPassword;
+      user.password[1] = password;
+      user.save();
+      res.json({ message: "user updated" });
+    }
   } else {
     res.json({ message: "user not found" });
   }
@@ -120,7 +120,7 @@ const signIn = async (req, res) => {
               name: check.name,
               email: email,
               role: check.role,
-              isLoggedIn:true
+              isLoggedIn: true,
             },
             process.env.SECRET_KEY
           );
@@ -132,13 +132,13 @@ const signIn = async (req, res) => {
               name: check.name,
               email: email,
               role: check.role,
-              isLoggedIn:true
+              isLoggedIn: true,
             },
             process.env.SECRET_KEY,
             { expiresIn: "2d" }
           );
-          check.isLoggedIn=true
-          check.save()
+          check.isLoggedIn = true;
+          check.save();
           res.json({ message: "welcome", token });
         }
       } else {
@@ -178,5 +178,5 @@ export {
   forgetPassword,
   verifyResetcode,
   resetPassword,
-  changePass
+  changePass,
 };

@@ -120,7 +120,7 @@ const getReserve = async (req, res) => {
   if (req.role == "patient") {
     !filter.patientId ? (filter.patientId = req.userId) : {};
   }
-  const reservations = await reserveModel.find(filter);
+  const reservations = await reserveModel.find(filter).sort("-createdAt");
   if (reservations) {
     res.json({ message: "all reservations", reservations });
   } else {

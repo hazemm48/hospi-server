@@ -6,19 +6,36 @@ import reserveModel from "../../../../../database/models/reserve.model.js";
 import moment from "moment";
 
 const getAllUsers = async (req, res) => {
-  let { role, id, sort } = req.body;
+  let { role, id, sort, pageNo, limit } = req.body;
+  console.log(req.body);
+
+  pageNo <= 0 || !pageNo ? (pageNo = 1) : pageNo;
+  pageNo = pageNo * 1 || 1;
+  limit <= 0 || !limit ? (limit = 0) : limit;
+  limit = limit * 1 || 0;
+  let skipItems = (pageNo - 1) * limit;
   if (role) {
     if (role == "patient" || role == "doctor") {
       const users = await userModel
         .find({ role })
+        .skip(skipItems)
+        .limit(limit)
         .collation({ locale: "en" })
         .sort(sort);
-      res.json({ messgae: `all ${role}s`, users });
-    } else if (role == "admin" && req.userId) {
-      const users = await userModel.findById(req.userId);
-      res.json({ messgae: "Admin", users });
+      let length = await userModel.countDocuments({
+        role: role,
+        function(err, count) {
+          return count;
+        },
+      });
+      res.json({ messgae: `all ${role}s`, users,length });
     } else if (role == "all") {
-      const users = await userModel.find();
+      const users = await userModel
+        .find()
+        .skip(skipItems)
+        .limit(limit)
+        .collation({ locale: "en" })
+        .sort(sort);
       res.json({ messgae: "all users", users });
     } else {
       res.json({ messgae: "invalid input" });
@@ -26,6 +43,9 @@ const getAllUsers = async (req, res) => {
   } else if (id) {
     const users = await userModel.findById(id);
     res.json({ messgae: "user found", users });
+  } else if (req.userId) {
+    const users = await userModel.findById(req.userId);
+    res.json({ messgae: "User", users });
   } else {
     res.json({ messgae: "invalid input" });
   }
