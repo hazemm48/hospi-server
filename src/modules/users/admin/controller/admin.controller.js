@@ -7,7 +7,6 @@ import moment from "moment";
 
 const getAllUsers = async (req, res) => {
   let { role, id, sort, pageNo, limit } = req.body;
-  console.log(req.body);
 
   pageNo <= 0 || !pageNo ? (pageNo = 1) : pageNo;
   pageNo = pageNo * 1 || 1;
