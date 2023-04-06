@@ -1,4 +1,5 @@
 import reserveModel from "../../../../../database/models/reserve.model.js";
+import surgeryModel from "../../../../../database/models/surgeries.model.js";
 import userModel from "../../../../../database/models/user.model.js";
 import { asyncHandler } from "../../../../services/asyncHandler.js";
 
@@ -32,12 +33,37 @@ const deleteDoctor = asyncHandler( async (req, res) => {
 
 });
 
-const addReport = asyncHandler( async (req, res) => {
+const addReport = asyncHandler( async (req, res, next) => {
  
   let all = req.body;
   let add = await reserveModel.findByIdAndUpdate(all.resId,{report:all},{new:true})
   res.json({ message: "report added", add });
 
+});
+//get Schedule 
+const getSchedule = asyncHandler(async (req,res,next) =>{
+  let schedule = await reserveModel.find({patientId},patName,date)
+  res.json({message:"This is your Schedule",schedule})
+});
+
+
+//add surgery
+const addSurgery = asyncHandler(async(req,res,next) =>{
+  let {patientName,surgeryName} = req.body
+  const checkSurgery = await surgeryModel.findOne({name:patientName});
+  if(checkSurgery){
+    res.json({message:"Surgery already added"})
+  }else{
+    const addedSurgery = await surgeryModel.insertMany({patientName,surgeryName})
+    res.json({message:"Added surgery",addedSurgery})
+  }
+});
+
+
+//getSurgeries
+const getSurgery = asyncHandler(async(req,res,next) =>{
+ let surgery = await surgeryModel.find(patientName,surgeryName)
+ res.json({message:"This is your Surgeries",surgery})
 });
 
 
@@ -45,5 +71,5 @@ const addReport = asyncHandler( async (req, res) => {
 
 
 
-export { getDoctor, updateDoctor, deleteDoctor, addReport };
+export { getDoctor, updateDoctor, deleteDoctor, addReport , getSchedule,addSurgery,getSurgery};
 

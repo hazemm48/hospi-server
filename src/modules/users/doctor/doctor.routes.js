@@ -6,5 +6,9 @@ router.get("/getDoc",doctorController.getDoctor)
 router.put("/updateDoc",doctorController.updateDoctor)
 router.put("/addReport",doctorController.addReport)
 router.delete("/deleteDoc",doctorController.deleteDoctor)
+router.get("/getSchedule",doctorController.getSchedule)
+router.post("/addSurgery",doctorController.addSurgery)
+router.get("/getSurgery",doctorController.getSurgery)
+
 
 export default router
