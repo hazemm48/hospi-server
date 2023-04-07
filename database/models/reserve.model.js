@@ -9,7 +9,7 @@ const reserveSchema = new mongoose.Schema(
       enum:["doctor","lab","rad"]
     },
     name: String,
-    specialty: String,
+    speciality: String,
     fees:Number,
     turnNum: Number,
     day: String,

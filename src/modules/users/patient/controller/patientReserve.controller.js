@@ -5,28 +5,41 @@ import moment from "moment-timezone";
 const reserve = async (req, res) => {
   let all = req.body;
   let [apLength, resPerDay, allRes] = [4, 6, 10];
-  (req.role == "patient") ? (all.parientId=req.userId) : (all.parientId=all.patId);
-  console.log(all.patientId);
-  let reserves = await reserveModel.find({
-    patientId: all.patientId,
+  req.role == "patient"
+    ? (all.parientId = req.userId)
+    : (all.parientId = all.patId);
+  let allReserves = await reserveModel.find({
     type: all.type,
     status: false,
   });
-
+  let reserves = allReserves.filter((e) => {
+    return e.patientId == all.patientId;
+  });
+  
+  allReserves.some((e) => {
+    if (
+      e.doctorId == all.doctorId &&
+      moment(e.date).format("DD-MM-YYYY") == all.date
+    ) {
+      if (e.time == all.time) {
+        if (e.patientId != all.patientId) {
+          res.json({ message: "can't book" });
+        }
+      }
+    }
+  });
   let resDayLength = reserves.filter((e) => {
     return e.createdAt.toLocaleDateString() == new Date().toLocaleDateString();
   });
   let anotherPersonLength = reserves.filter((e) => {
     return e.anotherPerson == true && e.date == all.date;
-  }); 
-  console.log(anotherPersonLength);
+  });
   let doctor = {};
   let scheduleDayIndex = -1;
   if (all.type == "doctor") {
     let docInfo = await userModel.findById(all.doctorId);
     let scheduleIndex = docInfo.doctorInfo.schedule.findIndex(
-      (e) =>
-        e.day == all.day && all.time >= e.time.from && all.time < e.time.to
+      (e) => e.day == all.day && all.time >= e.time.from && all.time < e.time.to
     );
     doctor = docInfo;
     scheduleDayIndex = scheduleIndex;
@@ -34,7 +47,7 @@ const reserve = async (req, res) => {
 
   let addRes = async (check) => {
     if (!check) {
-      all.date = moment(all.date,'DD-MM-YYYY').format('MM-DD-YYYY')
+      all.date = moment(all.date, "DD-MM-YYYY").format("MM-DD-YYYY");
       let add = await reserveModel.insertMany(all);
       let updatePat = await userModel.findByIdAndUpdate(all.patientId, {
         $push: { "patientInfo.reservations": add[0]._id },
@@ -67,11 +80,10 @@ const reserve = async (req, res) => {
             let x = false;
             let check = reserves.some((e) => {
               if (all.doctorId == e.doctorId) {
-                console.log("no"); 
-                console.log(all.date);     
-                console.log((moment(e.date).tz("Africa/Cairo").format("DD-MM-YYYY")));       
-                if (all.date == (moment(e.date).tz("Africa/Cairo").format("DD-MM-YYYY")) ) {     
-                  console.log("ok");             
+                if (
+                  all.date ==
+                  moment(e.date).tz("Africa/Cairo").format("DD-MM-YYYY")
+                ) {
                   if (
                     (all.anotherPerson == true &&
                       anotherPersonLength.length < apLength) ||
@@ -82,13 +94,11 @@ const reserve = async (req, res) => {
                     x = true;
                   }
                 } else {
-                  console.log("false");
                   x = false;
                 }
               }
               return x;
             });
-            console.log(check);
             addRes(check);
           } else {
             res.json({ message: "doctor schedule is full or not available" });
@@ -100,7 +110,7 @@ const reserve = async (req, res) => {
         let x = false;
         let check = reserves.some((e) => {
           if (all.date == e.date) {
-            console.log(moment(e.date).tz("GMT+2") );
+            console.log(moment(e.date).tz("GMT+2"));
             if (
               (all.anotherPerson == true &&
                 anotherPersonLength.length < apLength) ||
@@ -126,12 +136,13 @@ const reserve = async (req, res) => {
 };
 
 const getReserve = async (req, res) => {
-  let { filter,sort } = req.body;
-  console.log(req.body);
+  let { filter, sort, limit } = req.body;
+  limit <= 0 || !limit ? (limit = 0) : limit;
+  limit = limit * 1 || 0;
   if (req.role == "patient") {
     !filter.patientId ? (filter.patientId = req.userId) : {};
   }
-  const reservations = await reserveModel.find(filter).sort(sort);
+  const reservations = await reserveModel.find(filter).sort(sort).limit(limit);
   if (reservations) {
     res.json({ message: "all reservations", reservations });
   } else {
