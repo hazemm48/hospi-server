@@ -36,8 +36,8 @@ const deleteDoctor = asyncHandler( async (req, res) => {
 const addReport = asyncHandler( async (req, res, next) => {
  
   let all = req.body;
-  let add = await reserveModel.findByIdAndUpdate(all.resId,{report:all},{new:true})
-  res.json({ message: "report added", add });
+  let addedReport = await reserveModel.findByIdAndUpdate(all.resId,{report:all},{new:true})
+  res.json({ message: "report added", addedReport });
 
 });
 //get Schedule 

@@ -16,7 +16,8 @@ const surgerySchema = new mongoose.Schema(
             type: mongoose.Types.ObjectId,
             ref:"Room"
         },
-        surgeryName:String
+        surgeryName:String,
+        roomNum:Number
 });
 
 const surgeryModel = mongoose.model("Surgery",surgerySchema);

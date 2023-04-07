@@ -34,10 +34,6 @@ router.get("/verify/:email", emailAuth, userController.verify);
 router.post("/forgetPass/", userController.forgetPassword);
 router.post("/verifyResetCode/", userController.verifyResetcode);
 router.post("/resetPass/", verifyCodeAuth, userController.resetPassword);
-router.post(
-  "/signIn",
-  validation(validSchema.signInSchema),
-  userController.signIn
-);
+router.post("/signIn",validation(validSchema.signInSchema),userController.signIn);
 
 export default router;
