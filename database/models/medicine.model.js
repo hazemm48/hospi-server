@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
 
 const medicineSchema = new mongoose.Schema({
-    name : String,
+    name : {
+        type:String,
+        trim:true
+    },
     category :String,
     price :String,
     description :String,

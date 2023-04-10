@@ -71,5 +71,12 @@ const getSurgery = asyncHandler(async(req,res,next) =>{
 
 
 
-export { getDoctor, updateDoctor, deleteDoctor, addReport , getSchedule,addSurgery,getSurgery};
+export { getDoctor,
+   updateDoctor,
+   deleteDoctor,
+   addReport,
+   getSchedule,
+   addSurgery,
+   getSurgery
+  };
 
