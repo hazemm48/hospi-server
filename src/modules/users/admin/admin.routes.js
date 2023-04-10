@@ -11,6 +11,7 @@ router.post("/addGeneral",adminController.addGeneral)
 router.post("/reserve/:oper",patientReserve.adminRes)
 router.put("/changePass",userController.changePass)
 router.put("/updateUser",adminController.updateUser)
+router.post("/note",adminController.notes)
 router.delete("/deleteUser",adminController.deleteUser)
 
 export default router

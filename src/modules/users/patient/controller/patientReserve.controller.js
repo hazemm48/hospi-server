@@ -6,8 +6,8 @@ const reserve = async (req, res) => {
   let all = req.body;
   let [apLength, resPerDay, allRes] = [4, 6, 10];
   req.role == "patient"
-    ? (all.parientId = req.userId)
-    : (all.parientId = all.patId);
+    ? (all.patientId = req.userId)
+    : (all.patientId = all.patId);
   let allReserves = await reserveModel.find({
     type: all.type,
     status: false,
@@ -15,31 +15,23 @@ const reserve = async (req, res) => {
   let reserves = allReserves.filter((e) => {
     return e.patientId == all.patientId;
   });
-  
-  allReserves.some((e) => {
-    if (
-      e.doctorId == all.doctorId &&
-      moment(e.date).format("DD-MM-YYYY") == all.date
-    ) {
-      if (e.time == all.time) {
-        if (e.patientId != all.patientId) {
-          res.json({ message: "can't book" });
-        }
-      }
-    }
-  });
+
   let resDayLength = reserves.filter((e) => {
     return e.createdAt.toLocaleDateString() == new Date().toLocaleDateString();
   });
+
   let anotherPersonLength = reserves.filter((e) => {
-    return e.anotherPerson == true && e.date == all.date;
+    return (
+      e.anotherPerson == true && moment(e.date).format("DD-MM-YYYY") == all.date
+    );
   });
   let doctor = {};
   let scheduleDayIndex = -1;
+
   if (all.type == "doctor") {
     let docInfo = await userModel.findById(all.doctorId);
     let scheduleIndex = docInfo.doctorInfo.schedule.findIndex(
-      (e) => e.day == all.day && all.time >= e.time.from && all.time < e.time.to
+      (e) => e.day == all.day
     );
     doctor = docInfo;
     scheduleDayIndex = scheduleIndex;
@@ -48,6 +40,9 @@ const reserve = async (req, res) => {
   let addRes = async (check) => {
     if (!check) {
       all.date = moment(all.date, "DD-MM-YYYY").format("MM-DD-YYYY");
+      all.type == "doctor"
+        ? (all.time = doctor.doctorInfo.schedule[scheduleDayIndex].time)
+        : "";
       let add = await reserveModel.insertMany(all);
       let updatePat = await userModel.findByIdAndUpdate(all.patientId, {
         $push: { "patientInfo.reservations": add[0]._id },
@@ -110,7 +105,6 @@ const reserve = async (req, res) => {
         let x = false;
         let check = reserves.some((e) => {
           if (all.date == e.date) {
-            console.log(moment(e.date).tz("GMT+2"));
             if (
               (all.anotherPerson == true &&
                 anotherPersonLength.length < apLength) ||
@@ -136,15 +130,24 @@ const reserve = async (req, res) => {
 };
 
 const getReserve = async (req, res) => {
-  let { filter, sort, limit } = req.body;
+  let { filter, sort, limit, count } = req.body;
   limit <= 0 || !limit ? (limit = 0) : limit;
   limit = limit * 1 || 0;
   if (req.role == "patient") {
     !filter.patientId ? (filter.patientId = req.userId) : {};
   }
+  let length = "";
   const reservations = await reserveModel.find(filter).sort(sort).limit(limit);
+  if (count) {
+    length = await reserveModel.countDocuments({
+      function(err, count) {
+        return count;
+      },
+    });
+  }
+
   if (reservations) {
-    res.json({ message: "all reservations", reservations });
+    res.json({ message: "all reservations", reservations, length });
   } else {
     res.json({ message: "not found" });
   }
@@ -157,19 +160,19 @@ const cancelReserve = async (req, res) => {
     if (reserve.status == false) {
       if (reserve.type == "doctor") {
         let resDate = moment(
-          reserve.date + " " + reserve.time,
+          moment(reserve.date).format("DD/MM/YYYY") + " " + reserve.time.from,
           "DD/MM/YYYY HH:mm"
         );
         let date = moment();
-        if (resDate.diff(date, "minutes") > 120) {
+        if (resDate.diff(date, "minutes") > 120 || req.role == "admin") {
           let patient = await userModel.findByIdAndUpdate(
-            req.userId,
+            reserve.patientId,
             { $pull: { "patientInfo.reservations": resId } },
             { new: true }
           );
           let doctor = await userModel.findById(reserve.doctorId);
           let scheduleDayIndex = doctor.doctorInfo.schedule.findIndex(
-            (e) => e.day == reserve.date
+            (e) => e.day == reserve.day
           );
           let appointments =
             doctor.doctorInfo.schedule[scheduleDayIndex].appointments;
@@ -202,6 +205,13 @@ const cancelReserve = async (req, res) => {
   }
 };
 
+const editReserve =async(req,res)=>{
+  let {details,id} = req.body
+  console.log(details);
+  let reserve = await reserveModel.findByIdAndUpdate(id,details,{new:true})
+  res.json({message:"updated",reserve})
+}
+
 const adminRes = (req, res) => {
   let params = req.params;
   if (params.oper == "reserve") {
@@ -210,7 +220,9 @@ const adminRes = (req, res) => {
     getReserve(req, res);
   } else if (params.oper == "cancel") {
     cancelReserve(req, res);
+  } else if (params.oper == "edit") {
+    editReserve(req, res);
   }
 };
 
-export { reserve, getReserve, cancelReserve, adminRes };
+export { reserve, getReserve, cancelReserve, adminRes, editReserve };

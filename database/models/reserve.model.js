@@ -8,13 +8,16 @@ const reserveSchema = new mongoose.Schema(
       type:String,
       enum:["doctor","lab","rad"]
     },
-    name: String,
+    subCategory: String,
     speciality: String,
     fees:Number,
     turnNum: Number,
     day: String,
     date: Date,
-    time: String,
+    time: {
+      from:String,
+      to:String
+    },
     phone: String,
     visitType: String,
     status:{

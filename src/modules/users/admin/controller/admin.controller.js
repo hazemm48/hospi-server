@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import generalModel from "../../../../../database/models/general.model.js";
 import reserveModel from "../../../../../database/models/reserve.model.js";
 import moment from "moment";
+import noteModel from "../../../../../database/models/notes.model.js";
 
 const getAllUsers = async (req, res) => {
   let { role, id, sort, pageNo, limit } = req.body;
@@ -27,7 +28,7 @@ const getAllUsers = async (req, res) => {
           return count;
         },
       });
-      res.json({ messgae: `all ${role}s`, users,length });
+      res.json({ messgae: `all ${role}s`, users, length });
     } else if (role == "all") {
       const users = await userModel
         .find()
@@ -123,4 +124,28 @@ const updateUser = async (req, res) => {
   }
 };
 
-export { getAllUsers, addGeneral, deleteUser, signIn, updateUser };
+const notes = async (req, res) => {
+  let {oper, id, content, _id } = req.body;
+  let user = await userModel.findById(id).populate("notes")
+  if ((oper == "add")) {
+    let createdBy = req.email;
+    let note = await noteModel.insertMany({content,createdBy})
+    user.notes.push(note[0]._id)
+    user.save()
+    res.json({ message: "add note" });
+  } else if ((oper == "edit")) {
+    await noteModel.findByIdAndUpdate(_id,{content})
+    res.json({message: "note updated"})
+  } else if ((oper == "delete")) {
+    user.notes.pull(_id)
+    user.save()
+    await noteModel.findByIdAndDelete(_id)
+    res.json({message:"note deleted"})
+  }else if ((oper == "get")) {
+    res.json({message:"all notes",notes:user.notes})
+  }else {
+    res.json({message:"Wrong entry"})
+  }
+};
+
+export { getAllUsers, addGeneral, deleteUser, signIn, updateUser, notes };
