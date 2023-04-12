@@ -1,6 +1,7 @@
 import medicineModel from "../../../../database/models/medicine.model.js";
 import { asyncHandler } from "../../../services/asyncHandler.js";
 
+
 const addMedicine =asyncHandler( async (req, res) => {
   let all = req.body;
  
@@ -9,6 +10,7 @@ const addMedicine =asyncHandler( async (req, res) => {
       res.status(200).json({ message: "Medicine already added" });
     } else {
       const added = await medicineModel.insertMany(all);
+
       res.status(200).json({ message: "Added new medicine", added });
     }
 
@@ -29,6 +31,7 @@ const getMedicine =asyncHandler( async (req, res) => {
 
 const updateMedicine =asyncHandler( async (req, res) => {
   let all = req.body;
+  
 
     const updated = await medicineModel.findByIdAndUpdate(all._id, all, {
       new: true,

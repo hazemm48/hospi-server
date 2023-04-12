@@ -6,7 +6,7 @@ const medicineSchema = new mongoose.Schema({
     },
     image:{
         type:String,
-        required:true
+        required:[true,"Medicine image is required"]
     },
     publicId: {
         type:String
