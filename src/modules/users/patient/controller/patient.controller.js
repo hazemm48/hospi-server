@@ -4,7 +4,7 @@ import { asyncHandler } from "../../../../services/asyncHandler.js";
 
 const getPatient = asyncHandler( async (req, res) => {
   const patient = await userModel.findById(req.userId);
-  res.json({ message: "patient info", patient });
+  res.status(200).json({ message: "patient info", patient });
 });
 
 const updatePatient =asyncHandler( async (req, res) => {
@@ -12,13 +12,13 @@ const updatePatient =asyncHandler( async (req, res) => {
   const updated = await userModel.findByIdAndUpdate(req.userId, all, {
     new: true,
   });
-  res.json({ message: "patient updated", updated });
+  res.status(200).json({ message: "patient updated", updated });
 });
 
 const deletePatient =asyncHandler( async (req, res) => {
   const deleted = await userModel.deleteOne(req.userId);
   const reserveDelete = await reserveModel.deleteMany({ patientId: _id });
-  res.json({ message: "delete patient", deleted, reserveDelete });
+  res.status(200).json({ message: "delete patient", deleted, reserveDelete });
 });
 
 const addMedicalRecord =asyncHandler( async (req, res) => {
@@ -26,7 +26,7 @@ const addMedicalRecord =asyncHandler( async (req, res) => {
   let patient = await userModel.findById(req.userId);
   let add = patient.patientInfo.medicalRecord.push(all);
   patient.save();
-  res.json({ message: "medical Record added", add });
+  res.status(200).json({ message: "medical Record added", add });
 });
 
 const getMedicalRecord =asyncHandler( async (req, res) => {
@@ -77,7 +77,7 @@ const buyMedicine =asyncHandler( async (req, res) => {
   let addMed = await userModel.findByIdAndUpdate(req.userId, {
     $push: { "patientInfo.pharmMedicines": all.medicine },
   });
-  res.json({ message: "medicine added", addMed });
+  res.status(200).json({ message: "medicine added", addMed });
 });
 
 
@@ -86,7 +86,7 @@ const addFavDoctors =asyncHandler( async (req, res) => {
   let add = await userModel.findByIdAndUpdate(req.userId, {
     $push: { "patientInfo.favDoctors": _id },
   });
-  res.json({ message: "done", add });
+  res.status(200).json({ message: "done", add });
 });
 
 
@@ -96,7 +96,7 @@ const getFavDoctors =asyncHandler( async (req, res) => {
     let doctorInfo = await userModel.findById(doctor);
     return doctorInfo;
   });
-  res.json({ message: "done", doctorsList });
+  res.status(200).json({ message: "done", doctorsList });
 });
 
 

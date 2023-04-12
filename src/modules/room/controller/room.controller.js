@@ -6,10 +6,10 @@ const addRoom =asyncHandler( async (req, res) => {
 
       const check = await roomModel.findOne({ name: all.name });
       if (check) {
-        res.json({ message: "Room already added" });
+        res.status(200).json({ message: "Room already added" });
       } else {
         const added = await roomModel.insertMany(all);
-        res.json({ message: "Added new Room", added });
+        res.status(200).json({ message: "Added new Room", added });
       }
 
   });
@@ -19,10 +19,10 @@ const addRoom =asyncHandler( async (req, res) => {
     
       if (all.oper == "all") {
         const allRoom = await roomModel.find();
-        res.json({ message: "all Rooms", allRoom });
+        res.status(200).json({ message: "all Rooms", allRoom });
       } else if (!all.oper) {
         const room = await roomModel.find(all);
-        res.json({ message: "all Rooms", room });
+        res.status(200).json({ message: "all Rooms", room });
       }
    
   });
@@ -33,7 +33,7 @@ const addRoom =asyncHandler( async (req, res) => {
       const updated = await labModel.findByIdAndUpdate(all._id, all, {
         new: true,
       });
-      res.json({ message: "Updated", updated });
+      res.status(200).json({ message: "Updated", updated });
    
   });
 
@@ -41,7 +41,7 @@ const addRoom =asyncHandler( async (req, res) => {
     
       const { _id } = req.body;
       const deleted = await roomModel.deleteOne(_id);
-      res.json({ message: "Deleted", deleted });
+      res.status(200).json({ message: "Deleted", deleted });
    
   });  
 

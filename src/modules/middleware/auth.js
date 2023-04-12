@@ -1,15 +1,15 @@
 import jwt from "jsonwebtoken";
 import { asyncHandler } from "../../services/asyncHandler.js";
 
-const auth = (req, res, next) => {
+const auth =asyncHandler( (req, res, next) => {
   let auth = req.headers["authorization"];
   if (!auth || (auth && auth.startsWith("Bearer") == false)) {
-    res.json({ message: "invalid token syntax" });
+    next(new Error("invalid token Syntax",{cause:400}));
   } else {
     let token = auth.split(" ")[1];
     jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
       if (err) {
-        res.json({ message: "invalid token" });
+       next(new Error("invalid token",{cause:400}));
       } else {
         if(decoded.isLoggedIn==true){
         req.userId = decoded.userId;
@@ -22,17 +22,17 @@ const auth = (req, res, next) => {
       }
     });
   }
-};
+});
 
-const adminAuth = (req, res, next) => {
+const adminAuth =asyncHandler( (req, res, next) => {
   let auth = req.headers["authorization"];
   if (!auth || (auth && auth.startsWith("SIM") == false)) {
-    res.json({ message: "invalid token syntax" });
+    next(new Error("invalid token Syntax",{cause:400}));
   } else {
     let token = auth.split(" ")[1];
     jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
       if (err) {
-        res.json({ message: "invalid token" });
+        next(new Error("invalid token",{cause:400}));
       } else {
         req.userId = decoded.userId;
         if (decoded.role == "admin") {
@@ -40,21 +40,21 @@ const adminAuth = (req, res, next) => {
           req.email=decoded.email
           next();
         }else{
-          res.json({ message: "not authorized user" });
+          next(new Error("not authorized User",{cause:403}));
         }      
       }
     });
   }
-};
+});
 
-const emailAuth = (req, res, next) => {
+const emailAuth =asyncHandler( (req, res, next) => {
   let token = req.params.email;
   if (!token) {
-    res.json({ message: "invalid token syntax" });
+    next(new Error("invalid token Syntax",{cause:400}));
   } else {
     jwt.verify(token, process.env.TOKEN_KEY_VERIFY, (err, decoded) => {
       if (err) {
-        res.json({ message: "invalid token" });
+        next(new Error("invalid token",{cause:400}));
       } else {
         req.email = decoded.email;
         if (decoded.code) {
@@ -64,29 +64,29 @@ const emailAuth = (req, res, next) => {
       }
     });
   }
-};
+});
 
-const verifyCodeAuth = (req, res, next) => {
+const verifyCodeAuth =asyncHandler( (req, res, next) => {
   let auth = req.headers["authorization"];
   if (!auth || (auth && auth.startsWith("Bearer") == false)) {
-    res.json({ message: "invalid token syntax" });
+    next(new Error("invalid token Syntax",{cause:400}));
   } else {
     let token = auth.split(" ")[1]
     jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
       if (err) {
-        res.json({ message: "invalid token" });
+        next(new Error("invalid token",{cause:400}));
       } else {
         if (decoded.oper=="reset") {
           req.email = decoded.email;
           next();
         }else{
-          res.json({ message: "not authorized" });
+          next(new Error("not authorized",{cause:403}));
         }
         
       }
     });
   }
-};
+});
 
 
 export {auth,adminAuth,emailAuth,verifyCodeAuth} ;

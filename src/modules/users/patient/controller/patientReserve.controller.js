@@ -46,9 +46,9 @@ const reserve =asyncHandler( async (req, res) => {
         add[0].turnNum = turnNumber + 1;
         add[0].save();
       }
-      res.json({ message: `${all.type} Booked`, add });
+      res.status(200).json({ message: `${all.type} Booked`, add });
     } else {
-      res.json({ message: "Already booked" });
+      res.status(200).json({ message: "Already booked" });
     }
   };
 
@@ -83,10 +83,10 @@ const reserve =asyncHandler( async (req, res) => {
             });
             addRes(check);
           } else {
-            res.json({ message: "doctor schedule is full or not available" });
+            res.status(200).json({ message: "doctor schedule is full or not available" });
           }
         } else {
-          res.json({ message: "no such date in schedule" });
+          res.status(200).json({ message: "no such date in schedule" });
         }
       } else if (all.type == "lab" || all.type == "rad") {
         let x = false;
@@ -109,10 +109,10 @@ const reserve =asyncHandler( async (req, res) => {
         addRes(check);
       }
     } else {
-      res.json({ message: "exceeded number of reservations per day " });
+      res.status(200).json({ message: "exceeded number of reservations per day " });
     }
   } else {
-    res.json({ message: "exceeded number of reservations" });
+    res.status(200).json({ message: "exceeded number of reservations" });
   }
 });
 
@@ -125,14 +125,14 @@ const getReserve =asyncHandler( async (req, res) => {
       const comingRes = reservations.filter((e) => {
         return e.status == false;
       });
-      res.json({ message: "all upcoming reservations", comingRes });
+      res.status(200).json({ message: "all upcoming reservations", comingRes });
     } else if (all.status == true) {
       const historyRes = reservations.filter((e) => {
         return e.status == true;
       });
-      res.json({ message: "all history reservations", historyRes });
+      res.status(200).json({ message: "all history reservations", historyRes });
     } else {
-      res.json({ message: "all reservations", reservations });
+      res.status(200).json({ message: "all reservations", reservations });
     }
   } else if (["doctor", "lab", "rad"].includes(all.oper)) {
     let reserves = reservations.filter((e) => {
@@ -144,14 +144,14 @@ const getReserve =asyncHandler( async (req, res) => {
       const historyRes = reserves.filter((e) => {
         return e.status == true;
       });
-      res.json({ message: "all history reservations", historyRes });
+      res.status(200).json({ message: "all history reservations", historyRes });
     } else if (all.status == false) {
       const comingRes = reservations.filter((e) => {
         return e.status == false;
       });
-      res.json({ message: "all upcoming reservations", comingRes });
+      res.status(200).json({ message: "all upcoming reservations", comingRes });
     } else {
-      res.json({ message: `all ${all.oper} reservations`, reserves });
+      res.status(200).json({ message: `all ${all.oper} reservations`, reserves });
     }
   } else {
     res.json({ message: "invalid input" });
@@ -189,7 +189,7 @@ const cancelReserve =asyncHandler( async (req, res) => {
             reserveUpdate.turnNum = index + 1;
             await reserveUpdate.save();
           });
-          res.json({ message: "reservation cancelled", patient });
+          res.status(200).json({ message: "reservation cancelled", patient });
         } else {
           res.json({ message: "can't cancel reservation" });
         }
@@ -200,13 +200,13 @@ const cancelReserve =asyncHandler( async (req, res) => {
           { new: true }
         );
         await reserveModel.deleteOne({ _id: resId });
-        res.json({ message: "reservation cancelled", patient });
+        res.status(200).json({ message: "reservation cancelled", patient });
       }
     } else {
-      res.json({ message: "reservation status is done" });
+      res.status(200).json({ message: "reservation status is done" });
     }
   } else {
-    res.json({ message: "reservation already cancelled" });
+    res.status(200).json({ message: "reservation already cancelled" });
   }
 });
 
