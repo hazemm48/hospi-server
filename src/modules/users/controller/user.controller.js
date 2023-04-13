@@ -17,24 +17,24 @@ const signUp =asyncHandler( async (req, res,next) => {
     $or: [{ phone: query.phone }, { email: query.email }],
   });
   if (check) {
-    // res.json({ message: "already registered" });
-    next(new Error("already registered",{cause:409}))
+    res.status(200).json({ message: "already registered" });
+    // next(new Error("already registered",{cause:409}))
   } else {
     let hashedPass = bcrypt.hashSync(all.password, Number(process.env.ROUNDS));
     all.password = [hashedPass, all.password];
     if (all.role == "patient") {
       let added = await userModel.insertMany(all);
       sendMAil({ email: all.email, operation: "verify" });
-      // res.json({ message: "patient added", added });
-      next(new Error("patient added",{cause:200}))
+      res.status(200).json({ message: "patient added", added });
+      
     } else if (all.role == "doctor" && req.role == "admin") {
       let added = await userModel.insertMany(all);
-      // res.json({ message: "doctor added", added });
-      next(new Error("doctor added",{cause:200}))
+      res.status(200).json({ message: "doctor added", added });
+     
     } else if (all.role == "admin" && req.email == process.env.ADMIN) {
       let added = await userModel.insertMany(all);
-      // res.json({ message: "admin added", added });
-      next(new Error("admin added",{cause:200}))
+      res.status(200).json({ message: "admin added", added });
+      
     } else {
       res.json({ message: "not authorized" });
     }
@@ -64,7 +64,7 @@ const forgetPassword =asyncHandler( async (req, res) => {
   }
 });
 
-const verifyResetcode =asyncHandler( async (req, res) => {
+const verifyResetCode =asyncHandler( async (req, res) => {
   let code = req.body.resetCode;
   let email = req.body.email;
   let user = await userModel.findOne({ email });
@@ -184,6 +184,6 @@ export {
   signIn,
   verify,
   forgetPassword,
-  verifyResetcode,
+  verifyResetCode,
   resetPassword,
 };

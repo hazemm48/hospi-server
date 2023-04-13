@@ -50,20 +50,27 @@ const getSchedule = asyncHandler(async (req,res,next) =>{
 //add surgery
 const addSurgery = asyncHandler(async(req,res,next) =>{
   let {patientName,surgeryName} = req.body
-  const checkSurgery = await surgeryModel.findOne({name:patientName});
-  if(checkSurgery){
-    res.json({message:"Surgery already added"})
-  }else{
+  // const checkSurgery = await surgeryModel.find({name:patientName});
+  // if(checkSurgery){
+  //   res.json({message:"Surgery already added"})
+  // }else{
     const addedSurgery = await surgeryModel.insertMany({patientName,surgeryName})
-    res.json({message:"Added surgery",addedSurgery})
-  }
-});
+    res.status(200).json({message:"surgery already Added",addedSurgery})
+  });
 
 
 //getSurgeries
 const getSurgery = asyncHandler(async(req,res,next) =>{
  let surgery = await surgeryModel.find(patientName,surgeryName)
- res.json({message:"This is your Surgeries",surgery})
+ res.status(200).json({message:"This is your Surgeries",surgery})
+});
+
+//cancelSurgery
+const cancelSurgery = asyncHandler(async(req,res,next) =>{
+  const {id} = req.params;
+  const cancelation = await surgeryModel.deleteOne({_id:id});
+  res.status(200).json({message:"Surgery Cancelled",cancelation})
+
 });
 
 
@@ -77,6 +84,7 @@ export { getDoctor,
    addReport,
    getSchedule,
    addSurgery,
-   getSurgery
+   getSurgery,
+   cancelSurgery
   };
 

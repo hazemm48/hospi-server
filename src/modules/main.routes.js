@@ -32,7 +32,7 @@ router.use("/photo", photosRoutes);
 router.post("/signUp", userController.signUp);
 router.get("/verify/:email", emailAuth, userController.verify);
 router.post("/forgetPass/", userController.forgetPassword);
-router.post("/verifyResetCode/", userController.verifyResetcode);
+router.post("/verifyResetCode/", userController.verifyResetCode);
 router.post("/resetPass/", verifyCodeAuth, userController.resetPassword);
 router.post("/signIn",validation(validSchema.signInSchema),userController.signIn);
 
