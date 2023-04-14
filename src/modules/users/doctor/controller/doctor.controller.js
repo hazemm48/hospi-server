@@ -49,13 +49,13 @@ const getSchedule = asyncHandler(async (req,res,next) =>{
 
 //add surgery
 const addSurgery = asyncHandler(async(req,res,next) =>{
-  let {patientName,surgeryName} = req.body
-  const checkSurgery = await surgeryModel.find({patientName});
+  let {patientName,surgeryName,patientEmail,roomNum,reservationDate,appointmentDate} = req.body
+  const checkSurgery = await surgeryModel.find({patientEmail});
   if(checkSurgery.length){
     res.json({message:"Surgery already added before"})
-  }else{
-    const addedSurgery = await surgeryModel.insertMany({patientName,surgeryName})
-    res.status(200).json({message:"surgery already Added",addedSurgery})
+  }else{ 
+    const addedSurgery = await surgeryModel.insertMany({patientName,surgeryName,patientEmail,roomNum,reservationDate,appointmentDate})
+    res.status(200).json({message:"surgery Added",addedSurgery})
   }
   });
 
@@ -69,9 +69,13 @@ const getSurgery = asyncHandler(async(req,res,next) =>{
 //cancelSurgery
 const cancelSurgery = asyncHandler(async(req,res,next) =>{
   const {id} = req.params;
+  const oneHour =  24 * 60 * 60 * 1000;
+  if(appointmentTime - cancellationTime <= oneHour){
+      res.status(200).json({message:"Failed to cancel"})
+  }else{
   const cancelation = await surgeryModel.deleteOne({_id:id});
   res.status(200).json({message:"Surgery Cancelled",cancelation})
-
+  }
 });
 
 

@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const surgerySchema = new mongoose.Schema(
     {
         patientName:String,
+        patientEmail:String,
         doctorName:String,
         patientId: {
             type: mongoose.Types.ObjectId,
@@ -17,7 +18,10 @@ const surgerySchema = new mongoose.Schema(
             ref:"Room"
         },
         surgeryName:String,
-        roomNum:Number
+        roomNum:Number,
+        date:Date,
+        reservationDate:Date,
+        appointmentDate:Date
 });
 
 const surgeryModel = mongoose.model("Surgery",surgerySchema);

@@ -39,6 +39,10 @@ export const patientSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "Report",
     }],
+    Surgeries:[{
+      type:mongoose.Types.ObjectId,
+      ref:"Surgery"
+    }],
     medicalRecord:[patientMedicalRecord]
   },
   {
@@ -46,5 +50,5 @@ export const patientSchema = new mongoose.Schema(
   }
 );
 
-// export default patientSchema;
+export default patientSchema;
 
