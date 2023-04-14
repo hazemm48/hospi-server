@@ -2,7 +2,7 @@ import medicineModel from "../../../../database/models/medicine.model.js";
 import { asyncHandler } from "../../../services/asyncHandler.js";
 
 
-const addMedicine =asyncHandler( async (req, res) => {
+const addMedicine =asyncHandler( async (req, res,next) => {
   let all = req.body;
  
     const check = await medicineModel.findOne({ name: all.name });
@@ -16,7 +16,7 @@ const addMedicine =asyncHandler( async (req, res) => {
 
 });
 
-const getMedicine =asyncHandler( async (req, res) => {
+const getMedicine =asyncHandler( async (req, res,next) => {
   all = req.body;
  
     if (all.oper == "all") {
@@ -29,18 +29,20 @@ const getMedicine =asyncHandler( async (req, res) => {
 
 });
 
-const updateMedicine =asyncHandler( async (req, res) => {
-  let all = req.body;
-  
-
-    const updated = await medicineModel.findByIdAndUpdate(all._id, all, {
-      new: true,
-    });
-    res.status(200).json({ message: "Updated", updated });
+const updateMedicine =asyncHandler( async (req, res,next) => {
+  let {id} = req.params;
+  let {price} =req.body;
+  let medicine = await medicineModel.findById(id)
+  if (!medicine) {
+    next(new Error("Medicine Not found",{cause:404}))
+  } else {
+    let updatedMedicine = await medicineModel.findByIdAndUpdate({_id:id},price,{new:true})
+    res.status(200).json({message:"Updated",updatedMedicine})
+  }
 
 });
 
-const deleteMedicine =asyncHandler( async (req, res) => {
+const deleteMedicine =asyncHandler( async (req, res,next) => {
  
     const { _id } = req.body;
     const deleted = await pharmaModel.deleteOne(_id);

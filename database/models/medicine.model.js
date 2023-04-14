@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const medicineSchema = new mongoose.Schema({
-    name : {
+    medicineName : {
         type:String,
     },
     image:{
