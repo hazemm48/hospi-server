@@ -4,10 +4,10 @@ const medicineSchema = new mongoose.Schema({
     medicineName : {
         type:String,
     },
-    image:{
-        type:String,
-        required:[true,"Medicine image is required"]
-    },
+    // image:{
+    //     type:String,
+    //     required:[true,"Medicine image is required"]
+    // },
     publicId: {
         type:String
     },

@@ -22,10 +22,10 @@ import { signIn } from "./users/admin/controller/admin.controller.js";
 router.use("/admin",adminAuth,adminRoutes);
 router.post("/adminLogin", signIn);
 router.use("/patient", auth, patientRoutes);
-router.use("/doctor", auth, doctorRoutes);
+router.use("/doctor",  doctorRoutes);
 /* router.use('/lab',auth,labRoutes) */
 router.use("/room", auth, roomRoutes);
-router.use("/pharmacy", auth, pharmacyRoutes);
+router.use("/pharmacy",  pharmacyRoutes);
 router.use("/photo", photosRoutes);
 /* router.use('/examin',auth,examin) */
 

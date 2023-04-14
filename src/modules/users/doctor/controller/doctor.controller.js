@@ -50,18 +50,19 @@ const getSchedule = asyncHandler(async (req,res,next) =>{
 //add surgery
 const addSurgery = asyncHandler(async(req,res,next) =>{
   let {patientName,surgeryName} = req.body
-  // const checkSurgery = await surgeryModel.find({name:patientName});
-  // if(checkSurgery){
-  //   res.json({message:"Surgery already added"})
-  // }else{
+  const checkSurgery = await surgeryModel.find({patientName});
+  if(checkSurgery.length){
+    res.json({message:"Surgery already added before"})
+  }else{
     const addedSurgery = await surgeryModel.insertMany({patientName,surgeryName})
     res.status(200).json({message:"surgery already Added",addedSurgery})
+  }
   });
 
 
 //getSurgeries
 const getSurgery = asyncHandler(async(req,res,next) =>{
- let surgery = await surgeryModel.find(patientName,surgeryName)
+ let surgery = await surgeryModel.find({})
  res.status(200).json({message:"This is your Surgeries",surgery})
 });
 
