@@ -19,6 +19,14 @@ const medicineSchema = new mongoose.Schema({
     available:{
         type:Boolean,
         default:false
+    },
+    startStock:{
+        type:Number,
+        default:0
+    },
+    endStock:{
+        type:Number,
+        default:0
     }
 })
 
