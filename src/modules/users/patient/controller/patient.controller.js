@@ -1,6 +1,7 @@
 import userModel from "../../../../../database/models/user.model.js";
 import reserveModel from "../../../../../database/models/reserve.model.js";
 import { asyncHandler } from "../../../../services/asyncHandler.js";
+import medicineModel from "../../../../../database/models/medicine.model.js";
 
 const getPatient = asyncHandler( async (req, res) => {
   const patient = await userModel.findById(req.userId);
@@ -80,6 +81,13 @@ const buyMedicine =asyncHandler( async (req, res) => {
   res.status(200).json({ message: "medicine added", addMed });
 });
 
+//get Medicines from pharmacy 
+const getMedicine =asyncHandler( async (req, res,next) => {
+  
+  const allMed = await medicineModel.find({});
+  res.status(200).json({ message: "all Medicines", allMed });
+});
+
 
 const addFavDoctors =asyncHandler( async (req, res) => {
   let { _id } = req.body;
@@ -107,6 +115,7 @@ export {
   deletePatient,
   getMedicalRecord,
   buyMedicine,
+  getMedicine,
   getFavDoctors,
   addFavDoctors,
 };

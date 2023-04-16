@@ -11,7 +11,6 @@ const medicineSchema = new mongoose.Schema({
     publicId: {
         type:String
     },
-    category :String,
     price :String,
     description :String,
     type:String,

@@ -18,6 +18,7 @@ router.get("/getMedicRec",patientController.getMedicalRecord)
 router.get("/getFavDoctors",patientController.getFavDoctors)      
 router.post("/addFavDoctors",patientController.addFavDoctors)      
 router.put("/buyMed",patientController.buyMedicine)
+router.get("/getMedicine",patientController.getMedicine)
 router.put("/updatePatient",validation(validSchema.updateUserSchema),patientController.updatePatient)
 router.delete("/deletePatient",patientController.deletePatient)
 
