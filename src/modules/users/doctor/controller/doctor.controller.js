@@ -55,7 +55,7 @@ const addSurgery = asyncHandler(async(req,res,next) =>{
     res.json({message:"Surgery already added before"})
   }else{ 
     const addedSurgery = await surgeryModel.insertMany({patientName,surgeryName,patientEmail,roomNum,reservationDate,appointmentDate})
-    res.status(200).json({message:"surgery Added",addedSurgery})
+    res.status(201).json({message:"surgery Added",addedSurgery})
   }
   });
 

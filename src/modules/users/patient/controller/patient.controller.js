@@ -27,7 +27,7 @@ const addMedicalRecord =asyncHandler( async (req, res) => {
   let patient = await userModel.findById(req.userId);
   let add = patient.patientInfo.medicalRecord.push(all);
   patient.save();
-  res.status(200).json({ message: "medical Record added", add });
+  res.status(201).json({ message: "medical Record added", add });
 });
 
 const getMedicalRecord =asyncHandler( async (req, res) => {

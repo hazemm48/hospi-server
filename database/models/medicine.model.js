@@ -19,15 +19,14 @@ const medicineSchema = new mongoose.Schema({
         type:Boolean,
         default:false
     },
-    startStock:{
+    stock:{
         type:Number,
         default:0
     },
-    endStock:{
-        type:Number,
-        default:0
-    }
-})
+    totalItems:String,
+    soldItems:String
+  
+});
 
 const medicineModel = mongoose.model('Pharma',medicineSchema)
 

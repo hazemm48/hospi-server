@@ -11,7 +11,7 @@ const addMedicine =asyncHandler( async (req, res,next) => {
     } else {
       const added = await medicineModel.insertMany({medicineName,categoryMedicine,price,medicineType});
 
-      res.status(200).json({ message: "Added new medicine", added });
+      res.status(201).json({ message: "Added new medicine", added });
     }
 
 });
