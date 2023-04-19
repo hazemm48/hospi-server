@@ -25,7 +25,10 @@ const medicineSchema = new mongoose.Schema({
     },
     totalItems:String,
     soldItems:String
-});
+},{
+    timestamps:true
+}
+);
 
 const medicineModel = mongoose.model('Pharma',medicineSchema)
 
