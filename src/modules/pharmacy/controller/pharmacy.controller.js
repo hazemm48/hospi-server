@@ -1,6 +1,6 @@
 import medicineModel from "../../../../database/models/medicine.model.js";
 import { asyncHandler } from "../../../services/asyncHandler.js";
-
+import cloudinary from "../../../utils/cloudinary.js";
 
 const addMedicine =asyncHandler( async (req, res,next) => {
   let {medicineName,categoryMedicine,price,medicineType} = req.body;
@@ -10,8 +10,15 @@ const addMedicine =asyncHandler( async (req, res,next) => {
       res.status(200).json({ message: "Medicine already added" });
     } else {
       const added = await medicineModel.insertMany({medicineName,categoryMedicine,price,medicineType});
-
-      res.status(201).json({ message: "Added new medicine", added });
+      req.body.stock=req.body.totalItems;
+      req.body.soldItems=0
+      // if(!req.files){
+      //   next(new Error("You have to upload an image",{cause:404}))
+      // }else{
+      //     let {secure_Url,publicId} = await cloudinary.uploader.upload(file.path,{folder: "Medicines"})
+      //     res.status(201).json({ message: "Added new medicine", added });
+      // }
+      
     }
 
 });

@@ -2,8 +2,9 @@ import nodemailer from "nodemailer";
 import { resetHtml } from "./forgetPass.template.js";
 import { emailHtml } from "./email.template.js";
 import jwt from "jsonwebtoken";
+import { asyncHandler } from "./asyncHandler.js";
 
-const sendMAil = async (options) => {
+const sendMAil =asyncHandler( async (options) => {
   let transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -32,6 +33,6 @@ const sendMAil = async (options) => {
       html: emailHtml(emailToken),
     });
   }
-};
+});
 
 export { sendMAil };

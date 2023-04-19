@@ -69,8 +69,8 @@ const getSurgery = asyncHandler(async(req,res,next) =>{
 //cancelSurgery
 const cancelSurgery = asyncHandler(async(req,res,next) =>{
   const {id} = req.params;
-  const oneHour =  24 * 60 * 60 * 1000;
-  if(appointmentTime - cancellationTime <= oneHour){
+  const oneDay =  24 * 60 * 60 * 1000;
+  if(appointmentTime - cancellationTime <= oneDay){
       res.status(200).json({message:"Failed to cancel"})
   }else{
   const cancelation = await surgeryModel.deleteOne({_id:id});
