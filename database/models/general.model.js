@@ -18,4 +18,4 @@ const generalSchema = new mongoose.Schema({
 
 const generalModel=mongoose.model("General",generalSchema)
 
-export default generalModel
+export default generalModel;

@@ -37,7 +37,7 @@ const updateExamin =asyncHandler( async (req, res,next) => {
  
 });
 
-const deleteExamin = async (req, res,next) => {
+const deleteExamin =asyncHandler( async (req, res,next) => {
   
     const { _id } = req.body;
     const examin = await examinModel.findById(_id);
@@ -45,9 +45,9 @@ const deleteExamin = async (req, res,next) => {
     user.patientInfo.examins.pop(_id);
     user.save();
     const deletedExamin = await examinModel.deleteOne(_id);
-    res.json({ message: "Deleted", deletedExamin });
+    res.status(200).json({ message: "Deleted", deletedExamin });
 
-};
+});
 
 export { addExamin, getExamin, updateExamin, deleteExamin };
  

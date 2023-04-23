@@ -1,4 +1,4 @@
-/* import express from 'express';
+ import express from 'express';
 import * as labController from './controller/lab.controller.js'
 const router = express.Router();
 
@@ -10,4 +10,4 @@ router.delete("/deletelab",labController.deleteLab)
 
 
 
-export default router; */
+export default router; 
