@@ -62,5 +62,15 @@ const reserveLab = asyncHandler( async(req,res,next) =>{
   }
 });
 
-export { addLab, getLab, updateLab, deleteLab ,reserveLab};
+const cancelReservationLab = asyncHandler(async(req,res,next) =>{
+  const {patientId} = req.params
+  const cancelation = await reserveModel.findByIdAndDelete({patientId})
+  if (!cancelation) {
+     res.status(404).json({ message: 'Reservation not found' });
+  }else{
+    res.status(200).json({ message: 'Cancelation deleted successfully' });
+  }
+});
+
+export { addLab, getLab, updateLab, deleteLab ,reserveLab,cancelReservationLab};
  
