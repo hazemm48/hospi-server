@@ -1,6 +1,7 @@
  import examinModel from "../../../../database/models/examin.model.js";
 import userModel from "../../../../database/models/user.model.js";
-import asyncHandler from "../../../services/asyncHandler.js"
+import asyncHandler from "../../../services/asyncHandler.js";
+import reserveModel from "../../../../database/models/reserve.model.js";
 
 const addExamin =asyncHandler( async (req, res,next) => {
   let all = req.body;
@@ -45,9 +46,19 @@ const deleteExamin =asyncHandler( async (req, res,next) => {
     user.patientInfo.examins.pop(_id);
     user.save();
     const deletedExamin = await examinModel.deleteOne(_id);
-    res.status(200).json({ message: "Deleted", deletedExamin });
+    res.status(200).json({ message: "Deleted", deletedExamin });});
 
+
+const reserveExamin = asyncHandler( async(req,res,next) =>{
+  const {date,phone,type} = req.body
+  const reserveExamin = await reserveModel.findOne({date})
+  if(reserveExamin.length){
+    res.status(400).json({message:"The Date is already Reserved"})
+  }else{
+    const reserved = await reserveModel.insertMany({date,phone,type})
+    res.status(201).json({message:"Reserved Done",reserved})
+  }
 });
 
-export { addExamin, getExamin, updateExamin, deleteExamin };
+export { addExamin, getExamin, updateExamin, deleteExamin , reserveExamin};
  

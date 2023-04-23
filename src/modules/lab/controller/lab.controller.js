@@ -1,4 +1,5 @@
 import labModel from "../../../../database/models/lab.model.js";
+import reserveModel from "../../../../database/models/reserve.model.js";
 import userModel from "../../../../database/models/user.model.js";
 import asyncHandler from "../../../services/asyncHandler.js"
 
@@ -10,7 +11,7 @@ const addLab =asyncHandler( async (req, res) => {
       res.status(200).json({ message: "Lab already added" });
     } else {
       const added = await labModel.insertMany(all);
-      res.status(200).json({ message: "Added new Lab", added });
+      res.status(201).json({ message: "Added new Lab", added });
     }
 
 });
@@ -50,5 +51,16 @@ const deleteLab =asyncHandler( async (req, res) => {
  
 });
 
-export { addLab, getLab, updateLab, deleteLab };
+const reserveLab = asyncHandler( async(req,res,next) =>{
+  const {date,phone,type} = req.body
+  const reservedLab = await reserveModel.findOne({date})
+  if(reservedLab.length){
+    res.status(400).json({message:"The Date is already Reserved"})
+  }else{
+    const reserved = await reserveModel.insertMany({date,phone,type})
+    res.status(201).json({message:"Reserved Done",reserved})
+  }
+});
+
+export { addLab, getLab, updateLab, deleteLab ,reserveLab};
  

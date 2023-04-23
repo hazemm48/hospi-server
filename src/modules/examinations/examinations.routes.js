@@ -6,6 +6,7 @@ router.post("/addexamin",examinController.addExamin)
 router.get("/getexamin",examinController.getExamin)
 router.put("/updateexamin",examinController.updateExamin)
 router.delete("/deleteexamin",examinController.deleteExamin)
+router.post("/reserveExamin",examinController.reserveExamin)
 
 
 export default router; 

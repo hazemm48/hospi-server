@@ -6,6 +6,7 @@ router.post("/addlab",labController.addLab)
 router.get("/getlab",labController.getLab)
 router.put("/updatelab",labController.updateLab)
 router.delete("/deletelab",labController.deleteLab)
+router.post("/reserveLab",labController.reserveLab)
 
 
 

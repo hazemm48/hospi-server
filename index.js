@@ -1,7 +1,5 @@
 import  express  from "express"
 import * as dotenv from "dotenv"
-import http from 'http'
-// import io from 'socket.io'
 import cors from 'cors'
 dotenv.config()
 const app = express()
@@ -11,7 +9,6 @@ import { globalError } from "./src/services/asyncHandler.js"
 import morgan from 'morgan'
 
 
-const server = http.createServer(app);
 
 
 

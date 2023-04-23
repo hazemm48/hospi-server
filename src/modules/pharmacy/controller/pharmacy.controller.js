@@ -7,7 +7,7 @@ const addMedicine =asyncHandler( async (req, res,next) => {
  
     const check = await medicineModel.find({medicineName});
     if (check.length) {
-      res.status(200).json({ message: "Medicine already added" });
+      res.status(400).json({ message: "Medicine already added" });
     } else {
       const added = await medicineModel.insertMany({medicineName,categoryMedicine,price,medicineType});
       req.body.stock=req.body.totalItems;
