@@ -1,7 +1,7 @@
 import roomModel from "../../../../database/models/room.model.js";
 import { asyncHandler } from "../../../services/asyncHandler.js";
 
-const addRoom =asyncHandler( async (req, res) => {
+const addRoom =asyncHandler( async (req, res,next) => {
     let all = req.body;
 
       const check = await roomModel.findOne({ name: all.name });
@@ -9,12 +9,12 @@ const addRoom =asyncHandler( async (req, res) => {
         res.status(200).json({ message: "Room already added" });
       } else {
         const added = await roomModel.insertMany(all);
-        res.status(200).json({ message: "Added new Room", added });
+        res.status(201).json({ message: "Added new Room", added });
       }
 
   });
 
-  const getRoom =asyncHandler( async (req, res) => {
+  const getRoom =asyncHandler( async (req, res,next) => {
     all = req.body;
     
       if (all.oper == "all") {
@@ -27,7 +27,7 @@ const addRoom =asyncHandler( async (req, res) => {
    
   });
 
-  const updateRoom =asyncHandler( async (req, res) => {
+  const updateRoom =asyncHandler( async (req, res,next) => {
     let all = req.body;
     
       const updated = await labModel.findByIdAndUpdate(all._id, all, {
@@ -37,11 +37,11 @@ const addRoom =asyncHandler( async (req, res) => {
    
   });
 
-  const deleteRoom =asyncHandler( async (req, res) => {
+  const deleteRoom =asyncHandler( async (req, res,next) => {
     
       const { _id } = req.body;
       const deleted = await roomModel.deleteOne(_id);
-      res.status(200).json({ message: "Deleted", deleted });
+      res.status(200).json({ message: "Room Deleted", deleted });
    
   });  
 
