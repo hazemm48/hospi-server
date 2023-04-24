@@ -20,10 +20,9 @@ const medicineSchema = new mongoose.Schema({
         default:false
     },
     stock:{
-        type:Number,
-        default:0
+        type:Number
     },
-    totalItems:String,
+    
     soldItems:String
 },{
     timestamps:true

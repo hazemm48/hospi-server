@@ -45,6 +45,17 @@ const addRoom =asyncHandler( async (req, res) => {
    
   });  
 
+  // const reserveRoom = asyncHandler( async(req,res,next) =>{
+  //   const {date,phone,type} = req.body
+  //   const reserveExamin = await reserveModel.findOne({date})
+  //   if(reserveExamin.length){
+  //     res.status(400).json({message:"The Date is already Reserved"})
+  //   }else{
+  //     const reserved = await reserveModel.insertMany({date,phone,type})
+  //     res.status(201).json({message:"Reserved Done",reserved})
+  //   }
+  // });
+
 
 
 export {

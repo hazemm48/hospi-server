@@ -3,15 +3,16 @@ import { asyncHandler } from "../../../services/asyncHandler.js";
 import cloudinary from "../../../utils/cloudinary.js";
 
 const addMedicine =asyncHandler( async (req, res,next) => {
-  let {medicineName,categoryMedicine,price,medicineType} = req.body;
+  let {medicineName,categoryMedicine,price,medicineType,stock} = req.body;
  
     const check = await medicineModel.find({medicineName});
     if (check.length) {
       res.status(400).json({ message: "Medicine already added" });
     } else {
-      const added = await medicineModel.insertMany({medicineName,categoryMedicine,price,medicineType});
-      req.body.stock=req.body.totalItems;
-      req.body.soldItems=0
+      const added = await medicineModel.insertMany({medicineName,categoryMedicine,price,medicineType,stock});
+      res.status(201).json({message:"Medicine added Successfully",added})
+      // req.body.stock=req.body.totalItems;
+      // req.body.soldItems=0
       // if(!req.files){
       //   next(new Error("You have to upload an image",{cause:404}))
       // }else{
