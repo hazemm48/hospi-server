@@ -9,7 +9,7 @@ const addRoom =asyncHandler( async (req, res,next) => {
         res.status(200).json({ message: "Room already added" });
       } else {
         const added = await roomModel.insertMany(all);
-        res.status(201).json({ message: "Added new Room", added });
+        res.status(201).json({ message: "New Room Added", added });
       }
 
   });
