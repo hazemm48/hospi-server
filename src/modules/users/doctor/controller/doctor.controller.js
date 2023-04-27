@@ -42,7 +42,7 @@ const addReport = asyncHandler( async (req, res, next) => {
 });
 //get Schedule 
 const getSchedule = asyncHandler(async (req,res,next) =>{
-  let schedule = await reserveModel.find({patientId},patName,date)
+  let schedule = await reserveModel.find({patientId},patName,date,report)
   res.json({message:"This is your Schedule",schedule})
 });
 
@@ -55,7 +55,12 @@ const addSurgery = asyncHandler(async(req,res,next) =>{
     res.json({message:"Surgery already added before"})
   }else{ 
     const addedSurgery = await surgeryModel.insertMany({patientName,surgeryName,patientEmail,roomNum,reservationDate,appointmentDate})
-    res.status(201).json({message:"surgery Added",addedSurgery})
+    if(appointmentDate.isEmpty()){
+      res.status(201).json({message:"surgery Added",addedSurgery})
+    }else{
+      next(new Error("Date is booked before",{cause:404}))
+    }
+      
   }
   });
 
