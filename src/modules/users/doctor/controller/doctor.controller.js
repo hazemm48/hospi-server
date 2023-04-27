@@ -3,7 +3,7 @@ import surgeryModel from "../../../../../database/models/surgeries.model.js";
 import userModel from "../../../../../database/models/user.model.js";
 import { asyncHandler } from "../../../../services/asyncHandler.js";
 
-const getDoctor = asyncHandler( async (req, res) => {
+const getDoctor = asyncHandler( async (req, res,next) => {
   let all = req.body;
   
     if (!all) {
@@ -16,7 +16,7 @@ const getDoctor = asyncHandler( async (req, res) => {
   
 });
 
-const updateDoctor = asyncHandler( async (req, res) => {
+const updateDoctor = asyncHandler( async (req, res,next) => {
   let all = req.body;
   
     const updated = await userModel.findByIdAndUpdate(req.userId, all, {
@@ -26,7 +26,7 @@ const updateDoctor = asyncHandler( async (req, res) => {
  
 });
 
-const deleteDoctor = asyncHandler( async (req, res) => {
+const deleteDoctor = asyncHandler( async (req, res,next) => {
  
     const deleted = await userModel.deleteOne(req.userId);
     res.json({ message: "delete doctor", deleted, infoDelete });

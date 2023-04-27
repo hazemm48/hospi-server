@@ -42,13 +42,13 @@ const qrCode =asyncHandler( async (data) => {
   }
 });
 
-const getReport =asyncHandler( async (req, res) => {
+const getReport =asyncHandler( async (req, res,next) => {
   let resId = req.body;
   let report = await reserveModel.findById(resId).select("report -_id");
   res.json({ message: "done", report });
 });
 
-const presc =asyncHandler( async (req, res) => {
+const presc =asyncHandler( async (req, res,next) => {
   let { oper, resId } = req.body;
   let reserve = await reserveModel.findById(resId);
   let data = {

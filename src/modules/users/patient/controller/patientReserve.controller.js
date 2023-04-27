@@ -116,7 +116,7 @@ const reserve =asyncHandler( async (req, res) => {
   }
 });
 
-const getReserve =asyncHandler( async (req, res) => {
+const getReserve =asyncHandler( async (req, res,next) => {
   let all = req.body;
   const patient = await userModel.findById(req.userId);
   const reservations = await reserveModel.find({ patientId: req.userId });
@@ -158,7 +158,7 @@ const getReserve =asyncHandler( async (req, res) => {
   }
 });
 
-const cancelReserve =asyncHandler( async (req, res) => {
+const cancelReserve =asyncHandler( async (req, res,next) => {
   let { resId } = req.body;
   let reserve = await reserveModel.findById(resId);
   if (reserve) {

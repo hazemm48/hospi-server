@@ -51,7 +51,7 @@ const getMedicalRecord =asyncHandler( async (req, res,next) => {
   }
 });
 
-/*const medicReport = async (req, res) => {
+/*const medicReport = async (req, res,next) => {
   let report = {};
   let patient = await userModel.findById(req.userId);
   let diseases = patient.patientInfo.diseases;
