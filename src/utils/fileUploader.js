@@ -1,5 +1,16 @@
 import multer from "multer";
+// import { nanoid } from "nanoid";
 //import { v4 as uuid } from "uuid";
+
+// export const storage = multer.diskStorage({
+//   destination:function(req,file,cb){
+//     cb(null,'uploads')
+//   },
+//   filename:function(req,file,cb){
+//     cb(null,nanoid()+"_"+file.originalname)
+//   }
+// })
+
 
 export const fileUpload = () => {
   const storage = multer.diskStorage({});
@@ -13,7 +24,7 @@ export const fileUpload = () => {
     }
   }
 
-  const upload = multer({ storage: storage, fileFilter });
+  const upload = multer({ storage, fileFilter });
 
   return upload.single("test");
 };

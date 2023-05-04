@@ -26,11 +26,22 @@ const addMedicine =asyncHandler( async (req, res,next) => {
 
 const getMedicine =asyncHandler( async (req, res,next) => {
   
-      const allMed = await medicineModel.find({});
-      res.status(200).json({ message: "all Medicines", allMed });
+  if (all.oper == "all") {
+    const allMedicines = await medicineModel.find();
+    res.status(200).json({ message: "all Medicines", allMedicines });
+  } else if (!all.oper) {
+    const medicine = await medicineModel.find(all);
+    res.status(200).json({ message: "all medicines", medicine });
+  }
     
 
 });
+
+// //search medicine 
+// const searchMedicine = asyncHandler(async(req,res,next) =>{
+//   const searched = await medicineModel.find({type,medicineName})
+//   res.status(200).json({message:"Here you are",searched})
+// });
 
 const updateMedicine =asyncHandler( async (req, res,next) => {
   let {id} = req.params;
