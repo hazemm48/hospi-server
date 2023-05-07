@@ -52,7 +52,7 @@ export const patientSchema = new mongoose.Schema(
   }
 );
 
-const patientModel = mongoose.model("Patient",patientSchema);
 
-export default patientModel;
+
+export default patientSchema;
 
