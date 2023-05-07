@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const medicineSchema = new mongoose.Schema({
     medicineName : {
         type:String,
+        required:[true,'medicine Name is required']
     },
     // image:{
     //     type:String,
@@ -11,7 +12,10 @@ const medicineSchema = new mongoose.Schema({
     publicId: {
         type:String
     },
-    price :String,
+    price :{
+        type:Number,
+        required:[true,'price is required'] 
+    },
     description :String,
     type:String,
     quantity:String,

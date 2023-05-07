@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
 
 const roomSchema = new mongoose.Schema({
-  num: Number,
+  num: {
+    type: Number,
+    required:[true,'Room Number is required']
+  },
   level: String,
   history: [
     {
@@ -19,4 +22,5 @@ const roomSchema = new mongoose.Schema({
 });
 
 const roomModel = mongoose.model("Room", roomSchema);
+
 export default roomModel;

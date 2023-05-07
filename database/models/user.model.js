@@ -3,8 +3,14 @@ import { doctorSchema } from "./doctor.model.js"
 import { patientSchema } from "./patient.model.js"
 
 const userSchema = new mongoose.Schema({
-  name:String,
-  email:String,
+  name:{
+    type:String,
+    required:[true,'User Name is required']
+  },
+  email:{
+    type:String,
+    required:[true,'Email is required']
+  },
   password:[String],
   role:{
     type:String,
@@ -28,6 +34,6 @@ const userSchema = new mongoose.Schema({
   timestamps:true
 })
 
-const userModel=mongoose.model("User",userSchema)
+const userModel=mongoose.model("User",userSchema);
 
-export default userModel
+export default userModel;

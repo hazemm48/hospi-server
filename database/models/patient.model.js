@@ -47,8 +47,12 @@ export const patientSchema = new mongoose.Schema(
   },
   {
     _id:false
+  },{
+    timestamps: true,
   }
 );
 
-export default patientSchema;
+const patientModel = mongoose.model("Patient",patientSchema);
+
+export default patientModel;
 

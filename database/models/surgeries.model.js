@@ -2,7 +2,10 @@ import mongoose from "mongoose";
 
 const surgerySchema = new mongoose.Schema(
     {
-        patientName:String,
+        patientName:{
+          type:String,
+          required:[true,'Patient Name is required']
+        },
         patientEmail:String,
         doctorName:String,
         patientId: {

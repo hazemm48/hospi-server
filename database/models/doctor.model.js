@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 export const doctorSchema = new mongoose.Schema({
   age:Number,
-  specaility:String,
+  specialty:String,
   bio:String,
   fees:Number,
   schedule:[{
@@ -24,4 +24,11 @@ export const doctorSchema = new mongoose.Schema({
   room:String,
 },{
   _id:false
-})
+},
+{
+  timestamps:true
+});
+
+const doctorModel = mongoose.model("Doctor",doctorSchema)
+
+export default doctorModel;

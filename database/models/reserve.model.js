@@ -14,7 +14,7 @@ const reserveSchema = new mongoose.Schema(
     turnNum: Number,
     date: String,
     time: String,
-    phone: String,
+    phone: Number,
     visitType: String,
     status:{
       type:Boolean,
