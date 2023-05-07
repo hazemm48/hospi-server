@@ -4,10 +4,10 @@ import * as userController from "./users/controller/user.controller.js";
 import patientRoutes from "./users/patient/patient.routes.js";
 import pharmacyRoutes from "./pharmacy/pharmacy.routes.js";
 import doctorRoutes from "./users/doctor/doctor.routes.js";
-/* import examin from './examinations/examinations.routes.js'
- */ import adminRoutes from "./users/admin/admin.routes.js";
-/* import labRoutes from './lab/lab.routes.js'
- */ import roomRoutes from "./room/room.routes.js";
+import adminRoutes from "./users/admin/admin.routes.js";
+// import examinRoutes from "./examinations/examinations.routes.js";
+//  import labRoutes from './lab/lab.routes.js'
+ import roomRoutes from "./room/room.routes.js";
 import photosRoutes from "./photos/photos.routes.js";
 import validation from "./middleware/validation.js";
 import * as validSchema from "./middleware/user.validation.js";
@@ -23,11 +23,11 @@ router.use("/admin",adminAuth,adminRoutes);
 router.post("/adminLogin", signIn);
 router.use("/patient", auth, patientRoutes);
 router.use("/doctor", auth, doctorRoutes);
-/* router.use('/lab',auth,labRoutes) */
+// router.use('/lab',auth,labRoutes) 
 router.use("/room", auth, roomRoutes);
 router.use("/pharmacy", adminAuth, pharmacyRoutes);
 router.use("/photo", photosRoutes);
-/* router.use('/examin',auth,examin) */
+// router.use("/examin",auth,examinRoutes)
 
 router.post("/signUp", userController.signUp);
 router.get("/verify/:email", emailAuth, userController.verify);

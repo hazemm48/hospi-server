@@ -14,7 +14,7 @@ const generalSchema = new mongoose.Schema({
     }]
 },{
     timestamps:true
-})
+});
 
 const generalModel=mongoose.model("General",generalSchema)
 
