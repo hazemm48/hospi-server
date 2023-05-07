@@ -5,6 +5,7 @@ const roomSchema = new mongoose.Schema({
     type: Number,
     required:[true,'Room Number is required']
   },
+  roomImage:String,
   level: String,
   history: [
     {

@@ -54,7 +54,7 @@ const reserveExamin = asyncHandler( async(req,res,next) =>{
   const {date,phone,type} = req.body
   const reserveExamin = await reserveModel.findOne({date})
   if(reserveExamin.length){
-    res.status(400).json({message:"The Date is already Reserved"})
+    res.status(200).json({message:"The Date is already Reserved"})
   }else{
     const reserved = await reserveModel.insertMany({date,phone,type})
     res.status(201).json({message:"Reserved Done",reserved})
@@ -65,7 +65,7 @@ const cancelReservation = asyncHandler(async(req,res,next) =>{
   const {patientId} = req.params
   const cancelation = await reserveModel.findByIdAndDelete({patientId})
   if (!cancelation) {
-     res.status(404).json({ message: "Reservation not found" });
+     res.status(200).json({ message: "Reservation not found" });
   }else{
     res.status(200).json({ message: 'Cancelation deleted successfully' });
   }

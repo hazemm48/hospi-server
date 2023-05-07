@@ -7,7 +7,7 @@ const addMedicine =asyncHandler( async (req, res,next) => {
  
     const check = await medicineModel.find({medicineName});
     if (check.length) {
-      res.status(400).json({ message: "Medicine already added" });
+      res.status(200).json({ message: "Medicine already added" });
     } else {
       const added = await medicineModel.insertMany({medicineName,categoryMedicine,price,medicineType,stock});
       res.status(201).json({message:"Medicine added Successfully",added})
@@ -46,9 +46,9 @@ const getMedicine =asyncHandler( async (req, res,next) => {
 const updateMedicine =asyncHandler( async (req, res,next) => {
   let {id} = req.params;
   let {price} =req.body;
-  let medicine = await medicineModel.findById(id)
+  let medicine = await medicineModel.findByIdAndUpdate({_id:id},{price},{new:true})
   if (!medicine) {
-    next(new Error("Medicine Not found",{cause:404}))
+    res.status(200).json({message:"Medicine Not found"})
   } else {
     let updatedMedicine = await medicineModel.findByIdAndUpdate({_id:id},{price:price},{new:true})
     res.status(200).json({message:"Updated",updatedMedicine})

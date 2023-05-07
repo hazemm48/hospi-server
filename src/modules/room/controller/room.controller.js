@@ -30,7 +30,7 @@ const addRoom =asyncHandler( async (req, res,next) => {
   const updateRoom =asyncHandler( async (req, res,next) => {
     let all = req.body;
     
-      const updated = await labModel.findByIdAndUpdate(all._id, all, {
+      const updated = await roomModel.findByIdAndUpdate(all._id, all, {
         new: true,
       });
       res.status(200).json({ message: "Updated", updated });
@@ -45,16 +45,16 @@ const addRoom =asyncHandler( async (req, res,next) => {
    
   });  
 
-  // const reserveRoom = asyncHandler( async(req,res,next) =>{
-  //   const {date,phone,type} = req.body
-  //   const reserveExamin = await reserveModel.findOne({date})
-  //   if(reserveExamin.length){
-  //     res.status(400).json({message:"The Date is already Reserved"})
-  //   }else{
-  //     const reserved = await reserveModel.insertMany({date,phone,type})
-  //     res.status(201).json({message:"Reserved Done",reserved})
-  //   }
-  // });
+  const reserveRoom = asyncHandler( async(req,res,next) =>{
+    const {date,doctorName,patientName,type} = req.body
+    const reservedRoom = await reserveModel.findOne({date})
+    if(reservedRoom.length){
+      res.status(200).json({message:"The Date is already Reserved"})
+    }else{
+      const reserved = await reserveModel.insertMany({date,doctorName,patientName,type})
+      res.status(201).json({message:"Reserved Done",reserved})
+    }
+  });
 
 
 
@@ -62,5 +62,6 @@ export {
     addRoom,
     getRoom,
     updateRoom,
-    deleteRoom
+    deleteRoom,
+    reserveRoom
 }  
