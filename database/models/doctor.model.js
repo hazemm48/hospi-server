@@ -6,16 +6,22 @@ export const doctorSchema = new mongoose.Schema({
   birthDate:Date,
   city:String,
   bio:String,
-  fees:Number,
+  fees:{
+    followUp:Number,
+    examin:Number
+  },
   schedule:[{
     day:String,
-    time:{
+    time:[{
       from:String,
       to:String
-    },
+    }],
     appointments:[{
-      type: mongoose.Types.ObjectId,
-      ref: "Reservation"
+      date:Date,
+      reserveId:[{
+       type: mongoose.Types.ObjectId,
+      ref: "Reservation" 
+      }]   
     }],
     limit:Number
   }],

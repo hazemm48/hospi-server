@@ -1,21 +1,19 @@
 import userModel from "../../../../../database/models/user.model.js";
 import reserveModel from "../../../../../database/models/reserve.model.js";
 import moment from "moment-timezone";
+import catchAsyncError from "../../../middleware/catchAsyncError.js";
+import AppError from "../../../../utils/AppError.js";
 
-const reserve = async (req, res) => {
+const reserve = catchAsyncError(async (req, res, next) => {
   let all = req.body;
   let [apLength, resPerDay, allRes] = [4, 6, 10];
-  req.role == "patient"
-    ? (all.patientId = req.userId)
-    : (all.patientId = all.patId);
-  let allReserves = await reserveModel.find({
+  req.role == "patient" ? (all.patientId = req.userId) : "";
+  let reserves = reserveModel.find({
     type: all.type,
     status: false,
+    patientId: all.patientId,
   });
-  let reserves = allReserves.filter((e) => {
-    return e.patientId == all.patientId;
-  });
-
+  all.patientId ? (reserves = await reserves) : (reserves = []);
   let resDayLength = reserves.filter((e) => {
     return e.createdAt.toLocaleDateString() == new Date().toLocaleDateString();
   });
@@ -27,38 +25,62 @@ const reserve = async (req, res) => {
   });
   let doctor = {};
   let scheduleDayIndex = -1;
+  let appointmentDateIndex = -1;
 
   if (all.type == "doctor") {
+    if (
+      all.day != moment(all.date, "DD-MM-YYYY").format("dddd").toLowerCase()
+    ) {
+      return next(new AppError("day and date dont match", 404));
+    }
     let docInfo = await userModel.findById(all.doctorId);
     let scheduleIndex = docInfo.doctorInfo.schedule.findIndex(
       (e) => e.day == all.day
     );
+    let appointmentIndex = docInfo.doctorInfo.schedule[
+      scheduleIndex
+    ].appointments.findIndex(
+      (e) => moment(e.date).format("DD-MM-YYYY") == all.date
+    );
     doctor = docInfo;
     scheduleDayIndex = scheduleIndex;
+    appointmentDateIndex = appointmentIndex;
   }
 
   let addRes = async (check) => {
     if (!check) {
       all.date = moment(all.date, "DD-MM-YYYY").format("MM-DD-YYYY");
       all.type == "doctor"
-        ? (all.time = doctor.doctorInfo.schedule[scheduleDayIndex].time)
+        ? (all.time =
+            doctor.doctorInfo.schedule[scheduleDayIndex].time[all.time])
         : "";
+      all.patientId == "" ? delete all["patientId"] : "";
       let add = await reserveModel.insertMany(all);
-      let updatePat = await userModel.findByIdAndUpdate(all.patientId, {
-        $push: { "patientInfo.reservations": add[0]._id },
-      });
+      if (all.patientId) {
+        let updatePat = await userModel.findByIdAndUpdate(all.patientId, {
+          $push: { "patientInfo.reservations": add[0]._id },
+        });
+      }
+
       if (all.type == "doctor") {
         let appointments =
           doctor.doctorInfo.schedule[scheduleDayIndex].appointments;
-        appointments.push(add[0]._id);
-        doctor.save();
-        let turnNumber = appointments.indexOf(add[0]._id);
+        if (!appointments[appointmentDateIndex]) {
+          let newAppoin = appointments.push({ date: all.date });
+          appointmentDateIndex = newAppoin - 1;
+          await doctor.save();
+        }
+        appointments[appointmentDateIndex].reserveId.push(add[0]._id);
+        await doctor.save();
+        let turnNumber = appointments[appointmentDateIndex].reserveId.indexOf(
+          add[0]._id
+        );
         add[0].turnNum = turnNumber + 1;
-        add[0].save();
+        await add[0].save();
       }
       res.json({ message: `${all.type} Booked`, add });
     } else {
-      res.json({ message: "Already booked" });
+      next(new AppError("Already booked", 404));
     }
   };
 
@@ -68,8 +90,9 @@ const reserve = async (req, res) => {
         if (scheduleDayIndex >= 0) {
           if (
             doctor.doctorInfo.schedule[scheduleDayIndex].limit >=
-              doctor.doctorInfo.schedule[scheduleDayIndex].appointments
-                .length &&
+              (doctor.doctorInfo.schedule[scheduleDayIndex].appointments[
+                appointmentDateIndex
+              ]?.reserveId.length - 1 || 0) &&
             doctor.doctorInfo.available == true
           ) {
             let x = false;
@@ -80,9 +103,9 @@ const reserve = async (req, res) => {
                   moment(e.date).tz("Africa/Cairo").format("DD-MM-YYYY")
                 ) {
                   if (
-                    (all.anotherPerson == true &&
+                    (all.anotherPerson &&
                       anotherPersonLength.length < apLength) ||
-                    (all.anotherPerson == false && e.anotherPerson == true)
+                    (!all.anotherPerson && e.anotherPerson)
                   ) {
                     x = false;
                   } else {
@@ -96,19 +119,18 @@ const reserve = async (req, res) => {
             });
             addRes(check);
           } else {
-            res.json({ message: "doctor schedule is full or not available" });
+            next(new AppError("doctor schedule is full or not available", 404));
           }
         } else {
-          res.json({ message: "no such date in schedule" });
+          next(new AppError("no such day in schedule", 404));
         }
       } else if (all.type == "lab" || all.type == "rad") {
         let x = false;
         let check = reserves.some((e) => {
           if (all.date == e.date) {
             if (
-              (all.anotherPerson == true &&
-                anotherPersonLength.length < apLength) ||
-              (all.anotherPerson == false && e.anotherPerson == true)
+              (all.anotherPerson && anotherPersonLength.length < apLength) ||
+              (!all.anotherPerson && e.anotherPerson)
             ) {
               x = false;
             } else {
@@ -122,14 +144,14 @@ const reserve = async (req, res) => {
         addRes(check);
       }
     } else {
-      res.json({ message: "exceeded number of reservations per day " });
+      next(new AppError("exceeded number of reservations per day", 404));
     }
   } else {
-    res.json({ message: "exceeded number of reservations" });
+    next(new AppError("exceeded number of reservations", 404));
   }
-};
+});
 
-const getReserve = async (req, res) => {
+const getReserve = catchAsyncError(async (req, res, next) => {
   let { filter, sort, limit, count } = req.body;
   limit <= 0 || !limit ? (limit = 0) : limit;
   limit = limit * 1 || 0;
@@ -145,15 +167,14 @@ const getReserve = async (req, res) => {
       },
     });
   }
-
   if (reservations) {
     res.json({ message: "all reservations", reservations, length });
   } else {
-    res.json({ message: "not found" });
+    next(new AppError("not found", 404));
   }
-};
+});
 
-const cancelReserve = async (req, res) => {
+const cancelReserve = catchAsyncError(async (req, res, next) => {
   let { resId } = req.body;
   let reserve = await reserveModel.findById(resId);
   if (reserve) {
@@ -203,25 +224,27 @@ const cancelReserve = async (req, res) => {
   } else {
     res.json({ message: "reservation already cancelled" });
   }
-};
+});
 
-const editReserve =async(req,res)=>{
-  let {details,id} = req.body
+const editReserve = catchAsyncError(async (req, res, next) => {
+  let { details, id } = req.body;
   console.log(details);
-  let reserve = await reserveModel.findByIdAndUpdate(id,details,{new:true})
-  res.json({message:"updated",reserve})
-}
+  let reserve = await reserveModel.findByIdAndUpdate(id, details, {
+    new: true,
+  });
+  res.json({ message: "updated", reserve });
+});
 
-const adminRes = (req, res) => {
+const adminRes = (req, res, next) => {
   let params = req.params;
   if (params.oper == "reserve") {
-    reserve(req, res);
+    reserve(req, res, next);
   } else if (params.oper == "get") {
-    getReserve(req, res);
+    getReserve(req, res, next);
   } else if (params.oper == "cancel") {
-    cancelReserve(req, res);
+    cancelReserve(req, res, next);
   } else if (params.oper == "edit") {
-    editReserve(req, res);
+    editReserve(req, res, next);
   }
 };
 

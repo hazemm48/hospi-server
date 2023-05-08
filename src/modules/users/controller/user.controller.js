@@ -2,25 +2,22 @@ import userModel from "../../../../database/models/user.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendMAil } from "../../../services/sendMail.js";
+import catchAsyncError from "../../middleware/catchAsyncError.js";
+import AppError from "../../../utils/AppError.js";
 
-const signUp = async (req, res) => {
+const signUp = catchAsyncError(async (req, res, next) => {
   let all = req.body;
-  let query = [];
-  if (all.phone) {
-    query.push({phone:all.phone});
-  }
-  if (all.email) {
-    query.push({email:all.email});
-  }
-  let check = await userModel.findOne({ $or: query });
+  let check = await userModel.findOne({ email: all.email });
   if (check) {
-    res.json({ message: "already registered" });
+    next(new AppError("already registered", 404));
   } else {
     let hashedPass = bcrypt.hashSync(all.password, Number(process.env.ROUNDS));
     all.password = [hashedPass, all.password];
     if (all.role == "patient") {
       let added = await userModel.insertMany(all);
-      sendMAil({ email: all.email, operation: "verify" });
+      if (!req.role == "admin") {
+        sendMAil({ email: all.email, operation: "verify" });
+      }
       res.json({ message: "patient added", added });
     } else if (all.role == "doctor" && req.role == "admin") {
       let added = await userModel.insertMany(all);
@@ -29,12 +26,12 @@ const signUp = async (req, res) => {
       let added = await userModel.insertMany(all);
       res.json({ message: "admin added", added });
     } else {
-      res.json({ message: "not authorized" });
+      next(new AppError("unauthorized", 401));
     }
   }
-};
+});
 
-const verify = async (req, res) => {
+const verify = catchAsyncError(async (req, res, next) => {
   let updated = await userModel.findOneAndUpdate(
     { email: req.email },
     { confirmedEmail: true },
@@ -42,27 +39,26 @@ const verify = async (req, res) => {
   );
   updated.password = undefined;
   res.json({ message: "verified", updated });
-};
+});
 
-const forgetPassword = async (req, res) => {
+const forgetPassword = catchAsyncError(async (req, res, next) => {
   let { email } = req.body;
   let user = await userModel.findOne({ email });
   if (user) {
     let resetCode = Math.floor(100000 + Math.random() * 900000);
-    let updated = await userModel.findOneAndUpdate({ email }, { resetCode });
+    user.resetCode = resetCode;
+    await user.save();
     sendMAil({ email: email, operation: "reset", code: resetCode });
-    res.json({ message: "email sent", updated });
+    res.json({ message: "email sent" });
   } else {
-    res.json({ message: "email not registered" });
+    next(new AppError("email not registered", 404));
   }
-};
+});
 
-const verifyResetcode = async (req, res) => {
-  let code = req.body.resetCode;
+const verifyResetcode = catchAsyncError(async (req, res, next) => {
   let email = req.body.email;
   let user = await userModel.findOne({ email });
-  console.log(user);
-  if (code == user.resetCode && user.resetCode != "") {
+  if (req.body.resetCode == user.resetCode && user.resetCode != "") {
     let token = jwt.sign(
       {
         email: email,
@@ -74,17 +70,17 @@ const verifyResetcode = async (req, res) => {
     await user.save();
     res.json({ message: "Code correct", token });
   } else {
-    res.json({ message: "Wrong code" });
+    next(new AppError("Wrong code", 404));
   }
-};
+});
 
-const resetPassword = async (req, res) => {
+const resetPassword = catchAsyncError(async (req, res, next) => {
   let email = req.email;
   let user = await userModel.findOne({ email });
   if (user) {
     let password = req.body.newPassword;
     if (user.password[1] == password) {
-      res.json({ message: "Same old password" });
+      next(new AppError("Same old password"), 404);
     } else {
       let hashedPassword = bcrypt.hashSync(
         password,
@@ -96,19 +92,23 @@ const resetPassword = async (req, res) => {
       res.json({ message: "user updated" });
     }
   } else {
-    res.json({ message: "user not found" });
+    next(new AppError("user not found"));
   }
-};
+});
 
-const signIn = async (req, res) => {
-  let { email, phone, password, rememberMe } = req.body;
-  let query = {};
-  if (phone) {
-    query.phone = phone;
-  } else if (email) {
-    query.email = email;
+const signIn = catchAsyncError(async (req, res, next) => {
+  let gg = ()=>{
+    let x= ["hi",'bye',"sds"]
+    let y = x.findIndex(
+      (e) => e == "hs"
+    );
+    let n = x[y]
+    let c = x.push("fd")
+    console.log(n,y,c);
   }
-  let check = await userModel.findOne(query);
+  console.log(gg())
+  let { email, password, rememberMe } = req.body;
+  let check = await userModel.findOne({email});
   if (check) {
     let matched = bcrypt.compareSync(password, check.password[0]);
     if (matched) {
@@ -142,17 +142,17 @@ const signIn = async (req, res) => {
           res.json({ message: "welcome", token });
         }
       } else {
-        res.json({ message: "Confirm your email first" });
+       next(new AppError("Confirm your email first",404))
       }
     } else {
-      res.json({ message: "wrong pssword" });
+      next(new AppError("wrong pssword",404))
     }
   } else {
-    res.json({ message: "register first" });
+    next(new AppError("register first",404))
   }
-};
+});
 
-const changePass = async (req, res) => {
+const changePass = catchAsyncError(async (req, res,next) => {
   let { oldPass, newPass } = req.body;
   let check = await userModel.findById(req.userId);
   if (check) {
@@ -164,12 +164,12 @@ const changePass = async (req, res) => {
       check.save();
       res.json({ message: "password changed" });
     } else {
-      res.json({ message: "wrong old password" });
+    next(new AppError("wrong old password",404))
     }
   } else {
-    res.json({ message: "wrong user" });
+    next(new AppError("user not found",404))
   }
-};
+}) ;
 
 export {
   signUp,
