@@ -1,4 +1,3 @@
- import examinModel from "../../../../database/models/examin.model.js";
 import userModel from "../../../../database/models/user.model.js";
 import asyncHandler from "../../../services/asyncHandler.js";
 import reserveModel from "../../../../database/models/reserve.model.js";
