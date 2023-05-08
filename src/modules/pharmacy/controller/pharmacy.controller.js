@@ -48,7 +48,7 @@ const updateMedicine =asyncHandler( async (req, res,next) => {
   let {price} =req.body;
   let medicine = await medicineModel.findByIdAndUpdate({_id:id},{price},{new:true})
   if (!medicine) {
-    res.status(200).json({message:"Medicine Not found"})
+    next(new Error("Medicine Not found"),{cause:404})
   } else {
     let updatedMedicine = await medicineModel.findByIdAndUpdate({_id:id},{price:price},{new:true})
     res.status(200).json({message:"Updated",updatedMedicine})
