@@ -1,8 +1,7 @@
 import mongoose from "mongoose"
 
 const generalSchema = new mongoose.Schema({
-    docSpecialities:[String],
-    aid:[String],
+    specialities:[String]
 },{
     timestamps:true
 })

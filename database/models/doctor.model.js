@@ -12,10 +12,10 @@ export const doctorSchema = new mongoose.Schema({
   },
   schedule:[{
     day:String,
-    time:[{
+    time:{
       from:String,
       to:String
-    }],
+    },
     appointments:[{
       date:Date,
       reserveId:[{

@@ -3,7 +3,6 @@ import reserveModel from "../../../../../database/models/reserve.model.js";
 import moment from "moment-timezone";
 import catchAsyncError from "../../../middleware/catchAsyncError.js";
 import AppError from "../../../../utils/AppError.js";
-import mongoose from "mongoose";
 
 const reserve = catchAsyncError(async (req, res, next) => {
   let all = req.body;
@@ -34,7 +33,9 @@ const reserve = catchAsyncError(async (req, res, next) => {
     ) {
       return next(new AppError("day and date dont match", 404));
     }
-    let docInfo = await userModel.findById(all.doctorId);
+    let docModel = userModel.findById(all.doctorId)
+    let docInfo = await docModel
+    let docSchedule = await docModel.populate("doctorInfo.schedule")
     let scheduleIndex = docInfo.doctorInfo.schedule.findIndex(
       (e) => e.day == all.day
     );
@@ -153,48 +154,25 @@ const reserve = catchAsyncError(async (req, res, next) => {
 });
 
 const getReserve = catchAsyncError(async (req, res, next) => {
-  let { filter, sort, limit, count, month, year } = req.body;
+  let { filter, sort, limit, count } = req.body;
   limit <= 0 || !limit ? (limit = 0) : limit;
   limit = limit * 1 || 0;
   if (req.role == "patient") {
     !filter.patientId ? (filter.patientId = req.userId) : {};
   }
   let length = "";
-  if (month) {
-    let search = {};
-    console.log(search);
-    filter?.hasOwnProperty("doctorId")
-      ? (search.doctorId = mongoose.Types.ObjectId(filter.doctorId))
-      : "";
-    search.month = month;
-    search.year = year;
-    console.log(search);
-    const reservations = await reserveModel.aggregate([
-      { $addFields: { month: { $month: "$date" }, year: { $year: "$date" } } },
-      { $match: { ...search } },
-    ]);
-    if (reservations) {
-      res.json({ message: "all reservations", reservations });
-    } else {
-      next(new AppError("not found", 404));
-    }
+  const reservations = await reserveModel.find(filter).sort(sort).limit(limit);
+  if (count) {
+    length = await reserveModel.countDocuments({
+      function(err, count) {
+        return count;
+      },
+    });
+  }
+  if (reservations) {
+    res.json({ message: "all reservations", reservations, length });
   } else {
-    const reservations = await reserveModel
-      .find(filter)
-      .sort(sort)
-      .limit(limit);
-    if (count) {
-      length = await reserveModel.countDocuments({
-        function(err, count) {
-          return count;
-        },
-      });
-    }
-    if (reservations) {
-      res.json({ message: "all reservations", reservations, length });
-    } else {
-      next(new AppError("not found", 404));
-    }
+    next(new AppError("not found", 404));
   }
 });
 
