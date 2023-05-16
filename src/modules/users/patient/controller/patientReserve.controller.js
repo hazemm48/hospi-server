@@ -166,6 +166,7 @@ const getReserve = catchAsyncError(async (req, res, next) => {
     filter?.hasOwnProperty("doctorId")
       ? (search.doctorId = mongoose.Types.ObjectId(filter.doctorId))
       : "";
+    filter?.type ? (search.type = filter.type) : "";
     search.month = month;
     search.year = year;
     console.log(search);
