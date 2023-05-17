@@ -7,7 +7,8 @@ import moment from "moment";
 import noteModel from "../../../../../database/models/notes.model.js";
 
 const getAllUsers = async (req, res) => {
-  let { role, id, email, phone, sort, pageNo, limit, speciality } = req.body;
+  let { role, id, email, phone, sort, pageNo, limit, speciality, filter } =
+    req.body;
 
   pageNo <= 0 || !pageNo ? (pageNo = 1) : pageNo * 1;
   limit <= 0 || !limit ? (limit = 0) : limit * 1;
@@ -16,21 +17,38 @@ const getAllUsers = async (req, res) => {
     if (role == "patient" || role == "doctor") {
       let find = "";
       let lengthCon = "";
+      let findFilter = {
+        role,
+      };
+      filter && (findFilter = { ...findFilter, ...filter });
+      console.log(findFilter);
       speciality
         ? ((find = userModel.find({
-            role,
+            ...findFilter,
             "doctorInfo.speciality": speciality,
           })),
           (lengthCon = userModel.countDocuments({
-            role: role,
+            findFilter,
             "doctorInfo.speciality": speciality,
             function(err, count) {
               return count;
             },
           })))
-        : ((find = userModel.find({ role })),
+        : filter?.name
+        ? ((find = userModel.find({
+            role,
+            name: { $regex: filter.name, $options: "i" },
+          })),
           (lengthCon = userModel.countDocuments({
-            role: role,
+            role,
+            name: { $regex: filter.name, $options: "i" },
+            function(err, count) {
+              return count;
+            },
+          })))
+        : ((find = userModel.find(findFilter)),
+          (lengthCon = userModel.countDocuments({
+            ...findFilter,
             function(err, count) {
               return count;
             },
