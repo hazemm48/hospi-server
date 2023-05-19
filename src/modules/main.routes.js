@@ -23,7 +23,7 @@ router.post("/adminLogin", signIn);
 router.use("/patient",auth, patientRoutes);
 router.use("/doctor", auth, doctorRoutes);
 /* router.use('/lab',auth,labRoutes) */
-router.use("/room", auth, roomRoutes);
+router.use("/room", roomRoutes);
 router.use("/pharmacy", auth, pharmacyRoutes);
 /* router.use('/examin',auth,examin) */
 

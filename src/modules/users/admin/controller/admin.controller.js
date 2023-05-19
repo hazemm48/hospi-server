@@ -5,6 +5,7 @@ import generalModel from "../../../../../database/models/general.model.js";
 import reserveModel from "../../../../../database/models/reserve.model.js";
 import moment from "moment";
 import noteModel from "../../../../../database/models/notes.model.js";
+import { addDocToRoom } from "../../../room/controller/room.controller.js";
 
 const getAllUsers = async (req, res) => {
   let { role, id, email, phone, sort, pageNo, limit, speciality, filter } =
@@ -21,7 +22,6 @@ const getAllUsers = async (req, res) => {
         role,
       };
       filter && (findFilter = { ...findFilter, ...filter });
-      console.log(findFilter);
       speciality
         ? ((find = userModel.find({
             ...findFilter,
@@ -101,27 +101,9 @@ const addGeneral = async (req, res) => {
 };
 
 const deleteUser = async (req, res) => {
-  let { _id } = req.body;
-  try {
-    let user = await userModel.findById(_id);
-    let role = user.role;
-    const deleted = await userModel.findByIdAndDelete(_id);
-    if (role == "doctor") {
-      const infoDelete = await doctorModel.deleteOne({ main: _id });
-      res.json({ message: "doctor deleted", deleted, infoDelete });
-    } else if (role == "patient") {
-      const infoDelete = await patientModel.deleteOne({ main: _id });
-      const reserveDelete = await reserveModel.deleteMany({ patientId: _id });
-      res.json({
-        message: "patient deleted",
-        deleted,
-        infoDelete,
-        reserveDelete,
-      });
-    }
-  } catch (error) {
-    res.json({ message: "error", error });
-  }
+  let { id } = req.body;
+  const deleted = await userModel.findByIdAndDelete(id);
+  res.json ({message:"user deleted"})
 };
 
 const signIn = async (req, res) => {
@@ -156,6 +138,13 @@ const updateUser = async (req, res) => {
   const updated = await userModel.findByIdAndUpdate(all.id, all.details, {
     new: true,
   });
+  if (all.oldRoom) {
+    addDocToRoom({
+      roomId: all.room,
+      docId: added._id,
+      oldRoomId: all.oldRoom,
+    });
+  }
   if (updated) {
     res.json({ message: "update success", updated });
   } else {

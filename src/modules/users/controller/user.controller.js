@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { sendMAil } from "../../../services/sendMail.js";
 import catchAsyncError from "../../middleware/catchAsyncError.js";
 import AppError from "../../../utils/AppError.js";
+import { addDocToRoom } from "../../room/controller/room.controller.js";
 
 const signUp = catchAsyncError(async (req, res, next) => {
   let all = req.body;
@@ -14,15 +15,20 @@ const signUp = catchAsyncError(async (req, res, next) => {
     let hashedPass = bcrypt.hashSync(all.password, Number(process.env.ROUNDS));
     all.password = [hashedPass, all.password];
     if (all.role == "patient") {
-      let added = await userModel.insertMany(all);
-      if (!req.role == "admin") {
+      if (req.role == "admin") {
+        all.confirmedEmail = true;
+      } else {
         sendMAil({ email: all.email, operation: "verify" });
       }
+      let added = await userModel.insertMany(all);
       res.json({ message: "patient added", added });
     } else if (all.role == "doctor" && req.role == "admin") {
+      all.confirmedEmail = true;
       let added = await userModel.insertMany(all);
+      addDocToRoom({ roomId: all.roomId, docId: added._id });
       res.json({ message: "doctor added", added });
     } else if (all.role == "admin" && req.email == process.env.ADMIN) {
+      all.confirmedEmail = true;
       let added = await userModel.insertMany(all);
       res.json({ message: "admin added", added });
     } else {
@@ -97,18 +103,16 @@ const resetPassword = catchAsyncError(async (req, res, next) => {
 });
 
 const signIn = catchAsyncError(async (req, res, next) => {
-  let gg = ()=>{
-    let x= ["hi",'bye',"sds"]
-    let y = x.findIndex(
-      (e) => e == "hs"
-    );
-    let n = x[y]
-    let c = x.push("fd")
-    console.log(n,y,c);
-  }
-  console.log(gg())
+  let gg = () => {
+    let x = ["hi", "bye", "sds"];
+    let y = x.findIndex((e) => e == "hs");
+    let n = x[y];
+    let c = x.push("fd");
+    console.log(n, y, c);
+  };
+  console.log(gg());
   let { email, password, rememberMe } = req.body;
-  let check = await userModel.findOne({email});
+  let check = await userModel.findOne({ email });
   if (check) {
     let matched = bcrypt.compareSync(password, check.password[0]);
     if (matched) {
@@ -142,17 +146,17 @@ const signIn = catchAsyncError(async (req, res, next) => {
           res.json({ message: "welcome", token });
         }
       } else {
-       next(new AppError("Confirm your email first",404))
+        next(new AppError("Confirm your email first", 404));
       }
     } else {
-      next(new AppError("wrong pssword",404))
+      next(new AppError("wrong pssword", 404));
     }
   } else {
-    next(new AppError("register first",404))
+    next(new AppError("register first", 404));
   }
 });
 
-const changePass = catchAsyncError(async (req, res,next) => {
+const changePass = catchAsyncError(async (req, res, next) => {
   let { oldPass, newPass } = req.body;
   let check = await userModel.findById(req.userId);
   if (check) {
@@ -164,12 +168,12 @@ const changePass = catchAsyncError(async (req, res,next) => {
       check.save();
       res.json({ message: "password changed" });
     } else {
-    next(new AppError("wrong old password",404))
+      next(new AppError("wrong old password", 404));
     }
   } else {
-    next(new AppError("user not found",404))
+    next(new AppError("user not found", 404));
   }
-}) ;
+});
 
 export {
   signUp,

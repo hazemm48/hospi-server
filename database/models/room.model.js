@@ -1,19 +1,18 @@
 import mongoose from "mongoose";
 
 const roomSchema = new mongoose.Schema({
-  num: Number,
-  level: String,
+  name: String,
+  level: Number,
+  current: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   history: [
     {
-      patientId: {
-        type: mongoose.Types.ObjectId,
-        ref: "User",
-      },
-      doctorId: {
-        type: mongoose.Types.ObjectId,
-        ref: "User",
-      },
-      date: Date,
+      type: mongoose.Types.ObjectId,
+      ref: "User",
     },
   ],
 });

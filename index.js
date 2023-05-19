@@ -18,10 +18,10 @@ app.use("*", (req, res, next) => {
 });
 app.use(globalError);
 app.get("/", (req, res) => res.send("running"));
-app.listen(3000, () => console.log("listening"));
+app.listen(3000, () => console.log("listening"));/* 
 process.on("uncaughtException", (err, req, res, next) => {
   next(err);
 });
 process.on("unhandledRejection", (err, req, res, next) => {
   next(err);
-});
+}); */

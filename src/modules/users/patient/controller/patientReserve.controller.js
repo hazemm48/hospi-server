@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 
 const reserve = catchAsyncError(async (req, res, next) => {
   let all = req.body;
+  console.log(all);
   let [apLength, resPerDay, allRes] = [4, 6, 10];
   req.role == "patient" ? (all.patientId = req.userId) : "";
   let reserves = reserveModel.find({
@@ -51,10 +52,6 @@ const reserve = catchAsyncError(async (req, res, next) => {
   let addRes = async (check) => {
     if (!check) {
       all.date = moment(all.date, "DD-MM-YYYY").format("MM-DD-YYYY");
-      all.type == "doctor"
-        ? (all.time =
-            doctor.doctorInfo.schedule[scheduleDayIndex].time[all.time])
-        : "";
       all.patientId == "" ? delete all["patientId"] : "";
       let add = await reserveModel.insertMany(all);
       if (all.patientId) {
@@ -163,9 +160,11 @@ const getReserve = catchAsyncError(async (req, res, next) => {
   if (month) {
     let search = {};
     console.log(search);
-    filter?.hasOwnProperty("doctorId")
-      ? (search.doctorId = mongoose.Types.ObjectId(filter.doctorId))
-      : "";
+    if(filter?.hasOwnProperty("doctorId")){
+      search.doctorId = mongoose.Types.ObjectId(filter.doctorId)
+    }else if (filter?.hasOwnProperty("patientId")){
+      search.patientId = mongoose.Types.ObjectId(filter.patientId)
+    }
     filter?.type ? (search.type = filter.type) : "";
     search.month = month;
     search.year = year;

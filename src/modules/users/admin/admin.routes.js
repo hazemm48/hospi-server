@@ -5,6 +5,7 @@ import * as patientReserve from "../patient/controller/patientReserve.controller
 import * as patientController from "../patient/controller/patient.controller.js"
 import * as userController from '../controller/user.controller.js'
 import * as generalController from '../../general/general.controller.js'
+import roomRoutes from "../../room/room.routes.js";
 
 router.post("/getAllUsers",adminController.getAllUsers)
 router.post("/addUser",userController.signUp)
@@ -16,5 +17,6 @@ router.post("/note",adminController.notes)
 router.delete("/deleteUser",adminController.deleteUser)
 router.post("/addGeneral",generalController.addGeneral)
 router.post("/getGeneral",generalController.getGeneral)
+router.use("/room", roomRoutes);
 
 export default router
