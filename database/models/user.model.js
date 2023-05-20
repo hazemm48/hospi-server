@@ -34,6 +34,7 @@ const userSchema = new mongoose.Schema(
 
 userSchema.post('init',(doc)=>{
   doc.image = `uploads/profilePic/${doc._id}/`+doc.image
+  doc.imgPath = `${process.env.SERVER_URL}/uploads/profilePic/${doc._id}/`+doc.image
 })
 
 const userModel = mongoose.model("User", userSchema);
