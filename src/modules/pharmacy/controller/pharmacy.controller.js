@@ -3,13 +3,13 @@ import { asyncHandler } from "../../../services/asyncHandler.js";
 import cloudinary from "../../../utils/cloudinary.js";
 
 const addMedicine =asyncHandler( async (req, res,next) => {
-  let {medicineName,categoryMedicine,price,medicineType,stock} = req.body;
+  let {medicineName,categoryMedicine,price,medicineType} = req.body;
  
     const check = await medicineModel.find({medicineName});
     if (check.length) {
       res.status(200).json({ message: "Medicine already added" });
     } else {
-      const added = await medicineModel.insertMany({medicineName,categoryMedicine,price,medicineType,stock});
+      const added = await medicineModel.insertMany({medicineName,categoryMedicine,price,medicineType});
       res.status(201).json({message:"Medicine added Successfully",added})
       // req.body.stock=req.body.totalItems;
       // req.body.soldItems=0
@@ -26,13 +26,10 @@ const addMedicine =asyncHandler( async (req, res,next) => {
 
 const getMedicine =asyncHandler( async (req, res,next) => {
   
-  if (all.oper == "all") {
+  
     const allMedicines = await medicineModel.find();
     res.status(200).json({ message: "all Medicines", allMedicines });
-  } else if (!all.oper) {
-    const medicine = await medicineModel.find(all);
-    res.status(200).json({ message: "all medicines", medicine });
-  }
+ 
     
 
 });
@@ -59,7 +56,7 @@ const updateMedicine =asyncHandler( async (req, res,next) => {
 const deleteMedicine =asyncHandler( async (req, res,next) => {
  
     const { _id } = req.body;
-    const deleted = await pharmaModel.deleteOne(_id);
+    const deleted = await medicineModel.deleteOne(_id);
     res.status(200).json({ message: "Deleted", deleted });
 
 });

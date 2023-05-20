@@ -131,7 +131,7 @@ const signIn =asyncHandler( async (req, res,next) => {
             process.env.SECRET_KEY
           );
           // res.json({ message: "welcome", token });
-          next(new Error("welcome",{cause:200}))
+          res.status(200).json({message:"Welcome",token})
         } else {
           let token = jwt.sign(
             {
@@ -147,7 +147,7 @@ const signIn =asyncHandler( async (req, res,next) => {
           check.isLoggedIn=true
           check.save()
           // res.json({ message: "welcome", token });
-          next(new Error("welcome",{cause:200}))
+          res.status(200).json({message:"Welcome"})
         }
       } else {
         res.json({ message: "Confirm your email first" });

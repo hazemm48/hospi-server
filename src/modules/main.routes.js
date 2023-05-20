@@ -25,7 +25,7 @@ router.use("/patient", auth, patientRoutes);
 router.use("/doctor", auth, doctorRoutes);
 // router.use('/lab',auth,labRoutes) 
 router.use("/room", auth, roomRoutes);
-router.use("/pharmacy", adminAuth, pharmacyRoutes);
+router.use("/pharmacy", pharmacyRoutes);
 router.use("/photo", photosRoutes);
 // router.use("/examin",auth,examinRoutes)
 
