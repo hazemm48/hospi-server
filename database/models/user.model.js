@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema(
     phone: String,
     resetCode: Number,
     gender: String,
+    image:"String",
     notes: [{
       type: mongoose.Types.ObjectId,
       ref: "Note",
@@ -30,6 +31,10 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+userSchema.post('init',(doc)=>{
+  doc.image = `uploads/profilePic/${doc._id}/`+doc.image
+})
 
 const userModel = mongoose.model("User", userSchema);
 

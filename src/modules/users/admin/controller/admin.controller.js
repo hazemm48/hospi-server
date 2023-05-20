@@ -6,6 +6,8 @@ import reserveModel from "../../../../../database/models/reserve.model.js";
 import moment from "moment";
 import noteModel from "../../../../../database/models/notes.model.js";
 import { addDocToRoom } from "../../../room/controller/room.controller.js";
+import fs from "fs";
+
 
 const getAllUsers = async (req, res) => {
   let { role, id, email, phone, sort, pageNo, limit, speciality, filter } =
@@ -103,6 +105,7 @@ const addGeneral = async (req, res) => {
 const deleteUser = async (req, res) => {
   let { id } = req.body;
   const deleted = await userModel.findByIdAndDelete(id);
+  fs.unlink(`uploads/profilePic/${deleted._id}`)
   res.json ({message:"user deleted"})
 };
 

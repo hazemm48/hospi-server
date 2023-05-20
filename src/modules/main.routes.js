@@ -17,6 +17,7 @@ import {
   verifyCodeAuth,
 } from "./middleware/auth.js";
 import { signIn } from "./users/admin/controller/admin.controller.js";
+import { fileUpload } from "../utils/fileUploader.js";
 
 router.use("/admin",adminAuth,adminRoutes);
 router.post("/adminLogin", signIn);
@@ -27,6 +28,7 @@ router.use("/room", roomRoutes);
 router.use("/pharmacy", auth, pharmacyRoutes);
 /* router.use('/examin',auth,examin) */
 
+//router.post("/uptest",fileUpload(),userController.uploadProfilePic)
 router.post("/signUp", userController.signUp);
 router.get("/verify/:email", emailAuth, userController.verify);
 router.post("/forgetPass/", userController.forgetPassword);

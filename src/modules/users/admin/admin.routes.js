@@ -6,9 +6,11 @@ import * as patientController from "../patient/controller/patient.controller.js"
 import * as userController from '../controller/user.controller.js'
 import * as generalController from '../../general/general.controller.js'
 import roomRoutes from "../../room/room.routes.js";
+import { fileUpload } from "../../../utils/fileUploader.js";
 
 router.post("/getAllUsers",adminController.getAllUsers)
 router.post("/addUser",userController.signUp)
+router.post("/uptest",fileUpload("image"),userController.uploadProfilePic)
 router.post("/addGeneral",adminController.addGeneral)
 router.post("/reserve/:oper",patientReserve.adminRes)
 router.put("/changePass",userController.changePass)

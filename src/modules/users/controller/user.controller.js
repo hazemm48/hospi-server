@@ -5,6 +5,7 @@ import { sendMAil } from "../../../services/sendMail.js";
 import catchAsyncError from "../../middleware/catchAsyncError.js";
 import AppError from "../../../utils/AppError.js";
 import { addDocToRoom } from "../../room/controller/room.controller.js";
+import fs from "fs";
 
 const signUp = catchAsyncError(async (req, res, next) => {
   let all = req.body;
@@ -21,7 +22,7 @@ const signUp = catchAsyncError(async (req, res, next) => {
         sendMAil({ email: all.email, operation: "verify" });
       }
       let added = await userModel.insertMany(all);
-      res.json({ message: "patient added", added });
+      res.status(200).json({ message: "patient added", added });
     } else if (all.role == "doctor" && req.role == "admin") {
       all.confirmedEmail = true;
       let added = await userModel.insertMany(all);
@@ -175,6 +176,24 @@ const changePass = catchAsyncError(async (req, res, next) => {
   }
 });
 
+const uploadProfilePic= catchAsyncError(async (req, res, next) => {
+  console.log(req.file);
+  let all = req.body;
+  if (req.file) {
+    let user = await userModel.findById(all.id);
+    if (user) {
+      fs.unlink(user.image, (err) => {});
+      user.image = req.file.filename;
+      await user.save();
+      res.json({ message: "image uploaded" });
+    } else {
+      next(new AppError("user not found", 404));
+    }
+  } else {
+    next(new AppError("image not found", 404));
+  }
+});
+
 export {
   signUp,
   signIn,
@@ -183,4 +202,5 @@ export {
   verifyResetcode,
   resetPassword,
   changePass,
+  uploadProfilePic,
 };

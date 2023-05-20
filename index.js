@@ -10,6 +10,7 @@ import AppError from "./src/utils/AppError.js";
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({extended:true}));
 app.use("/uploads", express.static("uploads"));
 connection();
 app.use("/api/v1", mainRoutes);
