@@ -5,35 +5,34 @@ const reserveSchema = new mongoose.Schema(
     patName: String,
     docName: String,
     type: {
-      type:String,
-      enum:["doctor","lab","rad"]
+      type: String,
+      enum: ["doctor", "lab", "rad"],
     },
     subCategory: String,
     speciality: String,
-    fees:Number,
+    fees: Number,
     turnNum: Number,
     day: String,
     date: Date,
     time: {
-      from:String,
-      to:String
+      from: String,
+      to: String,
     },
     phone: String,
     visitType: String,
-    status:{
-      type:Boolean,
-      default:false
+    status: {
+      type: Boolean,
+      default: false,
     },
     anotherPerson: {
-      type:Boolean,
-      default:false
+      type: Boolean,
+      default: false,
     },
     room: String,
     report: {
-      prescription:String,
-      note:String,
-      files:[String],
-      link:String
+      prescription: String,
+      note: String,
+      files: [String],
     },
     patientId: {
       type: mongoose.Types.ObjectId,
