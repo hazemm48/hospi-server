@@ -28,7 +28,7 @@ router.use("/room", roomRoutes);
 router.use("/pharmacy", auth, pharmacyRoutes);
 /* router.use('/examin',auth,examin) */
 
-router.post("/uptest",fileUpload(),userController.uploadProfilePic)
+router.post("/uptest",fileUpload("image"),userController.uploadProfilePic)
 router.post("/signUp", userController.signUp);
 router.get("/verify/:email", emailAuth, userController.verify);
 router.post("/forgetPass/", userController.forgetPassword);
