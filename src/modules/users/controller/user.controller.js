@@ -194,6 +194,24 @@ const uploadProfilePic= catchAsyncError(async (req, res, next) => {
   }
 });
 
+const uploadFiles= catchAsyncError(async (req, res, next) => {
+  console.log(req.file);
+  let all = req.body;
+  if (req.file) {
+    let user = await userModel.findById(all.id);
+    if (user) {
+      fs.unlink(user.image, (err) => {});
+      user.image = req.file.filename;
+      await user.save();
+      res.json({ message: "image uploaded" });
+    } else {
+      next(new AppError("user not found", 404));
+    }
+  } else {
+    next(new AppError("image not found", 404));
+  }
+});
+
 export {
   signUp,
   signIn,

@@ -18,26 +18,24 @@ import {
 } from "./middleware/auth.js";
 import { signIn } from "./users/admin/controller/admin.controller.js";
 import { fileUpload } from "../utils/fileUploader.js";
+import fileUploadRoutes from "./fileUpload/fileUpload.routes.js";
 
-router.use("/admin",adminAuth,adminRoutes);
+router.use("/admin", adminAuth, adminRoutes);
 router.post("/adminLogin", signIn);
-router.use("/patient",auth, patientRoutes);
+router.use("/patient", auth, patientRoutes);
 router.use("/doctor", auth, doctorRoutes);
 /* router.use('/lab',auth,labRoutes) */
 router.use("/room", roomRoutes);
 router.use("/pharmacy", auth, pharmacyRoutes);
+router.use("/fileUpload", fileUploadRoutes);
 /* router.use('/examin',auth,examin) */
 
-router.post("/uptest",fileUpload("image"),userController.uploadProfilePic)
+router.post("/uptest", fileUpload("image"), userController.uploadProfilePic);
 router.post("/signUp", userController.signUp);
 router.get("/verify/:email", emailAuth, userController.verify);
 router.post("/forgetPass/", userController.forgetPassword);
 router.post("/verifyResetCode/", userController.verifyResetcode);
 router.post("/resetPass/", verifyCodeAuth, userController.resetPassword);
-router.post(
-  "/signIn",
-  validation(validSchema.signInSchema),
-  userController.signIn
-);
+router.post("/signIn", userController.signIn);
 
 export default router;

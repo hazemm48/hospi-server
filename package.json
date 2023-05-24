@@ -5,6 +5,8 @@
   "main": "index.js",
   "type": "module",
   "dependencies": {
+    "@cyclic.sh/s3fs": "^1.2.8",
+    "aws-sdk": "^2.1381.0",
     "bcrypt": "^5.1.0",
     "bitly": "^7.1.2",
     "cloudinary": "^1.35.0",

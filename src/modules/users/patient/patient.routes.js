@@ -8,7 +8,7 @@ import validation from "../../middleware/validation.js";
 import * as validSchema from "../../middleware/user.validation.js"
 import { addSchedule, test } from "../doctor/controller/addSchedule.controller.js";
 
-router.get("/getAll",patientController.getPatient)
+router.get("/getDoctorList",patientController.getDoctorList)
 router.post("/reserve",patientReserve.reserve)
 router.post("/reservetest",reservetest.reserve)
 router.post("/addSchedule",addSchedule)

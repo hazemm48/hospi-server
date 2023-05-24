@@ -1,7 +1,8 @@
 import multer from "multer";
 import fs from "@cyclic.sh/s3fs";
 fs(process.env.CYCLIC_BUCKET_NAME)
-//import { v4 as uuid } from "uuid";
+
+
 import { nanoid } from "nanoid";
 export const createDir = (body) => {
   console.log(body);

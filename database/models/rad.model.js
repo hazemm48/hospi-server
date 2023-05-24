@@ -4,7 +4,7 @@ const radSchema = new mongoose.Schema({
     name :String,
     category :String,
     fees :String,
-    avairadle:{
+    available:{
         type:Boolean,
         default:true
     }

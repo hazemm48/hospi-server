@@ -1,21 +1,5 @@
 import mongoose from "mongoose";
 
-
-const patientMedicalRecord = new mongoose.Schema({
-  type:String,  
-  name:String,
-  date:Date,
-  place:String,
-  result:[String],
-  document:[String],
-  endDate:Date,
-  still:Boolean,
-  Dosage:String,
-  doctorName:String,
-  chronic:Boolean,
-  },
-  )
-
 export const patientSchema = new mongoose.Schema(
   {
     birthDate:Date,
@@ -33,7 +17,10 @@ export const patientSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "User",
     }],
-    medicalRecord:[patientMedicalRecord]
+    medicalRecord:[{
+      type: mongoose.Types.ObjectId,
+      ref: "MedicRecord",
+    }]
   },
   {
     _id:false

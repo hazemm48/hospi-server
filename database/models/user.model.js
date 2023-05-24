@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema(
     }],
     confirmedEmail: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     isLoggedIn: {
       type: Boolean,

@@ -1,9 +1,9 @@
 import userModel from "../../../../../database/models/user.model.js";
 import reserveModel from "../../../../../database/models/reserve.model.js";
 
-const getPatient = async (req, res) => {
-  const patient = await userModel.findById(req.userId);
-  res.json({ message: "patient info", patient });
+const getDoctorList = async (req, res) => {
+  const users = await userModel.find({role:"doctor"});
+  res.json({ message: "all doctors", users });
 };
 
 const updatePatient = async (req, res) => {
@@ -98,7 +98,7 @@ const getFavDoctors = async (req, res) => {
 
 
 export {
-  getPatient,
+  getDoctorList,
   updatePatient,
   addMedicalRecord,
   deletePatient,
