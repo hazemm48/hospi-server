@@ -89,6 +89,9 @@ const deleteRoom = catchAsyncError(async (req, res, next) => {
   const { room, newRoomId, oldRoomId } = req.body;
   let oldRoom = await roomModel.findById(oldRoomId);
   let newRoom = await roomModel.findById(newRoomId);
+  if(oldRoom==newRoom){
+    return next(new AppError("new room matches old room"))
+  }
   if (oldRoom && newRoom) {
     let updateDoc = await userModel.updateMany(
       { _id: { $in: oldRoom.current } },
