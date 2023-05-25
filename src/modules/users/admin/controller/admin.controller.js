@@ -1,13 +1,11 @@
 import userModel from "../../../../../database/models/user.model.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import generalModel from "../../../../../database/models/general.model.js";
-import reserveModel from "../../../../../database/models/reserve.model.js";
-import moment from "moment";
-import noteModel from "../../../../../database/models/notes.model.js";
 import { addDocToRoom } from "../../../room/controller/room.controller.js";
 import fs from "fs";
-
+import bcrypt from "bcrypt";
+import { nanoid } from "nanoid";
+import catchAsyncError from "../../../middleware/catchAsyncError.js";
+import cloudinary from "../../../../utils/cloudinary.js";
 
 const getAllUsers = async (req, res) => {
   let { role, id, email, phone, sort, pageNo, limit, speciality, filter } =
@@ -105,35 +103,9 @@ const addGeneral = async (req, res) => {
 const deleteUser = async (req, res) => {
   let { id } = req.body;
   const deleted = await userModel.findByIdAndDelete(id);
-  fs.unlink(`uploads/profilePic/${deleted._id}`)
-  res.json ({message:"user deleted"})
-};
-
-const signIn = async (req, res) => {
-  let { email, password } = req.body;
-  let check = await userModel.findOne({ email });
-  if (check) {
-    if (check.role == "admin") {
-      let matched = bcrypt.compareSync(password, check.password[0]);
-      if (matched) {
-        let token = jwt.sign(
-          {
-            userId: check._id,
-            name: check.name,
-            email: email,
-            role: check.role,
-            isLoggedIn: true,
-          },
-          process.env.SECRET_KEY
-        );
-        res.status(200).json({ message: "ok", token: token, user: check });
-      } else {
-        res.json({ message: "wrong pssword" });
-      }
-    }
-  } else {
-    res.json({ message: "not authorized" });
-  }
+  await cloudinary.api.delete_resources_by_prefix(`hospi/users/${id}`);
+  await cloudinary.api.delete_folder(`hospi/users/${id}`);
+  res.json({ message: "user deleted" });
 };
 
 const updateUser = async (req, res) => {
@@ -155,28 +127,18 @@ const updateUser = async (req, res) => {
   }
 };
 
-const notes = async (req, res) => {
-  let { oper, id, content, _id } = req.body;
-  let user = await userModel.findById(id).populate("notes");
-  if (oper == "add") {
-    let createdBy = req.email;
-    let note = await noteModel.insertMany({ content, createdBy });
-    user.notes.push(note[0]._id);
-    user.save();
-    res.json({ message: "add note" });
-  } else if (oper == "edit") {
-    await noteModel.findByIdAndUpdate(_id, { content });
-    res.json({ message: "note updated" });
-  } else if (oper == "delete") {
-    user.notes.pull(_id);
-    user.save();
-    await noteModel.findByIdAndDelete(_id);
-    res.json({ message: "note deleted" });
-  } else if (oper == "get") {
-    res.json({ message: "all notes", notes: user.notes });
+const resetPassword = catchAsyncError(async (req, res, next) => {
+  let check = await userModel.findById(req.body.id);
+  if (check) {
+    let newPass = nanoid(8);
+    let newPassword = bcrypt.hashSync(newPass, Number(process.env.ROUNDS));
+    check.password[0] = newPassword;
+    check.password[1] = newPass;
+    check.save();
+    res.json({ message: `new password is :${newPass}` });
   } else {
-    res.json({ message: "Wrong entry" });
+    next(new AppError("user not found", 404));
   }
-};
+});
 
-export { getAllUsers, addGeneral, deleteUser, signIn, updateUser, notes };
+export { getAllUsers, addGeneral, deleteUser, updateUser, resetPassword };

@@ -5,7 +5,9 @@ import { sendMAil } from "../../../services/sendMail.js";
 import catchAsyncError from "../../middleware/catchAsyncError.js";
 import AppError from "../../../utils/AppError.js";
 import { addDocToRoom } from "../../room/controller/room.controller.js";
+import cloudinary from "../../../utils/cloudinary.js";
 import fs from "fs";
+import { createDir } from "../../middleware/fileUploader.js";
 
 const signUp = catchAsyncError(async (req, res, next) => {
   let all = req.body;
@@ -35,6 +37,42 @@ const signUp = catchAsyncError(async (req, res, next) => {
     } else {
       next(new AppError("unauthorized", 401));
     }
+  }
+});
+
+const signIn = catchAsyncError(async (req, res, next) => {
+  let { email, password, rememberMe } = req.body;
+  let check = await userModel.findOne({ email });
+  if (check) {
+    let matched = bcrypt.compareSync(password, check.password[0]);
+    if (matched) {
+      if (check.confirmedEmail == true) {
+        let token = "";
+        let tokenConfig = {
+          userId: check._id,
+          name: check.name,
+          email: email,
+          role: check.role,
+          isLoggedIn: true,
+        };
+        if (rememberMe == true) {
+          token = jwt.sign(tokenConfig, process.env.SECRET_KEY);
+        } else {
+          token = jwt.sign(tokenConfig, process.env.SECRET_KEY, {
+            expiresIn: "2d",
+          });
+        }
+        check.isLoggedIn = true;
+        check.save();
+        res.json({ message: "welcome", token, user: check });
+      } else {
+        next(new AppError("Confirm your email first", 404));
+      }
+    } else {
+      next(new AppError("wrong pssword", 404));
+    }
+  } else {
+    next(new AppError("register first", 404));
   }
 });
 
@@ -103,60 +141,6 @@ const resetPassword = catchAsyncError(async (req, res, next) => {
   }
 });
 
-const signIn = catchAsyncError(async (req, res, next) => {
-  let gg = () => {
-    let x = ["hi", "bye", "sds"];
-    let y = x.findIndex((e) => e == "hs");
-    let n = x[y];
-    let c = x.push("fd");
-    console.log(n, y, c);
-  };
-  console.log(gg());
-  let { email, password, rememberMe } = req.body;
-  let check = await userModel.findOne({ email });
-  if (check) {
-    let matched = bcrypt.compareSync(password, check.password[0]);
-    if (matched) {
-      if (check.confirmedEmail == true) {
-        if (rememberMe == true) {
-          let token = jwt.sign(
-            {
-              userId: check._id,
-              name: check.name,
-              email: email,
-              role: check.role,
-              isLoggedIn: true,
-            },
-            process.env.SECRET_KEY
-          );
-          res.json({ message: "welcome", token });
-        } else {
-          let token = jwt.sign(
-            {
-              userId: check._id,
-              name: check.name,
-              email: email,
-              role: check.role,
-              isLoggedIn: true,
-            },
-            process.env.SECRET_KEY,
-            { expiresIn: "2d" }
-          );
-          check.isLoggedIn = true;
-          check.save();
-          res.json({ message: "welcome", token });
-        }
-      } else {
-        next(new AppError("Confirm your email first", 404));
-      }
-    } else {
-      next(new AppError("wrong pssword", 404));
-    }
-  } else {
-    next(new AppError("register first", 404));
-  }
-});
-
 const changePass = catchAsyncError(async (req, res, next) => {
   let { oldPass, newPass } = req.body;
   let check = await userModel.findById(req.userId);
@@ -176,42 +160,6 @@ const changePass = catchAsyncError(async (req, res, next) => {
   }
 });
 
-const uploadProfilePic= catchAsyncError(async (req, res, next) => {
-  console.log(req.file);
-  let all = req.body;
-  if (req.file) {
-    let user = await userModel.findById(all.id);
-    if (user) {
-      fs.unlink(user.image, (err) => {});
-      user.image = req.file.filename;
-      await user.save();
-      res.json({ message: "image uploaded" });
-    } else {
-      next(new AppError("user not found", 404));
-    }
-  } else {
-    next(new AppError("image not found", 404));
-  }
-});
-
-const uploadFiles= catchAsyncError(async (req, res, next) => {
-  console.log(req.file);
-  let all = req.body;
-  if (req.file) {
-    let user = await userModel.findById(all.id);
-    if (user) {
-      fs.unlink(user.image, (err) => {});
-      user.image = req.file.filename;
-      await user.save();
-      res.json({ message: "image uploaded" });
-    } else {
-      next(new AppError("user not found", 404));
-    }
-  } else {
-    next(new AppError("image not found", 404));
-  }
-});
-
 export {
   signUp,
   signIn,
@@ -220,5 +168,4 @@ export {
   verifyResetcode,
   resetPassword,
   changePass,
-  uploadProfilePic,
 };

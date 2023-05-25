@@ -13,7 +13,12 @@ const userSchema = new mongoose.Schema(
     phone: String,
     resetCode: Number,
     gender: String,
-    image:"String",
+    image:String,
+    files: [{
+      name:String,
+      path:String,
+      _id:false
+    }],
     notes: [{
       type: mongoose.Types.ObjectId,
       ref: "Note",
@@ -31,11 +36,6 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
-userSchema.post('init',(doc)=>{
-  doc.image = `${process.env.SERVER_URL}/uploads/profilePic/${doc._id}/`+doc.image
-  doc.imgPath = `uploads/profilePic/${doc._id}/`+doc.image
-})
 
 const userModel = mongoose.model("User", userSchema);
 
