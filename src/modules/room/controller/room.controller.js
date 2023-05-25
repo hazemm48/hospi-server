@@ -10,7 +10,7 @@ const addRoom = catchAsyncError(async (req, res) => {
     res.json({ message: "Room already exists" });
   } else {
     const added = await roomModel.insertMany(all);
-    res.json({ message: "room added ", added });
+    res.json({ message: "room added", added });
   }
 });
 
@@ -89,7 +89,7 @@ const deleteRoom = catchAsyncError(async (req, res, next) => {
   const { room, newRoomId, oldRoomId } = req.body;
   let oldRoom = await roomModel.findById(oldRoomId);
   let newRoom = await roomModel.findById(newRoomId);
-  if(oldRoom==newRoom){
+  if(oldRoomId==newRoomId){
     return next(new AppError("new room matches old room"))
   }
   if (oldRoom && newRoom) {
