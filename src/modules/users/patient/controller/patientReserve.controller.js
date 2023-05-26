@@ -54,11 +54,11 @@ const reserve = catchAsyncError(async (req, res, next) => {
       all.date = moment(all.date, "DD-MM-YYYY").format("MM-DD-YYYY");
       all.patientId == "" ? delete all["patientId"] : "";
       let add = await reserveModel.insertMany(all);
-      if (all.patientId) {
+      /*if (all.patientId) {
         let updatePat = await userModel.findByIdAndUpdate(all.patientId, {
           $push: { "patientInfo.reservations": add[0]._id },
         });
-      }
+      } */
 
       if (all.type == "doctor") {
         let appointments =
@@ -160,10 +160,10 @@ const getReserve = catchAsyncError(async (req, res, next) => {
   if (month) {
     let search = {};
     console.log(search);
-    if(filter?.hasOwnProperty("doctorId")){
-      search.doctorId = mongoose.Types.ObjectId(filter.doctorId)
-    }else if (filter?.hasOwnProperty("patientId")){
-      search.patientId = mongoose.Types.ObjectId(filter.patientId)
+    if (filter?.hasOwnProperty("doctorId")) {
+      search.doctorId = mongoose.Types.ObjectId(filter.doctorId);
+    } else if (filter?.hasOwnProperty("patientId")) {
+      search.patientId = mongoose.Types.ObjectId(filter.patientId);
     }
     filter?.type ? (search.type = filter.type) : "";
     search.month = month;

@@ -4,6 +4,7 @@ import cloudinary from "../../../utils/cloudinary.js";
 import userModel from "../../../../database/models/user.model.js";
 import { createDir } from "../../middleware/fileUploader.js";
 import AppError from "../../../utils/AppError.js";
+import medicRecordModel from "../../../../database/models/medicRecord.model.js";
 
 const uploadProfilePic = catchAsyncError(async (req, res, next) => {
   console.log(req.file);
@@ -34,25 +35,32 @@ const uploadProfilePic = catchAsyncError(async (req, res, next) => {
 
 const uploadFiles = async (req, res, next) => {
   console.log(req.files);
-  console.log(req.body);
+  console.log(req.body, "upload");
   let all = req.body;
+  let model = "";
+  if (all.fieldName == "medicRecord") {
+    model = medicRecordModel.findById(all.recId);
+  } else if (all.fieldName == "users") {
+    model = userModel.findById(all.id);
+  }
   if (req.files) {
-    let user = await userModel.findById(all.id);
-    if (user) {
+    let data = await model;
+    console.log(data);
+    if (data) {
       let dir = createDir(all);
       for (const file of req.files) {
         const { path } = file;
         let upload = await cloudinary.uploader.upload(path, {
           folder: dir,
         });
-        user.files.push({
+        data.files.push({
           name: file.originalname,
           path: upload.secure_url,
         });
         fs.unlink(path, () => {});
       }
-      await user.save();
-      res.json({ message: "done", files: user.files });
+      await data.save();
+      res.json({ message: "done", files: data.files });
     } else {
       next(new AppError("user not found", 404));
     }

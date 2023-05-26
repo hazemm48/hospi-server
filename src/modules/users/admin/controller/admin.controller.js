@@ -10,7 +10,6 @@ import cloudinary from "../../../../utils/cloudinary.js";
 const getAllUsers = async (req, res) => {
   let { role, id, email, phone, sort, pageNo, limit, speciality, filter } =
     req.body;
-
   pageNo <= 0 || !pageNo ? (pageNo = 1) : pageNo * 1;
   limit <= 0 || !limit ? (limit = 0) : limit * 1;
   let skipItems = (pageNo - 1) * limit;

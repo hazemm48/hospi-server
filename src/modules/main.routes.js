@@ -9,6 +9,7 @@ import fileUploadRoutes from "./fileUpload/fileUpload.routes.js";
  */ import adminRoutes from "./users/admin/admin.routes.js";
 /* import labRoutes from './lab/lab.routes.js'
  */ import roomRoutes from "./room/room.routes.js";
+import medicalRecordRoutes from "./medicalRecord/medicalRecord.routes.js";
 import validation from "./middleware/validation.js";
 import * as validSchema from "./middleware/user.validation.js";
 import {
@@ -24,6 +25,7 @@ router.use("/patient", auth, patientRoutes);
 router.use("/doctor", auth, doctorRoutes);
 /* router.use('/lab',auth,labRoutes) */
 router.use("/room", roomRoutes);
+router.use("/medicalRecord", medicalRecordRoutes);
 router.use("/pharmacy", auth, pharmacyRoutes);
 router.use("/fileUpload", fileUploadRoutes);
 /* router.use('/examin',auth,examin) */

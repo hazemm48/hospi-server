@@ -13,16 +13,20 @@ const userSchema = new mongoose.Schema(
     phone: String,
     resetCode: Number,
     gender: String,
-    image:String,
-    files: [{
-      name:String,
-      path:String,
-      _id:false
-    }],
-    notes: [{
-      type: mongoose.Types.ObjectId,
-      ref: "Note",
-    }],
+    image: String,
+    files: [
+      {
+        name: String,
+        path: String,
+        _id: false,
+      },
+    ],
+    notes: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "Note",
+      },
+    ],
     confirmedEmail: {
       type: Boolean,
       default: true,
