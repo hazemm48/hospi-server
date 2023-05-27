@@ -1,41 +1,43 @@
 import medicineModel from "../../../../database/models/medicine.model.js";
 
 const addMedicine = async (req, res) => {
-  let all = req.body;
   try {
-    const check = await medicineModel.findOne({ name: all.name });
-    if (check) {
-      res.json({ message: "Medicine already added" });
-    } else {
-      const added = await medicineModel.insertMany(all);
-      res.json({ message: "Added new medicine", added });
+    const { name, description, category, subcategories, type, quantity, price } = req.body;
+    const existingMedicine = await medicineModel.findOne({ name });
+    if (existingMedicine) return res.json({ message: "Medicine already exists" });
+    if(!name || !description || !category || !subcategories || !type || !quantity || !price) return res.json({ message: "Please fill all fields" });
+    const existingCategoryOrSubcategory = await medicineModel.findOne({ category: { name: category, subcategories: [subcategories] } });
+    if(!existingCategoryOrSubcategory){
+      return res.json({ message: "Category or Subcategory not found" });
     }
+    const newMedicine = new medicineModel({ name, description, category: { name: category, subcategories: [subcategories] }, type, quantity, price });
+    const saved = await newMedicine.save();
+    res.json({ message: "Added", newMedicine });
   } catch (error) {
-    res.json({ message: "error", error });
+    res.json({ message: "Not Added", error });
   }
 };
 
 const getMedicine = async (req, res) => {
-  all = req.body;
-  try {
-    if (all.oper == "all") {
-      const allMed = await medicineModel.find();
-      res.json({ message: "all Medicines", allMed });
-    } else if (!all.oper) {
-      const medicine = await medicineModel.find(all);
-      res.json({ message: "all medicine", medicine });
-    }
-  } catch (error) {
-    res.json({ message: "error", error });
+  try{
+    const { category , subcategories } = req.body;
+    const medicines = await medicineModel.find({category: { name: category, subcategories: [subcategories] }});
+    res.json({ message: "Success", medicines });
+  } catch(error){
+    res.json({ message: "Error", error });
   }
 };
 
+
 const updateMedicine = async (req, res) => {
-  let all = req.body;
   try {
-    const updated = await medicineModel.findByIdAndUpdate(all._id, all, {
-      new: true,
-    });
+    const {id} = req.params;
+    const { name, description, category, subcategories, type, quantity, price } = req.body;
+    const existingMedicine = await medicineModel.findById(id);
+    if(!existingMedicine){
+    res.json({ error: "Medicine not found" });  
+    }
+    const updated = await medicineModel.findByIdAndUpdate(id, { name, description, category: { name: category, subcategories: [subcategories] }, type, quantity, price });
     res.json({ message: "Updated", updated });
   } catch (error) {
     res.json({ message: "error", error });
@@ -44,8 +46,8 @@ const updateMedicine = async (req, res) => {
 
 const deleteMedicine = async (req, res) => {
   try {
-    const { _id } = req.body;
-    const deleted = await pharmaModel.deleteOne(_id);
+    const {id} = req.params;
+    const deleted = await medicineModel.findByIdAndDelete(id);
     res.json({ message: "Deleted", deleted });
   } catch (error) {
     res.json({ message: "Not Deleted", error });

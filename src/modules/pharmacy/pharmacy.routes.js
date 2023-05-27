@@ -4,7 +4,7 @@ const router = express.Router()
 
 router.post("/addMed",medicineController.addMedicine)
 router.get("/getMed",medicineController.getMedicine)
-router.put("/updateMed",medicineController.updateMedicine)
-router.delete("/deleteMed",medicineController.deleteMedicine)
+router.put("/updateMed/:id",medicineController.updateMedicine)
+router.delete("/deleteMed/:id",medicineController.deleteMedicine)
 
 export default router
