@@ -9,8 +9,14 @@ const addMedicalRecord = catchAsyncError(async (req, res, next) => {
 
 const getMedicalRecord = catchAsyncError(async (req, res, next) => {
   let { filter } = req.body;
-  let records = await medicRecordModel.find(filter);
+  let records = await medicRecordModel.find(filter).sort("-date");
   res.json({ message: "done", records });
 });
 
-export { addMedicalRecord, getMedicalRecord };
+const deleteMedicalRecord = catchAsyncError(async (req, res, next) => {
+  let { id } = req.body;
+  let deleted = await medicRecordModel.findByIdAndDelete(id);
+  res.json({ message: "deleted", deleted });
+});
+
+export { addMedicalRecord, getMedicalRecord, deleteMedicalRecord };

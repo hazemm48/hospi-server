@@ -7,6 +7,6 @@ router
   .route("/")
   .post(medicalRecordController.addMedicalRecord)
 
-
+router.post("/get", medicalRecordController.getMedicalRecord);
 
 export default router;

@@ -24,6 +24,8 @@ const MedicRecordSchema = new mongoose.Schema({
     type: mongoose.Types.ObjectId,
     ref: "User",
   },
+},{
+  timestamps:true
 });
 
 const medicRecordModel = mongoose.model("MedicRecord", MedicRecordSchema);

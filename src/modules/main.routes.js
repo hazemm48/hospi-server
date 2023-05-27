@@ -21,7 +21,7 @@ import {
 import { fileUpload } from "./middleware/fileUploader.js";
 
 router.use("/admin", adminAuth, adminRoutes);
-router.use("/patient", auth, patientRoutes);
+router.use("/patient", patientRoutes);
 router.use("/doctor", auth, doctorRoutes);
 /* router.use('/lab',auth,labRoutes) */
 router.use("/room", roomRoutes);
