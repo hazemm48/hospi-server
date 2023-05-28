@@ -272,4 +272,10 @@ const adminRes = (req, res, next) => {
   }
 };
 
+const checkReserveStatus = catchAsyncError(async () => {
+
+  let reserves = await reserveModel.find({})
+
+});
+
 export { reserve, getReserve, cancelReserve, adminRes, editReserve };

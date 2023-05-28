@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 import { nanoid } from "nanoid";
 import catchAsyncError from "../../../middleware/catchAsyncError.js";
 import cloudinary from "../../../../utils/cloudinary.js";
+import medicRecordModel from "../../../../../database/models/medicRecord.model.js";
 
 const getAllUsers = async (req, res) => {
   let { role, id, email, phone, sort, pageNo, limit, speciality, filter } =
@@ -101,9 +102,23 @@ const addGeneral = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   let { id } = req.body;
-  const deleted = await userModel.findByIdAndDelete(id);
-  await cloudinary.api.delete_resources_by_prefix(`hospi/users/${id}`);
-  await cloudinary.api.delete_folder(`hospi/users/${id}`);
+  const user = await userModel.findById(id);
+  if (user.role == "patient") {
+    let record = await medicRecordModel.deleteMany({
+      patientId: { $in: id },
+    });
+  }
+  ["users", "medicRecord"].map(async (e) => {
+    await cloudinary.api.delete_resources_by_prefix(
+      `hospi/${e}/${id}`,
+      (result) => {
+        if (!result) {
+          cloudinary.api.delete_folder(`hospi/${e}/${id}`, () => {});
+        }
+      }
+    );
+  });
+  await user.remove();
   res.json({ message: "user deleted" });
 };
 

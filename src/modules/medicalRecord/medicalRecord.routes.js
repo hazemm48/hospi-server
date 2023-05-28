@@ -6,6 +6,8 @@ const router = express.Router();
 router
   .route("/")
   .post(medicalRecordController.addMedicalRecord)
+  .delete(medicalRecordController.deleteMedicalRecord)
+  .put(medicalRecordController.updateMedicalRecord)
 
 router.post("/get", medicalRecordController.getMedicalRecord);
 

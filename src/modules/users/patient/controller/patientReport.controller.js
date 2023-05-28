@@ -2,8 +2,13 @@ import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
 import reserveModel from "../../../../../database/models/reserve.model.js";
 import cloudinary from "../../../../utils/cloudinary.js";
+import fs from "fs";
+import moment from "moment";
 
-const generatePDF = async (data) => {
+const generatePDF = async (resId) => {
+  let data = await reserveModel.findById(resId);
+  let pdfPath = `./uploads/${data._id}_presc.pdf`;
+  let path = `hospi/reserves/${data.type}/${data._id}`;
   var pdf = new jsPDF({
     orientation: "p",
     unit: "mm",
@@ -12,58 +17,49 @@ const generatePDF = async (data) => {
   });
   pdf.text(`Doctor name: ${data.docName}`, 20, 20);
   pdf.text(`Patient name: ${data.patName}`, 20, 30);
-  pdf.text(`Date: ${data.date}`, 20, 40);
-  pdf.text(`${data.presc}`, 20, 50);
-  pdf.save(`./src/reportPDF/${data.resId}.pdf`);
+  pdf.text(`Date: ${moment(data.date).format("DD/MM/YYYY")}`, 20, 40);
+  pdf.text(" ", 20, 50);
+  pdf.text("Prescription", 20, 60);
+  pdf.text(" ", 20, 70);
+  pdf.text(`${data.report.prescription}`, 20, 50);
+  pdf.save(pdfPath);
+  let { secure_url } = await cloudinary.uploader.upload(pdfPath, {
+    folder: path,
+  });
+  data.report.link = secure_url;
+  await data.save();
+  fs.unlink(pdfPath, () => {});
+  return secure_url;
 };
 
-const qrCode = async (data) => {
-  let path = `./src/reportPDF/${data.resId}.pdf`;
-  let reserve = await reserveModel.findById(data.resId);
-  let pdfLink = reserve.report.link;
+const qrCode = async (resId) => {
+  let data = await reserveModel.findById(resId);
+
+  let pdfLink = data.report.link;
 
   if (pdfLink) {
     let qr = QRCode.toString(pdfLink, { type: "svg" }, function (err, url) {
-      console.log(url);
+      return url;
     });
     return qr;
   } else {
-    generatePDF(data);
-    let { secure_url } = await cloudinary.uploader.upload(path, {
-      folder: "qrCode",
-    });
-    reserve.report.link = secure_url;
-    reserve.save();
-    let qr = QRCode.toString(secure_url, { type: "svg" }, function (err, url) {
-      console.log(url);
+    let pdf = generatePDF(resId);
+    let qr = QRCode.toString(pdf, { type: "svg" }, function (err, url) {
+      return url;
     });
     return qr;
   }
-};
-
-const getReport = async (req, res) => {
-  let resId = req.body;
-  let report = await reserveModel.findById(resId).select("report -_id");
-  res.json({ message: "done", report });
 };
 
 const presc = async (req, res) => {
   let { oper, resId } = req.body;
-  let reserve = await reserveModel.findById(resId);
-  let data = {
-    presc: reserve.report.prescription,
-    patName: reserve.patName,
-    docName: reserve.docName,
-    date: reserve.date,
-    resId: resId,
-  };
   if (oper == "pdf") {
-    generatePDF(data);
-    res.json({ message: "pdf generated" });
+    let pdf = await generatePDF(resId);
+    res.json({ message: "pdf generated", pdf });
   } else if (oper == "qr") {
-    let qr = await qrCode(data);
+    let qr = await qrCode(resId);
     res.json({ message: "qrcode generated", qr });
   }
 };
 
-export { presc, getReport };
+export { presc };
