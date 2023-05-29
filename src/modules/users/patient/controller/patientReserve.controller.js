@@ -52,6 +52,7 @@ const reserve = catchAsyncError(async (req, res, next) => {
   let addRes = async (check) => {
     if (!check) {
       all.date = moment(all.date, "DD-MM-YYYY").format("MM-DD-YYYY");
+      all.time = doctor.doctorInfo.schedule[scheduleDayIndex].time
       all.patientId == "" ? delete all["patientId"] : "";
       let add = await reserveModel.insertMany(all);
       /*if (all.patientId) {
@@ -76,7 +77,7 @@ const reserve = catchAsyncError(async (req, res, next) => {
         add[0].turnNum = turnNumber + 1;
         await add[0].save();
       }
-      res.json({ message: `${all.type} Booked`, add });
+      res.json({ message: "booked", add });
     } else {
       next(new AppError("Already booked", 404));
     }

@@ -6,6 +6,7 @@ import { createDir } from "../../middleware/fileUploader.js";
 import AppError from "../../../utils/AppError.js";
 import medicRecordModel from "../../../../database/models/medicRecord.model.js";
 import reserveModel from "../../../../database/models/reserve.model.js";
+import firstAidModel from "../../../../database/models/firstAid.model.js";
 
 const uploadProfilePic = catchAsyncError(async (req, res, next) => {
   console.log(req.file);
@@ -45,6 +46,9 @@ const uploadFiles = catchAsyncError(async (req, res, next) => {
     model = userModel.findById(all.id);
   } else if (all.fieldName == "reserves") {
     model = reserveModel.findById(all.id);
+  }
+  else if (all.fieldName == "firstAid") {
+    model = firstAidModel.findById(all.id);
   }
   if (req.files) {
     let data = await model;
@@ -87,6 +91,8 @@ const removeFiles = catchAsyncError(async (req, res, next) => {
     model = userModel.findById(id);
   } else if (fieldName == "reserves") {
     model = reserveModel.findById(id);
+  } else if (fieldName == "firstAid") {
+    model = firstAidModel.findById(id);
   }
   let data = await model;
   if (data) {

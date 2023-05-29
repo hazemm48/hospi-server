@@ -11,7 +11,10 @@ export const createDir = (body) => {
     dir = `${mainDir}/${fieldName}/${body.type}/${body.id}`;
     return dir;
   } else if (fieldName == "medicRecord") {
-    dir = `${mainDir}/${fieldName}/${body.id}/${body.recId}/`;
+    dir = `${mainDir}/${fieldName}/${body.id}/${body.recId}`;
+    return dir;
+  } else if (fieldName == "firstAid") {
+    dir = `${mainDir}/${fieldName}/${body.id}`;
     return dir;
   } else {
     dir = `${mainDir}/misc`;
@@ -23,7 +26,6 @@ export const fileUpload = (fieldName) => {
   const storage = multer.diskStorage({});
 
   const fileFilter = (req, file, cb) => {
-    console.log(file,"hi");
     if (
       file.mimetype.startsWith("image") ||
       file.mimetype.startsWith("application/pdf")
@@ -36,9 +38,9 @@ export const fileUpload = (fieldName) => {
 
   const upload = multer({ storage: storage, fileFilter });
 
-  if(fieldName=="image"){
+  if (fieldName == "image") {
     return upload.single(fieldName);
-  }else if(fieldName=="files"){
-    return upload.array(fieldName,10);
+  } else if (fieldName == "files") {
+    return upload.array(fieldName, 10);
   }
 };
