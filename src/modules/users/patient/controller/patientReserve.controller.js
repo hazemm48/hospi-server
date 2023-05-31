@@ -26,8 +26,8 @@ const reserve = catchAsyncError(async (req, res, next) => {
     );
   });
   let doctor = {};
-  let scheduleDayIndex = -1;
-  let appointmentDateIndex = -1;
+  let scheduleDay = -1;
+  let docApps = [];
 
   if (all.type == "doctor") {
     if (
@@ -39,89 +39,66 @@ const reserve = catchAsyncError(async (req, res, next) => {
     let scheduleIndex = docInfo.doctorInfo.schedule.findIndex(
       (e) => e.day == all.day
     );
-    let appointmentIndex = docInfo.doctorInfo.schedule[
-      scheduleIndex
-    ].appointments.findIndex(
-      (e) => moment(e.date).format("DD-MM-YYYY") == all.date
-    );
+    if (scheduleIndex < 0) {
+      return next(new AppError("no such day in schedule", 404));
+    } else {
+      scheduleDay = doctor.doctorInfo.schedule[scheduleIndex];
+    }
+    let doctorAppointments = await reserveModel
+      .find({
+        doctorId: all.doctorId,
+        date: moment(all.date, "DDMMYYYY").format(),
+      })
+      .sort("createdAt");
+    all.turnNum = doctorAppointments.length + 1;
     doctor = docInfo;
-    scheduleDayIndex = scheduleIndex;
-    appointmentDateIndex = appointmentIndex;
+    docApps = doctorAppointments;
   }
 
   let addRes = async (check) => {
     if (!check) {
       all.date = moment(all.date, "DD-MM-YYYY").format("MM-DD-YYYY");
-      all.time = doctor.doctorInfo.schedule[scheduleDayIndex].time
+      all.time = scheduleDay.time;
       all.patientId == "" ? delete all["patientId"] : "";
       let add = await reserveModel.insertMany(all);
-      /*if (all.patientId) {
-        let updatePat = await userModel.findByIdAndUpdate(all.patientId, {
-          $push: { "patientInfo.reservations": add[0]._id },
-        });
-      } */
-
-      if (all.type == "doctor") {
-        let appointments =
-          doctor.doctorInfo.schedule[scheduleDayIndex].appointments;
-        if (!appointments[appointmentDateIndex]) {
-          let newAppoin = appointments.push({ date: all.date });
-          appointmentDateIndex = newAppoin - 1;
-          await doctor.save();
-        }
-        appointments[appointmentDateIndex].reserveId.push(add[0]._id);
-        await doctor.save();
-        let turnNumber = appointments[appointmentDateIndex].reserveId.indexOf(
-          add[0]._id
-        );
-        add[0].turnNum = turnNumber + 1;
-        await add[0].save();
-      }
       res.json({ message: "booked", add });
     } else {
-      next(new AppError("Already booked", 404));
+      next(new AppError("already booked", 404));
     }
   };
 
   if (reserves.length < allRes) {
     if (resDayLength.length < resPerDay) {
       if (all.type == "doctor") {
-        if (scheduleDayIndex >= 0) {
-          if (
-            doctor.doctorInfo.schedule[scheduleDayIndex].limit >=
-              (doctor.doctorInfo.schedule[scheduleDayIndex].appointments[
-                appointmentDateIndex
-              ]?.reserveId.length - 1 || 0) &&
-            doctor.doctorInfo.available == true
-          ) {
-            let x = false;
-            let check = reserves.some((e) => {
-              if (all.doctorId == e.doctorId) {
+        if (
+          scheduleDay.limit >= (docApps.length - 1 || 0) &&
+          doctor.doctorInfo.available == true
+        ) {
+          let x = false;
+          let check = reserves.some((e) => {
+            if (all.doctorId == e.doctorId) {
+              if (
+                all.date ==
+                moment(e.date).tz("Africa/Cairo").format("DD-MM-YYYY")
+              ) {
                 if (
-                  all.date ==
-                  moment(e.date).tz("Africa/Cairo").format("DD-MM-YYYY")
+                  (all.anotherPerson &&
+                    anotherPersonLength.length < apLength) ||
+                  (!all.anotherPerson && e.anotherPerson)
                 ) {
-                  if (
-                    (all.anotherPerson &&
-                      anotherPersonLength.length < apLength) ||
-                    (!all.anotherPerson && e.anotherPerson)
-                  ) {
-                    x = false;
-                  } else {
-                    x = true;
-                  }
-                } else {
                   x = false;
+                } else {
+                  x = true;
                 }
+              } else {
+                x = false;
               }
-              return x;
-            });
-            addRes(check);
-          } else {
-            next(new AppError("doctor schedule is full or not available", 404));
-          }
+            }
+            return x;
+          });
+          addRes(check);
         } else {
-          next(new AppError("no such day in schedule", 404));
+          next(new AppError("doctor schedule is full or not available", 404));
         }
       } else if (all.type == "lab" || all.type == "rad") {
         let x = false;
@@ -160,7 +137,6 @@ const getReserve = catchAsyncError(async (req, res, next) => {
   let length = "";
   if (month) {
     let search = {};
-    console.log(search);
     if (filter?.hasOwnProperty("doctorId")) {
       search.doctorId = mongoose.Types.ObjectId(filter.doctorId);
     } else if (filter?.hasOwnProperty("patientId")) {
@@ -169,7 +145,6 @@ const getReserve = catchAsyncError(async (req, res, next) => {
     filter?.type ? (search.type = filter.type) : "";
     search.month = month;
     search.year = year;
-    console.log(search);
     const reservations = await reserveModel.aggregate([
       { $addFields: { month: { $month: "$date" }, year: { $year: "$date" } } },
       { $match: { ...search } },
@@ -207,41 +182,28 @@ const cancelReserve = catchAsyncError(async (req, res, next) => {
       if (reserve.type == "doctor") {
         let resDate = moment(
           moment(reserve.date).format("DD/MM/YYYY") + " " + reserve.time.from,
-          "DD/MM/YYYY HH:mm"
+          "DD/MM/YYYY HH:mm A"
         );
         let date = moment();
         if (resDate.diff(date, "minutes") > 120 || req.role == "admin") {
-          let patient = await userModel.findByIdAndUpdate(
-            reserve.patientId,
-            { $pull: { "patientInfo.reservations": resId } },
-            { new: true }
-          );
-          let doctor = await userModel.findById(reserve.doctorId);
-          let scheduleDayIndex = doctor.doctorInfo.schedule.findIndex(
-            (e) => e.day == reserve.day
-          );
-          let appointments =
-            doctor.doctorInfo.schedule[scheduleDayIndex].appointments;
-          appointments.pull(resId);
-          doctor.save();
-          await reserveModel.deleteOne({ _id: resId });
-          let turnUpdate = appointments.map(async (e, index) => {
-            let reserveUpdate = await reserveModel.findById(e);
-            reserveUpdate.turnNum = index + 1;
-            await reserveUpdate.save();
+          await reserve.remove();
+          let reserveTurnUpdate = await reserveModel
+            .find({
+              doctorId: reserve.doctorId,
+              date: reserve.date,
+            })
+            .sort("createdAt");
+          reserveTurnUpdate.map((e, i) => {
+            e.turnNum = i + 1;
           });
-          res.json({ message: "reservation cancelled", patient });
+          await reserveModel.bulkSave(reserveTurnUpdate);
+          res.json({ message: "reservation cancelled" });
         } else {
           res.json({ message: "can't cancel reservation" });
         }
       } else {
-        let patient = await userModel.findByIdAndUpdate(
-          req.userId,
-          { $pull: { "patientInfo.reservations": resId } },
-          { new: true }
-        );
-        await reserveModel.deleteOne({ _id: resId });
-        res.json({ message: "reservation cancelled", patient });
+        await reserveModel.remove();
+        res.json({ message: "reservation cancelled" });
       }
     } else {
       res.json({ message: "reservation status is done" });
@@ -253,7 +215,6 @@ const cancelReserve = catchAsyncError(async (req, res, next) => {
 
 const editReserve = catchAsyncError(async (req, res, next) => {
   let { details, id } = req.body;
-  console.log(details);
   let reserve = await reserveModel.findByIdAndUpdate(id, details, {
     new: true,
   });
@@ -274,9 +235,22 @@ const adminRes = (req, res, next) => {
 };
 
 const checkReserveStatus = catchAsyncError(async () => {
-
-  let reserves = await reserveModel.find({})
-
+  let reserves = await reserveModel.find({ status: false });
+  let date = moment();
+  reserves.map((e) => {
+    let time = "24:00";
+    e.time.to && (time = e.time.to);
+    let resDate = moment(
+      moment(e.date).format("DD/MM/YYYY") + " " + time,
+      "DD/MM/YYYY HH:mm A"
+    );
+    if (resDate.diff(date, "minutes") <= 0) {
+      e.status = true;
+    }
+  });
+  await reserveModel.bulkSave(reserves);
 });
+
+setInterval(checkReserveStatus,1000*60*10)
 
 export { reserve, getReserve, cancelReserve, adminRes, editReserve };

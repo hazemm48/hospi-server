@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 
 const radSchema = new mongoose.Schema({
     name :String,
-    category :String,
     fees :String,
     available:{
         type:Boolean,

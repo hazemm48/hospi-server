@@ -22,12 +22,10 @@ const productSchema = new mongoose.Schema(
     category: {
       type: mongoose.Types.ObjectId,
       ref: "Category",
-      required: [true, "product category required"],
     },
     subCategory: {
       type: mongoose.Types.ObjectId,
       ref: "SubCategory",
-      required: [true, "product category required"],
     },
   },
   {
