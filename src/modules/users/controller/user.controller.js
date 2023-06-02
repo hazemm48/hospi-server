@@ -28,7 +28,7 @@ const signUp = catchAsyncError(async (req, res, next) => {
     } else if (all.role == "doctor" && req.role == "admin") {
       all.confirmedEmail = true;
       let added = await userModel.insertMany(all);
-      addDocToRoom({ roomId: all.roomId, docId: added._id });
+      await addDocToRoom({ roomId: all.roomId, docId: added[0]._id });
       res.json({ message: "doctor added", added });
     } else if (all.role == "admin" && req.email == process.env.ADMIN) {
       all.confirmedEmail = true;

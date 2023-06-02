@@ -5,7 +5,7 @@ import catchAsyncError from "../../../middleware/catchAsyncError.js";
 import AppError from "../../../../utils/AppError.js";
 import mongoose from "mongoose";
 
-const reserve = catchAsyncError(async (req, res, next) => {
+const reserve = async (req, res, next) => {
   let all = req.body;
   console.log(all);
   let [apLength, resPerDay, allRes] = [4, 6, 10];
@@ -26,7 +26,7 @@ const reserve = catchAsyncError(async (req, res, next) => {
     );
   });
   let doctor = {};
-  let scheduleDay = -1;
+  let scheduleDay = "";
   let docApps = [];
 
   if (all.type == "doctor") {
@@ -42,7 +42,7 @@ const reserve = catchAsyncError(async (req, res, next) => {
     if (scheduleIndex < 0) {
       return next(new AppError("no such day in schedule", 404));
     } else {
-      scheduleDay = doctor.doctorInfo.schedule[scheduleIndex];
+      scheduleDay = docInfo.doctorInfo.schedule[scheduleIndex];
     }
     let doctorAppointments = await reserveModel
       .find({
@@ -50,6 +50,7 @@ const reserve = catchAsyncError(async (req, res, next) => {
         date: moment(all.date, "DDMMYYYY").format(),
       })
       .sort("createdAt");
+    all.time = scheduleDay.time;
     all.turnNum = doctorAppointments.length + 1;
     doctor = docInfo;
     docApps = doctorAppointments;
@@ -58,13 +59,33 @@ const reserve = catchAsyncError(async (req, res, next) => {
   let addRes = async (check) => {
     if (!check) {
       all.date = moment(all.date, "DD-MM-YYYY").format("MM-DD-YYYY");
-      all.time = scheduleDay.time;
       all.patientId == "" ? delete all["patientId"] : "";
       let add = await reserveModel.insertMany(all);
       res.json({ message: "booked", add });
     } else {
       next(new AppError("already booked", 404));
     }
+  };
+
+  let checkConditions = (e) => {
+    let x = false;
+    if (all.date == moment(e.date).tz("Africa/Cairo").format("DD-MM-YYYY")) {
+      console.log(
+        moment(e.date).tz("Africa/Cairo").format("DD-MM-YYYY"),
+        moment(e.date).format("DD-MM-YYYY")
+      );
+      if (
+        (all.anotherPerson && anotherPersonLength.length < apLength) ||
+        (!all.anotherPerson && e.anotherPerson)
+      ) {
+        x = false;
+      } else {
+        x = true;
+      }
+    } else {
+      x = false;
+    }
+    return x;
   };
 
   if (reserves.length < allRes) {
@@ -77,22 +98,7 @@ const reserve = catchAsyncError(async (req, res, next) => {
           let x = false;
           let check = reserves.some((e) => {
             if (all.doctorId == e.doctorId) {
-              if (
-                all.date ==
-                moment(e.date).tz("Africa/Cairo").format("DD-MM-YYYY")
-              ) {
-                if (
-                  (all.anotherPerson &&
-                    anotherPersonLength.length < apLength) ||
-                  (!all.anotherPerson && e.anotherPerson)
-                ) {
-                  x = false;
-                } else {
-                  x = true;
-                }
-              } else {
-                x = false;
-              }
+              x = checkConditions(e);
             }
             return x;
           });
@@ -101,21 +107,8 @@ const reserve = catchAsyncError(async (req, res, next) => {
           next(new AppError("doctor schedule is full or not available", 404));
         }
       } else if (all.type == "lab" || all.type == "rad") {
-        let x = false;
         let check = reserves.some((e) => {
-          if (all.date == e.date) {
-            if (
-              (all.anotherPerson && anotherPersonLength.length < apLength) ||
-              (!all.anotherPerson && e.anotherPerson)
-            ) {
-              x = false;
-            } else {
-              x = true;
-            }
-          } else {
-            x = false;
-          }
-          return x;
+          return checkConditions(e);
         });
         addRes(check);
       }
@@ -125,7 +118,7 @@ const reserve = catchAsyncError(async (req, res, next) => {
   } else {
     next(new AppError("exceeded number of reservations", 404));
   }
-});
+};
 
 const getReserve = catchAsyncError(async (req, res, next) => {
   let { filter, sort, limit, count, month, year } = req.body;
@@ -251,6 +244,6 @@ const checkReserveStatus = catchAsyncError(async () => {
   await reserveModel.bulkSave(reserves);
 });
 
-setInterval(checkReserveStatus,1000*60*10)
+setInterval(checkReserveStatus, 1000 * 60 * 10);
 
 export { reserve, getReserve, cancelReserve, adminRes, editReserve };

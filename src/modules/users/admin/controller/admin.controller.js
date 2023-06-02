@@ -129,8 +129,8 @@ const updateUser = async (req, res) => {
   });
   if (all.oldRoom) {
     addDocToRoom({
-      roomId: all.room,
-      docId: added._id,
+      roomId: all.roomId,
+      docId: all.id,
       oldRoomId: all.oldRoom,
     });
   }
