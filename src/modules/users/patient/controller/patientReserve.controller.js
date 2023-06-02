@@ -5,7 +5,7 @@ import catchAsyncError from "../../../middleware/catchAsyncError.js";
 import AppError from "../../../../utils/AppError.js";
 import mongoose from "mongoose";
 
-const reserve = async (req, res, next) => {
+const reserve = catchAsyncError(async (req, res, next) => {
   let all = req.body;
   console.log(all);
   let [apLength, resPerDay, allRes] = [4, 6, 10];
@@ -36,6 +36,9 @@ const reserve = async (req, res, next) => {
       return next(new AppError("day and date dont match", 404));
     }
     let docInfo = await userModel.findById(all.doctorId);
+    if (!docInfo) {
+      return next(new AppError("doctor not found", 404));
+    }
     let scheduleIndex = docInfo.doctorInfo.schedule.findIndex(
       (e) => e.day == all.day
     );
@@ -118,7 +121,7 @@ const reserve = async (req, res, next) => {
   } else {
     next(new AppError("exceeded number of reservations", 404));
   }
-};
+});
 
 const getReserve = catchAsyncError(async (req, res, next) => {
   let { filter, sort, limit, count, month, year } = req.body;
