@@ -10,11 +10,10 @@ import noteRoutes from "../../notes/notes.routes.js";
 import firstAidRoutes from "../../firstAid/firstAid.routes.js";
 import { presc } from "../patient/controller/patientReport.controller.js";
 
-router.post("/getAllUsers", adminController.getAllUsers);
+router.post("/getAllUsers", userController.getAllUsers);
 router.post("/addUser", userController.signUp);
-router.post("/uptest", filesUpload.uploadProfilePic);
 router.post("/addGeneral", adminController.addGeneral);
-router.post("/reserve/:oper", patientReserve.adminRes);
+router.post("/reserve/:oper", patientReserve.reserveOperController);
 router.post("/generatePresc", presc);
 router.put("/changePass", userController.changePass);
 router.put("/updateUser", adminController.updateUser);

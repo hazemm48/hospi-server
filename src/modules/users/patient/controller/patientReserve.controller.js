@@ -217,7 +217,7 @@ const editReserve = catchAsyncError(async (req, res, next) => {
   res.json({ message: "updated", reserve });
 });
 
-const adminRes = (req, res, next) => {
+const reserveOperController = (req, res, next) => {
   let params = req.params;
   if (params.oper == "reserve") {
     reserve(req, res, next);
@@ -226,7 +226,13 @@ const adminRes = (req, res, next) => {
   } else if (params.oper == "cancel") {
     cancelReserve(req, res, next);
   } else if (params.oper == "edit") {
-    editReserve(req, res, next);
+    if(req.role=="admin"){
+      editReserve(req, res, next);
+    }else{
+      next(new AppError("not authorized"));
+    }
+  }else{
+    next(new AppError("wrong operation entry"));
   }
 };
 
@@ -249,4 +255,4 @@ const checkReserveStatus = catchAsyncError(async () => {
 
 setInterval(checkReserveStatus, 1000 * 60 * 10);
 
-export { reserve, getReserve, cancelReserve, adminRes, editReserve };
+export { reserve, getReserve, cancelReserve, reserveOperController, editReserve };

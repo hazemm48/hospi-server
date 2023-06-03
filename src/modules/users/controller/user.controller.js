@@ -161,8 +161,10 @@ const changePass = catchAsyncError(async (req, res, next) => {
 });
 
 const getAllUsers = catchAsyncError(async (req, res, next) => {
+  console.log(req,"sd");
   let { role, id, email, phone, sort, pageNo, limit, speciality, filter } =
     req.body;
+    console.log(req,"sd");
   pageNo <= 0 || !pageNo ? (pageNo = 1) : pageNo * 1;
   limit <= 0 || !limit ? (limit = 0) : limit * 1;
   let skipItems = (pageNo - 1) * limit;
@@ -211,6 +213,7 @@ const getAllUsers = catchAsyncError(async (req, res, next) => {
         .collation({ locale: "en" })
         .sort(sort);
       const length = await lengthCon;
+      console.log(users);
       res.json({ messgae: `all ${role}s`, users, length });
     } else if (role == "all") {
       const users = await userModel
@@ -225,7 +228,9 @@ const getAllUsers = catchAsyncError(async (req, res, next) => {
     }
   } else if (id) {
     const users = await userModel.findById(id);
-    res.json({ messgae: "user found", users });
+    users
+      ? res.json({ messgae: "user found", users })
+      : next(new AppError("user not found"));
   } else if (email || phone) {
     console.log(email, phone);
     let query = {};
@@ -236,6 +241,7 @@ const getAllUsers = catchAsyncError(async (req, res, next) => {
     res.json({ messgae: "user found", users });
   } else if (req.userId) {
     const users = await userModel.findById(req.userId);
+    console.log(users);
     res.json({ messgae: "User", users });
   } else {
     res.json({ messgae: "invalid input" });
@@ -250,5 +256,5 @@ export {
   verifyResetcode,
   resetPassword,
   changePass,
-  getAllUsers
+  getAllUsers,
 };

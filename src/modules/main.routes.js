@@ -18,7 +18,6 @@ import {
   emailAuth,
   verifyCodeAuth,
 } from "./middleware/auth.js";
-import { fileUpload } from "./middleware/fileUploader.js";
 
 router.use("/admin", adminAuth, adminRoutes);
 router.use("/patient", auth, patientRoutes);
@@ -36,6 +35,6 @@ router.post("/forgetPass/", userController.forgetPassword);
 router.post("/verifyResetCode/", userController.verifyResetcode);
 router.post("/resetPass/", verifyCodeAuth, userController.resetPassword);
 router.post("/signIn", userController.signIn);
-router.post("/getUsers", userController.getAllUsers);
+router.post("/getAllUsers", userController.getAllUsers);
 
 export default router;
