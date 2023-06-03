@@ -24,7 +24,6 @@ const updateFirstAid = catchAsyncError(async (req, res, next) => {
         return next(new AppError("first aid already exists"));
       }
     }
-    console.log(data);
     aid.set(data);
     await aid.save();
     res.json({ message: "first aid updated", aid });
@@ -36,7 +35,6 @@ const updateFirstAid = catchAsyncError(async (req, res, next) => {
 const getFirstAid = catchAsyncError(async (req, res, next) => {
   let { filter } = req.body;
   const check = await firstAidModel.find(filter);
-  console.log(check);
   if (check.length > 0) {
     res.json({ message: "found", aids: check });
   } else {

@@ -21,7 +21,7 @@ import {
 import { fileUpload } from "./middleware/fileUploader.js";
 
 router.use("/admin", adminAuth, adminRoutes);
-router.use("/patient", patientRoutes);
+router.use("/patient", auth, patientRoutes);
 router.use("/doctor", auth, doctorRoutes);
 /* router.use('/lab',auth,labRoutes) */
 router.use("/room", roomRoutes);
@@ -36,5 +36,6 @@ router.post("/forgetPass/", userController.forgetPassword);
 router.post("/verifyResetCode/", userController.verifyResetcode);
 router.post("/resetPass/", verifyCodeAuth, userController.resetPassword);
 router.post("/signIn", userController.signIn);
+router.post("/getUsers", userController.getAllUsers);
 
 export default router;

@@ -160,6 +160,88 @@ const changePass = catchAsyncError(async (req, res, next) => {
   }
 });
 
+const getAllUsers = catchAsyncError(async (req, res, next) => {
+  let { role, id, email, phone, sort, pageNo, limit, speciality, filter } =
+    req.body;
+  pageNo <= 0 || !pageNo ? (pageNo = 1) : pageNo * 1;
+  limit <= 0 || !limit ? (limit = 0) : limit * 1;
+  let skipItems = (pageNo - 1) * limit;
+  if (role) {
+    if (role == "patient" || role == "doctor") {
+      let find = "";
+      let lengthCon = "";
+      let findFilter = {
+        role,
+      };
+      filter && (findFilter = { ...findFilter, ...filter });
+      speciality
+        ? ((find = userModel.find({
+            ...findFilter,
+            "doctorInfo.speciality": speciality,
+          })),
+          (lengthCon = userModel.countDocuments({
+            findFilter,
+            "doctorInfo.speciality": speciality,
+            function(err, count) {
+              return count;
+            },
+          })))
+        : filter?.name
+        ? ((find = userModel.find({
+            role,
+            name: { $regex: filter.name, $options: "i" },
+          })),
+          (lengthCon = userModel.countDocuments({
+            role,
+            name: { $regex: filter.name, $options: "i" },
+            function(err, count) {
+              return count;
+            },
+          })))
+        : ((find = userModel.find(findFilter)),
+          (lengthCon = userModel.countDocuments({
+            ...findFilter,
+            function(err, count) {
+              return count;
+            },
+          })));
+      const users = await find
+        .skip(skipItems)
+        .limit(limit)
+        .collation({ locale: "en" })
+        .sort(sort);
+      const length = await lengthCon;
+      res.json({ messgae: `all ${role}s`, users, length });
+    } else if (role == "all") {
+      const users = await userModel
+        .find()
+        .skip(skipItems)
+        .limit(limit)
+        .collation({ locale: "en" })
+        .sort(sort);
+      res.json({ messgae: "all users", users });
+    } else {
+      res.json({ messgae: "invalid input" });
+    }
+  } else if (id) {
+    const users = await userModel.findById(id);
+    res.json({ messgae: "user found", users });
+  } else if (email || phone) {
+    console.log(email, phone);
+    let query = {};
+    email ? (query.email = email) : "";
+    phone ? (query.phone = phone) : "";
+    console.log(query);
+    const users = await userModel.find(query);
+    res.json({ messgae: "user found", users });
+  } else if (req.userId) {
+    const users = await userModel.findById(req.userId);
+    res.json({ messgae: "User", users });
+  } else {
+    res.json({ messgae: "invalid input" });
+  }
+});
+
 export {
   signUp,
   signIn,
@@ -168,4 +250,5 @@ export {
   verifyResetcode,
   resetPassword,
   changePass,
+  getAllUsers
 };
