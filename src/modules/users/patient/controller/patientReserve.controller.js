@@ -195,17 +195,17 @@ const cancelReserve = catchAsyncError(async (req, res, next) => {
           await reserveModel.bulkSave(reserveTurnUpdate);
           res.json({ message: "reservation cancelled" });
         } else {
-          res.json({ message: "can't cancel reservation" });
+          next(new AppError("can't cancel reservation"));
         }
       } else {
         await reserveModel.remove();
         res.json({ message: "reservation cancelled" });
       }
     } else {
-      res.json({ message: "reservation status is done" });
+      next(new AppError("reservation status is done"));
     }
   } else {
-    res.json({ message: "reservation already cancelled" });
+    next(new AppError("reservation already cancelled"));
   }
 });
 
@@ -226,12 +226,12 @@ const reserveOperController = (req, res, next) => {
   } else if (params.oper == "cancel") {
     cancelReserve(req, res, next);
   } else if (params.oper == "edit") {
-    if(req.role=="admin"){
+    if (req.role == "admin") {
       editReserve(req, res, next);
-    }else{
+    } else {
       next(new AppError("not authorized"));
     }
-  }else{
+  } else {
     next(new AppError("wrong operation entry"));
   }
 };
@@ -255,4 +255,10 @@ const checkReserveStatus = catchAsyncError(async () => {
 
 setInterval(checkReserveStatus, 1000 * 60 * 10);
 
-export { reserve, getReserve, cancelReserve, reserveOperController, editReserve };
+export {
+  reserve,
+  getReserve,
+  cancelReserve,
+  reserveOperController,
+  editReserve,
+};

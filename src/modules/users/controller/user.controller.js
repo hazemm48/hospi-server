@@ -5,9 +5,6 @@ import { sendMAil } from "../../../services/sendMail.js";
 import catchAsyncError from "../../middleware/catchAsyncError.js";
 import AppError from "../../../utils/AppError.js";
 import { addDocToRoom } from "../../room/controller/room.controller.js";
-import cloudinary from "../../../utils/cloudinary.js";
-import fs from "fs";
-import { createDir } from "../../middleware/fileUploader.js";
 
 const signUp = catchAsyncError(async (req, res, next) => {
   let all = req.body;
@@ -163,7 +160,7 @@ const changePass = catchAsyncError(async (req, res, next) => {
 const getAllUsers = catchAsyncError(async (req, res, next) => {
   let { role, id, email, phone, sort, pageNo, limit, speciality, filter } =
     req.body;
-    console.log(req,"sd");
+  console.log(req, "sd");
   pageNo <= 0 || !pageNo ? (pageNo = 1) : pageNo * 1;
   limit <= 0 || !limit ? (limit = 0) : limit * 1;
   let skipItems = (pageNo - 1) * limit;
@@ -213,7 +210,9 @@ const getAllUsers = catchAsyncError(async (req, res, next) => {
         .sort(sort);
       const length = await lengthCon;
       console.log(users);
-      res.json({ messgae: `all ${role}s`, users, length });
+      users
+        ? res.json({ messgae: `all ${role}s`, users, length })
+        : next(new AppError("user not found"));
     } else if (role == "all") {
       const users = await userModel
         .find()
@@ -221,9 +220,11 @@ const getAllUsers = catchAsyncError(async (req, res, next) => {
         .limit(limit)
         .collation({ locale: "en" })
         .sort(sort);
-      res.json({ messgae: "all users", users });
+      users
+        ? res.json({ messgae: "all users", users })
+        : next(new AppError("user not found"));
     } else {
-      res.json({ messgae: "invalid input" });
+      next(new AppError("invalid input"));
     }
   } else if (id) {
     const users = await userModel.findById(id);
@@ -237,13 +238,16 @@ const getAllUsers = catchAsyncError(async (req, res, next) => {
     phone ? (query.phone = phone) : "";
     console.log(query);
     const users = await userModel.find(query);
-    res.json({ messgae: "user found", users });
+    users
+      ? res.json({ messgae: "user found", users })
+      : next(new AppError("user not found"));
   } else if (req.userId) {
     const users = await userModel.findById(req.userId);
-    console.log(users);
-    res.json({ messgae: "User", users });
+    users
+      ? res.json({ messgae: "user found", users })
+      : next(new AppError("user not found"));
   } else {
-    res.json({ messgae: "invalid input" });
+    next(new AppError("invalid input"));
   }
 });
 
