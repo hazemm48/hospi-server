@@ -161,7 +161,6 @@ const changePass = catchAsyncError(async (req, res, next) => {
 });
 
 const getAllUsers = catchAsyncError(async (req, res, next) => {
-  console.log(req,"sd");
   let { role, id, email, phone, sort, pageNo, limit, speciality, filter } =
     req.body;
     console.log(req,"sd");
