@@ -18,6 +18,8 @@ import {
   emailAuth,
   verifyCodeAuth,
 } from "./middleware/auth.js";
+import { getGeneral } from "./general/general.controller.js";
+import { getFirstAid } from "./firstAid/controller/firstAid.controller.js";
 
 router.use("/admin", adminAuth, adminRoutes);
 router.use("/patient", auth, patientRoutes);
@@ -36,5 +38,8 @@ router.post("/verifyResetCode/", userController.verifyResetcode);
 router.post("/resetPass/", verifyCodeAuth, userController.resetPassword);
 router.post("/signIn", userController.signIn);
 router.post("/getAllUsers", userController.getAllUsers);
+router.post("/getGeneral", getGeneral);
+router.post("/getFirstAid", getFirstAid);
+
 
 export default router;

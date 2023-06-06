@@ -7,8 +7,7 @@ import mongoose from "mongoose";
 
 const reserve = catchAsyncError(async (req, res, next) => {
   let all = req.body;
-  console.log(all);
-  let [apLength, resPerDay, allRes] = [4, 6, 10];
+  let [apLength, resPerDay, allRes] = [4, 7, 10];
   req.role == "patient" ? (all.patientId = req.userId) : "";
   let reserves = reserveModel.find({
     type: all.type,
@@ -181,6 +180,9 @@ const cancelReserve = catchAsyncError(async (req, res, next) => {
           "DD/MM/YYYY HH:mm A"
         );
         let date = moment();
+        console.log(date);
+
+        console.log(resDate.diff(date, "minutes"));
         if (resDate.diff(date, "minutes") > 120 || req.role == "admin") {
           await reserve.remove();
           let reserveTurnUpdate = await reserveModel
@@ -189,6 +191,8 @@ const cancelReserve = catchAsyncError(async (req, res, next) => {
               date: reserve.date,
             })
             .sort("createdAt");
+            console.log(reserveTurnUpdate);
+            console.log(reserveTurnUpdate);
           reserveTurnUpdate.map((e, i) => {
             e.turnNum = i + 1;
           });
@@ -211,6 +215,7 @@ const cancelReserve = catchAsyncError(async (req, res, next) => {
 
 const editReserve = catchAsyncError(async (req, res, next) => {
   let { details, id } = req.body;
+  console.log(id,details);
   let reserve = await reserveModel.findByIdAndUpdate(id, details, {
     new: true,
   });

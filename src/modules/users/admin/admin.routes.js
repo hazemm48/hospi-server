@@ -12,7 +12,6 @@ import { presc } from "../patient/controller/patientReport.controller.js";
 
 router.post("/getAllUsers", userController.getAllUsers);
 router.post("/addUser", userController.signUp);
-router.post("/addGeneral", adminController.addGeneral);
 router.post("/reserve/:oper", patientReserve.reserveOperController);
 router.post("/generatePresc", presc);
 router.put("/changePass", userController.changePass);
@@ -20,7 +19,6 @@ router.put("/updateUser", adminController.updateUser);
 router.delete("/deleteUser", adminController.deleteUser);
 router.post("/resetPassword", adminController.resetPassword);
 router.post("/addGeneral", generalController.addGeneral);
-router.post("/getGeneral", generalController.getGeneral);
 router.use("/room", roomRoutes);
 router.use("/note", noteRoutes);
 router.use("/firstAid", firstAidRoutes);

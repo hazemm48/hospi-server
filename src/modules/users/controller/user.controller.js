@@ -5,6 +5,7 @@ import { sendMAil } from "../../../services/sendMail.js";
 import catchAsyncError from "../../middleware/catchAsyncError.js";
 import AppError from "../../../utils/AppError.js";
 import { addDocToRoom } from "../../room/controller/room.controller.js";
+import mongoose from "mongoose";
 
 const signUp = catchAsyncError(async (req, res, next) => {
   let all = req.body;
@@ -60,8 +61,9 @@ const signIn = catchAsyncError(async (req, res, next) => {
           });
         }
         check.isLoggedIn = true;
+        delete check.password;
         check.save();
-        res.json({ message: "welcome", token, user: check });
+        res.json({ message: "welcome", token, role: check.role, user: check });
       } else {
         next(new AppError("Confirm your email first", 404));
       }
@@ -158,96 +160,65 @@ const changePass = catchAsyncError(async (req, res, next) => {
 });
 
 const getAllUsers = catchAsyncError(async (req, res, next) => {
-  let { role, id, email, phone, sort, pageNo, limit, speciality, filter } =
-    req.body;
-  console.log(req, "sd");
-  pageNo <= 0 || !pageNo ? (pageNo = 1) : pageNo * 1;
-  limit <= 0 || !limit ? (limit = 0) : limit * 1;
-  let skipItems = (pageNo - 1) * limit;
-  if (role) {
-    if (role == "patient" || role == "doctor") {
-      let find = "";
-      let lengthCon = "";
-      let findFilter = {
-        role,
-      };
-      filter && (findFilter = { ...findFilter, ...filter });
-      speciality
-        ? ((find = userModel.find({
-            ...findFilter,
-            "doctorInfo.speciality": speciality,
-          })),
-          (lengthCon = userModel.countDocuments({
-            findFilter,
-            "doctorInfo.speciality": speciality,
-            function(err, count) {
-              return count;
-            },
-          })))
-        : filter?.name
-        ? ((find = userModel.find({
-            role,
-            name: { $regex: filter.name, $options: "i" },
-          })),
-          (lengthCon = userModel.countDocuments({
-            role,
-            name: { $regex: filter.name, $options: "i" },
-            function(err, count) {
-              return count;
-            },
-          })))
-        : ((find = userModel.find(findFilter)),
-          (lengthCon = userModel.countDocuments({
-            ...findFilter,
-            function(err, count) {
-              return count;
-            },
-          })));
-      const users = await find
-        .skip(skipItems)
-        .limit(limit)
-        .collation({ locale: "en" })
-        .sort(sort);
-      const length = await lengthCon;
-      console.log(users);
-      users
-        ? res.json({ messgae: `all ${role}s`, users, length })
-        : next(new AppError("user not found"));
-    } else if (role == "all") {
-      const users = await userModel
-        .find()
-        .skip(skipItems)
-        .limit(limit)
-        .collation({ locale: "en" })
-        .sort(sort);
-      users
-        ? res.json({ messgae: "all users", users })
-        : next(new AppError("user not found"));
+  let { sort, pageNo, limit, filter } = req.body;
+  if (filter) {
+    if (sort) {
+      let obj = {};
+      let arr = sort.split(":");
+      obj[arr[0]] = arr[1] * 1;
+      sort = obj;
     } else {
-      next(new AppError("invalid input"));
+      sort = { createdAt: 1 };
     }
-  } else if (id) {
-    const users = await userModel.findById(id);
-    users
-      ? res.json({ messgae: "user found", users })
+    console.log(filter);
+
+    pageNo <= 0 || !pageNo ? (pageNo = 1) : pageNo * 1;
+    limit <= 0 || !limit ? (limit = 0) : limit * 1;
+    let skipItems = (pageNo - 1) * limit;
+    let aggr = [{ $skip: skipItems }];
+    limit != 0 && aggr.push({ $limit: limit });
+
+    if (filter.name) {
+      filter.name = { $regex: filter.name, $options: "i" };
+    }
+    if (filter._id) {
+      filter._id = mongoose.Types.ObjectId(filter._id);
+    }
+
+    let users = await userModel.aggregate([
+      {
+        $match: {
+          ...filter,
+        },
+      },
+      {
+        $sort: sort,
+      },
+      {
+        $facet: {
+          totalRecords: [
+            {
+              $count: "total",
+            },
+          ],
+          data: aggr,
+        },
+      },
+    ]);
+    console.log(users);
+
+    users[0].data
+      ? res.json({
+          messgae: "all users",
+          users: users[0].data,
+          count: users[0].totalRecords[0]?.total,
+        })
       : next(new AppError("user not found"));
-  } else if (email || phone) {
-    console.log(email, phone);
-    let query = {};
-    email ? (query.email = email) : "";
-    phone ? (query.phone = phone) : "";
-    console.log(query);
-    const users = await userModel.find(query);
-    users
-      ? res.json({ messgae: "user found", users })
-      : next(new AppError("user not found"));
-  } else if (req.userId) {
+  } else {
     const users = await userModel.findById(req.userId);
     users
       ? res.json({ messgae: "user found", users })
       : next(new AppError("user not found"));
-  } else {
-    next(new AppError("invalid input"));
   }
 });
 

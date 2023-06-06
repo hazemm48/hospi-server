@@ -12,6 +12,7 @@ const auth = (req, res, next) => {
         if(decoded.isLoggedIn==true){
         req.userId = decoded.userId;
         req.role=decoded.role
+        req.email=decoded.email
         next();
         }else{
           res.json({ message: "not logged in" });
