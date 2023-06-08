@@ -170,7 +170,6 @@ const getAllUsers = catchAsyncError(async (req, res, next) => {
     } else {
       sort = { createdAt: 1 };
     }
-    console.log(filter);
 
     pageNo <= 0 || !pageNo ? (pageNo = 1) : pageNo * 1;
     limit <= 0 || !limit ? (limit = 0) : limit * 1;
@@ -205,7 +204,6 @@ const getAllUsers = catchAsyncError(async (req, res, next) => {
         },
       },
     ]);
-    console.log(users);
 
     users[0].data
       ? res.json({

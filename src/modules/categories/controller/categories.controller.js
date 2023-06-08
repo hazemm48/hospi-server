@@ -1,56 +1,30 @@
 import categoryModel from "../../../../database/models/category.model.js";
-import slugify from "slugify";
-import catchAsyncError from "../../../utils/middleware/catchAsyncError.js";
-import AppError from "../../../utils/services/AppError.js";
-import { deleteOne } from "../../../utils/handlers/refactor.handler.js";
-import ApiFeatures from "../../../utils/handlers/ApiFeatures.js";
+import AppError from "../../../utils/AppError.js";
+import catchAsyncError from "../../middleware/catchAsyncError.js";
 
 const createCategory = catchAsyncError(async (req, res, next) => {
-  let { name,type } = req.body;
-  let results = await categoryModel.insertMany({ name,type });
-  res.status(201).json({ message: "added" , added});
+  let { name, type } = req.body;
+  const categories = await categoryModel.find({ name, type });
+  if (categories.length > 0) {
+    return next(new AppError("category already exist", 404));
+  }
+  let add = await categoryModel.insertMany({ name, type });
+  res.status(201).json({ message: "added", add });
 });
 
-const getAllCategories = catchAsyncError(async (req, res, next) => {
-  let apiFeature = new ApiFeatures(categoryModel.find(), req.query)
-    .pagination()
-    .filter()
-    .sort()
-    .fields();
-
-  let results = await apiFeature.mongQuery;
-  res.json({
-    message: "Done",
-    page: apiFeature.pageNo,
-    limit: apiFeature.limit,
-    results,
-  });
+const getCategories = catchAsyncError(async (req, res, next) => {
+  let { filter } = req.body;
+  let results = await categoryModel.find(filter);
+  if (results.length > 0) {
+    res.json({ message: "done", results });
+  } else {
+    return next(new AppError("not found", 404));
+  }
+});
+const deleteCategory = catchAsyncError(async (req, res, next) => {
+  let { id } = req.body;
+  let results = await categoryModel.findByIdAndDelete(id);
+  res.json({ message: "deleted", results });
 });
 
-const getCategoryById = catchAsyncError(async (req, res, next) => {
-  let { id } = req.params;
-  let results = await categoryModel.findById(id);
-  res.json({ message: "Done", results });
-});
-
-const updateCategory = catchAsyncError(async (req, res, next) => {
-  let { id } = req.params;
-  let { name } = req.body;
-  let results = await categoryModel.findByIdAndUpdate(
-    id,
-    { name, slug: slugify(name) },
-    { new: true }
-  );
-  results && res.json({ message: "Done", results });
-  !results && next(new AppError("category not found",404))
-});
-
-const deleteCategory = deleteOne(categoryModel);
-
-export {
-  createCategory,
-  getAllCategories,
-  getCategoryById,
-  updateCategory,
-  deleteCategory,
-};
+export { createCategory, getCategories, deleteCategory };

@@ -9,6 +9,8 @@ import fileUploadRoutes from "./fileUpload/fileUpload.routes.js";
  */ import adminRoutes from "./users/admin/admin.routes.js";
 /* import labRoutes from './lab/lab.routes.js'
  */ import roomRoutes from "./room/room.routes.js";
+ import categoryRoutes from "./categories/categories.routes.js";
+ import productRoutes from "./products/products.routes.js";
 import medicalRecordRoutes from "./medicalRecord/medicalRecord.routes.js";
 import validation from "./middleware/validation.js";
 import * as validSchema from "./middleware/user.validation.js";
@@ -29,6 +31,8 @@ router.use("/room", roomRoutes);
 router.use("/medicalRecord", medicalRecordRoutes);
 router.use("/pharmacy", auth, pharmacyRoutes);
 router.use("/fileUpload", fileUploadRoutes);
+router.use("/category", categoryRoutes);
+router.use("/product", productRoutes);
 /* router.use('/examin',auth,examin) */
 
 router.post("/signUp", userController.signUp);

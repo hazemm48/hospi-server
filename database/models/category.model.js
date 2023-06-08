@@ -4,9 +4,6 @@ const categorySchema = new mongoose.Schema(
   {
     name:String,
     type:String,
-  },
-  {
-    timestamps: true,
   }
 );
 

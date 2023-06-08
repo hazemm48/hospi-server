@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
   {
-    title: {
+    name: {
       type: String,
     },
     price: {
@@ -14,15 +14,31 @@ const productSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    type: {
+      type: String,
+    },
+    stock: {
+      type: Number,
+    },
     sold: {
       type: Number,
-      default: 0,
+    },
+    batch: {
+      type: Number,
+    },
+    brand: {
+      type: Number,
     },
     images: [String],
-    category: {
+    available: {
+      type: Boolean,
+      default: true,
+    },
+    categoryId: {
       type: mongoose.Types.ObjectId,
       ref: "Category",
     },
+    categoryType: String,
     subCategory: {
       type: mongoose.Types.ObjectId,
       ref: "SubCategory",

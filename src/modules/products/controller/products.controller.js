@@ -1,62 +1,71 @@
 import productModel from "../../../../database/models/product.model.js";
-import slugify from "slugify";
-import catchAsyncError from "../../../utils/middleware/catchAsyncError.js";
-import AppError from "../../../utils/services/AppError.js";
-import { deleteOne } from "../../../utils/handlers/refactor.handler.js";
-import ApiFeatures from "../../../utils/handlers/ApiFeatures.js";
+import AppError from "../../../utils/AppError.js";
+import catchAsyncError from "../../middleware/catchAsyncError.js";
 
 const createProduct = catchAsyncError(async (req, res, next) => {
-  let body = req.body;
-  body.slug = slugify(body.title);
-  let results = new productModel(body);
-  let added = await results.save();
-  res.status(201).json({ message: "added", added });
+  let all = req.body;
+  const products = await productModel.find({
+    name: all.name,
+    categoryId: all.categoryId,
+  });
+  if (products.length > 0) {
+    return next(new AppError("product already exist", 404));
+  }
+  let add = await productModel.insertMany(all);
+  res.status(201).json({ message: "added", add });
 });
 
 const getAllProducts = catchAsyncError(async (req, res, next) => {
-  let apiFeature = new ApiFeatures(productModel.find(), req.query)
-    .pagination()
-    .filter()
-    .sort()
-    .search()
-    .fields();
+  let { filter, sort, pageNo, limit } = req.body;
+  pageNo <= 0 || !pageNo ? (pageNo = 1) : pageNo * 1;
+  limit <= 0 || !limit ? (limit = 0) : limit * 1;
+  let skipItems = (pageNo - 1) * limit;
 
-  let results = await apiFeature.mongQuery;
-  res.json({
-    message: "Done",
-    page: apiFeature.pageNo,
-    limit: apiFeature.limit,
-    results,
+  if (filter.name) {
+    filter.name = { $regex: filter.name, $options: "i" };
+  }
+
+  let products = await productModel
+    .find(filter)
+    .skip(skipItems)
+    .limit(limit)
+    .collation({ locale: "en" })
+    .sort(sort)
+    
+  let count = await productModel.countDocuments({
+    ...filter,
+    function(err, count) {
+      return count;
+    },
   });
-});
-
-const getProductById = catchAsyncError(async (req, res, next) => {
-  let { id } = req.params;
-  let results = await productModel.findById(id);
-  res.json({ message: "Done", results });
+  if (products.length > 0) {
+    res.json({ message: "done", products, count });
+  } else {
+    next(new AppError("not found", 404));
+  }
 });
 
 const updateProduct = catchAsyncError(async (req, res, next) => {
-  let { id } = req.params;
-  let body = req.body;
-  if (body.title) {
-    body.slug = slugify(body.title);
+  let { id, data } = req.body;
+  data.available = JSON.parse(data.available);
+  let product = await productModel.findById(id);
+  let allProducts = await productModel.find({ categoryId: product.categoryId });
+  let check = allProducts.some((e) => {
+    if (data.name == e.name && e._id != id) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+  if (check) {
+    next(new AppError("product already exists"), 404);
+  } else {
+    product.set(data);
+    const updated = await product.save();
+    res.json({ message: "product updated", updated });
   }
-  let results = await productModel.findByIdAndUpdate(
-    id,
-    { ...body },
-    { new: true }
-  );
-  results && res.json({ message: "Done", results });
-  !results && next(new AppError("Product not found", 404));
 });
 
-const deleteProduct = deleteOne(productModel);
+/*const deleteProduct = deleteOne(productModel); */
 
-export {
-  createProduct,
-  getAllProducts,
-  getProductById,
-  updateProduct,
-  deleteProduct,
-};
+export { createProduct, getAllProducts, updateProduct };
