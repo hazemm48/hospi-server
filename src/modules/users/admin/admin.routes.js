@@ -8,6 +8,8 @@ import * as filesUpload from "../../fileUpload/controller/fileUpload.controller.
 import roomRoutes from "../../room/room.routes.js";
 import noteRoutes from "../../notes/notes.routes.js";
 import firstAidRoutes from "../../firstAid/firstAid.routes.js";
+import categoryRoutes from "../../categories/categories.routes.js";
+import productRoutes from "../../products/products.routes.js";
 import { presc } from "../patient/controller/patientReport.controller.js";
 
 router.post("/getAllUsers", userController.getAllUsers);
@@ -22,5 +24,7 @@ router.post("/addGeneral", generalController.addGeneral);
 router.use("/room", roomRoutes);
 router.use("/note", noteRoutes);
 router.use("/firstAid", firstAidRoutes);
+router.use("/category", categoryRoutes);
+router.use("/product", productRoutes);
 
 export default router;

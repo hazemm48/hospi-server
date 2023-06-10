@@ -8,7 +8,7 @@ const reserveSchema = new mongoose.Schema(
       type: String,
       enum: ["doctor", "lab", "rad"],
     },
-    subCategory: String,
+    productName: String,
     speciality: String,
     fees: Number,
     turnNum: Number,

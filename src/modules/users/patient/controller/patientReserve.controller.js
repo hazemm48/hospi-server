@@ -27,6 +27,7 @@ const reserve = catchAsyncError(async (req, res, next) => {
   let doctor = {};
   let scheduleDay = "";
   let docApps = [];
+  let product = {};
 
   if (all.type == "doctor") {
     if (
@@ -56,6 +57,13 @@ const reserve = catchAsyncError(async (req, res, next) => {
     all.turnNum = doctorAppointments.length + 1;
     doctor = docInfo;
     docApps = doctorAppointments;
+  } else if (["rad", "lab"].includes(all.type)) {
+    product = await productModel.findById(all.productId);
+    if (!product) {
+      return next(new AppError("product not found", 404));
+    } else if (!product.available) {
+      return next(new AppError("product not available", 404));
+    }
   }
 
   let addRes = async (check) => {
@@ -108,7 +116,7 @@ const reserve = catchAsyncError(async (req, res, next) => {
         } else {
           next(new AppError("doctor schedule is full or not available", 404));
         }
-      } else if (all.type == "lab" || all.type == "rad") {
+      } else if (["lab","rad"].includes(all.type)) {
         let check = reserves.some((e) => {
           return checkConditions(e);
         });
@@ -191,8 +199,8 @@ const cancelReserve = catchAsyncError(async (req, res, next) => {
               date: reserve.date,
             })
             .sort("createdAt");
-            console.log(reserveTurnUpdate);
-            console.log(reserveTurnUpdate);
+          console.log(reserveTurnUpdate);
+          console.log(reserveTurnUpdate);
           reserveTurnUpdate.map((e, i) => {
             e.turnNum = i + 1;
           });
@@ -215,7 +223,7 @@ const cancelReserve = catchAsyncError(async (req, res, next) => {
 
 const editReserve = catchAsyncError(async (req, res, next) => {
   let { details, id } = req.body;
-  console.log(id,details);
+  console.log(id, details);
   let reserve = await reserveModel.findByIdAndUpdate(id, details, {
     new: true,
   });
