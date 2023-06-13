@@ -19,9 +19,13 @@ const generatePDF = async (resId) => {
   pdf.text(`Patient name: ${data.patName}`, 20, 30);
   pdf.text(`Date: ${moment(data.date).format("DD/MM/YYYY")}`, 20, 40);
   pdf.text(" ", 20, 50);
-  pdf.text("Prescription", 20, 60);
+  pdf.text("Prescription :", 20, 60);
   pdf.text(" ", 20, 70);
-  pdf.text(`${data.report.prescription}`, 20, 50);
+  pdf.text(
+    `${data.report.prescription ? data.report.prescription : " "}`,
+    20,
+    80
+  );
   pdf.save(pdfPath);
   let { secure_url } = await cloudinary.uploader.upload(pdfPath, {
     folder: path,
@@ -43,7 +47,7 @@ const qrCode = async (resId) => {
     });
     return qr;
   } else {
-    let pdf = generatePDF(resId);
+    let pdf = await generatePDF(resId);
     let qr = QRCode.toString(pdf, { type: "svg" }, function (err, url) {
       return url;
     });

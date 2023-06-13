@@ -4,6 +4,7 @@ import moment from "moment-timezone";
 import catchAsyncError from "../../../middleware/catchAsyncError.js";
 import AppError from "../../../../utils/AppError.js";
 import mongoose from "mongoose";
+import productModel from "../../../../../database/models/product.model.js";
 
 const reserve = catchAsyncError(async (req, res, next) => {
   let all = req.body;
@@ -192,7 +193,7 @@ const cancelReserve = catchAsyncError(async (req, res, next) => {
 
         console.log(resDate.diff(date, "minutes"));
         if (resDate.diff(date, "minutes") > 120 || req.role == "admin") {
-          await reserve.remove();
+          await reserve.deleteOne();
           let reserveTurnUpdate = await reserveModel
             .find({
               doctorId: reserve.doctorId,
@@ -210,7 +211,7 @@ const cancelReserve = catchAsyncError(async (req, res, next) => {
           next(new AppError("can't cancel reservation"));
         }
       } else {
-        await reserveModel.remove();
+        await reserve.remove();
         res.json({ message: "reservation cancelled" });
       }
     } else {

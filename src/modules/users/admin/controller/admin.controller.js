@@ -40,7 +40,7 @@ const deleteUser = async (req, res) => {
   res.json({ message: "user deleted" });
 };
 
-const updateUser = async (req, res) => {
+const updateUser = catchAsyncError(async (req, res, next) => {
   let all = req.body;
   const updated = await userModel.findByIdAndUpdate(all.id, all.details, {
     new: true,
@@ -57,7 +57,7 @@ const updateUser = async (req, res) => {
   } else {
     res.json({ message: "update failed" });
   }
-};
+});
 
 const resetPassword = catchAsyncError(async (req, res, next) => {
   let check = await userModel.findById(req.body.id);
