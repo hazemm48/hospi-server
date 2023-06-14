@@ -7,6 +7,7 @@ import validation from "../../middleware/validation.js";
 import * as validSchema from "../../middleware/user.validation.js"
 import { getCategories } from "../../categories/controller/categories.controller.js";
 import { getAllProducts } from "../../products/controller/products.controller.js";
+import { getFirstAid } from "../../firstAid/controller/firstAid.controller.js";
 
 const router = express.Router()
 
@@ -21,6 +22,8 @@ router.delete("/deletePatient",patientController.deletePatient)
 router.post("/getAllUsers", userController.getAllUsers);
 router.post("/category/get", getCategories);
 router.post("/product/get", getAllProducts);
+router.post("/getFirstAid", getFirstAid);
+
 
 
 export default router
