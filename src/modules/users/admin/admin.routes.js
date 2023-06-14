@@ -4,7 +4,6 @@ import * as adminController from "./controller/admin.controller.js";
 import * as patientReserve from "../patient/controller/patientReserve.controller.js";
 import * as userController from "../controller/user.controller.js";
 import * as generalController from "../../general/general.controller.js";
-import * as filesUpload from "../../fileUpload/controller/fileUpload.controller.js";
 import roomRoutes from "../../room/room.routes.js";
 import noteRoutes from "../../notes/notes.routes.js";
 import firstAidRoutes from "../../firstAid/firstAid.routes.js";

@@ -22,7 +22,7 @@ router.delete("/deletePatient",patientController.deletePatient)
 router.post("/getAllUsers", userController.getAllUsers);
 router.post("/category/get", getCategories);
 router.post("/product/get", getAllProducts);
-router.post("/getFirstAid", getFirstAid);
+router.post("/firstAid/get", getFirstAid);
 
 
 

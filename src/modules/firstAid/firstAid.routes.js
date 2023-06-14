@@ -8,4 +8,5 @@ router
   .post(firstAidController.addFirstAid)
   .put(firstAidController.updateFirstAid)
   .delete(firstAidController.deleteFirstAid);
+router.post("/get", firstAidController.getFirstAid);
 export default router;
