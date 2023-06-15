@@ -7,7 +7,7 @@ export const doctorSchema = new mongoose.Schema(
     birthDate: Date,
     city: String,
     bio: String,
-    notAvailableDays: [Date],
+    unavailableDates: [Date],
     fees: {
       followUp: Number,
       examin: Number,

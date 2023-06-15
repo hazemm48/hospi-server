@@ -182,6 +182,10 @@ const getAllUsers = catchAsyncError(async (req, res, next) => {
     }
     if (filter._id) {
       filter._id = mongoose.Types.ObjectId(filter._id);
+    } else if (filter["patientInfo.reservedDoctors"]) {
+      filter["patientInfo.reservedDoctors"] = mongoose.Types.ObjectId(
+        filter["patientInfo.reservedDoctors"]
+      );
     }
 
     let users = await userModel.aggregate([

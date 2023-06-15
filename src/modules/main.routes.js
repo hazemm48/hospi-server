@@ -16,10 +16,11 @@ import {
   verifyCodeAuth,
 } from "./middleware/auth.js";
 import { getGeneral } from "./general/general.controller.js";
+import { presc } from "./users/patient/controller/patientReport.controller.js";
 
 router.use("/admin", adminAuth, adminRoutes);
 router.use("/patient", auth, patientRoutes);
-router.use("/doctor", auth, doctorRoutes);
+router.use("/doctor",auth, doctorRoutes);
 router.use("/room", roomRoutes);
 router.use("/medicalRecord", medicalRecordRoutes);
 router.use("/fileUpload", fileUploadRoutes);
@@ -32,6 +33,6 @@ router.post("/resetPass/", verifyCodeAuth, userController.resetPassword);
 router.post("/signIn", userController.signIn);
 router.post("/getAllUsers", userController.getAllUsers);
 router.post("/getGeneral", getGeneral);
-
+router.post("/generatePresc", presc);
 
 export default router;

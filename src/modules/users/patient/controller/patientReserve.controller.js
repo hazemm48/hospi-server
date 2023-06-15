@@ -40,6 +40,12 @@ const reserve = catchAsyncError(async (req, res, next) => {
     if (!docInfo) {
       return next(new AppError("doctor not found", 404));
     }
+    if (
+      moment(docInfo.doctorInfo.unavailableDates).format("DD-MM-YYYY") ==
+      all.date
+    ) {
+      return next(new AppError("doctor not available in this date", 404));
+    }
     let scheduleIndex = docInfo.doctorInfo.schedule.findIndex(
       (e) => e.day == all.day
     );
@@ -71,6 +77,11 @@ const reserve = catchAsyncError(async (req, res, next) => {
     if (!check) {
       all.date = moment(all.date, "DD-MM-YYYY").format("MM-DD-YYYY");
       all.patientId == "" ? delete all["patientId"] : "";
+      if (all.type == "doctor" && all.patientId) {
+        await userModel.findByIdAndUpdate(all.patientId, {
+          $addToSet: { "patientInfo.reservedDoctors": all.doctorId },
+        });
+      }
       let add = await reserveModel.insertMany(all);
       res.json({ message: "booked", add });
     } else {
@@ -117,7 +128,7 @@ const reserve = catchAsyncError(async (req, res, next) => {
         } else {
           next(new AppError("doctor schedule is full or not available", 404));
         }
-      } else if (["lab","rad"].includes(all.type)) {
+      } else if (["lab", "rad"].includes(all.type)) {
         let check = reserves.some((e) => {
           return checkConditions(e);
         });
@@ -193,15 +204,18 @@ const cancelReserve = catchAsyncError(async (req, res, next) => {
 
         console.log(resDate.diff(date, "minutes"));
         if (resDate.diff(date, "minutes") > 120 || req.role == "admin") {
-          await reserve.deleteOne();
+          if (!reserve.anotherPerson) {
+            await userModel.findByIdAndUpdate(reserve.patientId, {
+              $pull: { "patientInfo.reservedDoctors": reserve.doctorId },
+            });
+          }
+          await reserve.remove();
           let reserveTurnUpdate = await reserveModel
             .find({
               doctorId: reserve.doctorId,
               date: reserve.date,
             })
             .sort("createdAt");
-          console.log(reserveTurnUpdate);
-          console.log(reserveTurnUpdate);
           reserveTurnUpdate.map((e, i) => {
             e.turnNum = i + 1;
           });

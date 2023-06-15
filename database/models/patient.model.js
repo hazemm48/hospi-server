@@ -9,6 +9,10 @@ export const patientSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "User",
     }],
+    reservedDoctors:[{
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+    }],
   },
   {
     _id:false

@@ -9,12 +9,10 @@ import noteRoutes from "../../notes/notes.routes.js";
 import firstAidRoutes from "../../firstAid/firstAid.routes.js";
 import categoryRoutes from "../../categories/categories.routes.js";
 import productRoutes from "../../products/products.routes.js";
-import { presc } from "../patient/controller/patientReport.controller.js";
 
 router.post("/getAllUsers", userController.getAllUsers);
 router.post("/addUser", userController.signUp);
 router.post("/reserve/:oper", patientReserve.reserveOperController);
-router.post("/generatePresc", presc);
 router.put("/changePass", userController.changePass);
 router.put("/updateUser", adminController.updateUser);
 router.delete("/deleteUser", adminController.deleteUser);
