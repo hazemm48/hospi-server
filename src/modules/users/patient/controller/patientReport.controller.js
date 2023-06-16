@@ -8,7 +8,7 @@ import catchAsyncError from "../../../middleware/catchAsyncError.js";
 
 const generatePDF = async (resId) => {
   let data = await reserveModel.findById(resId);
-  let pdfPath = `./uploads/${data._id}_presc.pdf`;
+  let pdfPath = `/tmp/${data._id}_presc.pdf`;
   let path = `hospi/reserves/${data.type}/${data._id}`;
   var pdf = new jsPDF({
     orientation: "p",
