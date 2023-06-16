@@ -4,6 +4,7 @@ import reserveModel from "../../../../../database/models/reserve.model.js";
 import cloudinary from "../../../../utils/cloudinary.js";
 import fs from "fs";
 import moment from "moment";
+import catchAsyncError from "../../../middleware/catchAsyncError.js";
 
 const generatePDF = async (resId) => {
   let data = await reserveModel.findById(resId);
@@ -55,7 +56,7 @@ const qrCode = async (resId) => {
   }
 };
 
-const presc = async (req, res) => {
+const presc = catchAsyncError(async (req, res, next) => {
   let { oper, resId } = req.body;
   if (oper == "pdf") {
     let pdf = await generatePDF(resId);
@@ -64,6 +65,6 @@ const presc = async (req, res) => {
     let qr = await qrCode(resId);
     res.json({ message: "qrcode generated", qr });
   }
-};
+});
 
 export { presc };
