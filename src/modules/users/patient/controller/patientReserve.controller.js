@@ -197,10 +197,11 @@ const cancelReserve = catchAsyncError(async (req, res, next) => {
       if (reserve.type == "doctor") {
         let resDate = moment(
           moment(reserve.date).format("DD/MM/YYYY") + " " + reserve.time.from,
-          "DD/MM/YYYY HH:mm A"
+          "DD/MM/YYYY HH:mm"
         );
         let date = moment();
         console.log(date);
+        console.log(resDate);
 
         console.log(resDate.diff(date, "minutes"));
         if (resDate.diff(date, "minutes") > 120 || req.role == "admin") {
