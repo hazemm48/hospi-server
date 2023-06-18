@@ -32,3 +32,4 @@ nodemon index.js or npm run dev
 or
 
 You can visit the live website at this link https://hospi-admin.vercel.app/ to see the server functions running
+- Super admin credentials:{ email: admin@hospi.com , password: Ha1234 }
