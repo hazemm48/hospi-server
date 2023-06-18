@@ -19,7 +19,7 @@ The project uses Node.js. If you do not have Node >= 6.x installed, you can down
 
 Once Node is installed, navigate to the directory where you want to store the app
 ```
-git clone https://github.com/hazemm48/MyReads-react.git
+git clone https://github.com/hazemm48/hospi-server.git
 npm install
 ```
 Once all of the dependencies have been installed you can launch the app with
