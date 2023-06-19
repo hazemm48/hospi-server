@@ -6,6 +6,7 @@ import catchAsyncError from "../../middleware/catchAsyncError.js";
 import AppError from "../../../utils/AppError.js";
 import { addDocToRoom } from "../../room/controller/room.controller.js";
 import mongoose from "mongoose";
+import moment from "moment";
 
 const signUp = catchAsyncError(async (req, res, next) => {
   let all = req.body;
@@ -46,6 +47,7 @@ const signIn = catchAsyncError(async (req, res, next) => {
     if (matched) {
       if (check.confirmedEmail == true) {
         let token = "";
+        let expiry = false;
         let tokenConfig = {
           userId: check._id,
           name: check.name,
@@ -59,11 +61,18 @@ const signIn = catchAsyncError(async (req, res, next) => {
           token = jwt.sign(tokenConfig, process.env.SECRET_KEY, {
             expiresIn: "2d",
           });
+          expiry = moment().add(2, "d").format("YYYY-MM-DD HH:mm");
         }
         check.isLoggedIn = true;
         delete check.password;
         check.save();
-        res.json({ message: "welcome", token, role: check.role, user: check });
+        res.json({
+          message: "welcome",
+          token,
+          expiry,
+          role: check.role,
+          user: check,
+        });
       } else {
         next(new AppError("Confirm your email first", 404));
       }

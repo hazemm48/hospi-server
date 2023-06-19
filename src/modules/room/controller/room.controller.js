@@ -55,7 +55,7 @@ const updateRoom = catchAsyncError(async (req, res, next) => {
   } else {
     const updated = await roomModel.findByIdAndUpdate(
       id,
-      { name, level ,type},
+      { name, level, type },
       { new: true }
     );
     res.json({ message: "room updated", updated });
@@ -85,12 +85,20 @@ const addDocToRoom = async (data) => {
   }
 };
 
+const removeDocFromRoom = async (data) => {
+  let room = await roomModel.find({ name: data });
+  if (room.length > 0) {
+    room[0].current.splice(room[0].current.indexOf(data), 1);
+    await room.save();
+  }
+};
+
 const deleteRoom = catchAsyncError(async (req, res, next) => {
   const { room, newRoomId, oldRoomId } = req.body;
   let oldRoom = await roomModel.findById(oldRoomId);
   let newRoom = await roomModel.findById(newRoomId);
-  if(oldRoomId==newRoomId){
-    return next(new AppError("new room matches old room"))
+  if (oldRoomId == newRoomId) {
+    return next(new AppError("new room matches old room"));
   }
   if (oldRoom && newRoom) {
     let updateDoc = await userModel.updateMany(
@@ -116,4 +124,11 @@ const deleteRoom = catchAsyncError(async (req, res, next) => {
   }
 });
 
-export { addRoom, getRoom, updateRoom, deleteRoom, addDocToRoom };
+export {
+  addRoom,
+  getRoom,
+  updateRoom,
+  deleteRoom,
+  addDocToRoom,
+  removeDocFromRoom,
+};

@@ -1,6 +1,6 @@
 import userModel from "../../../../../database/models/user.model.js";
 import generalModel from "../../../../../database/models/general.model.js";
-import { addDocToRoom } from "../../../room/controller/room.controller.js";
+import { addDocToRoom, removeDocFromRoom } from "../../../room/controller/room.controller.js";
 import fs from "fs";
 import bcrypt from "bcrypt";
 import { nanoid } from "nanoid";
@@ -25,6 +25,8 @@ const deleteUser = async (req, res) => {
     let record = await medicRecordModel.deleteMany({
       patientId: { $in: id },
     });
+  }else if(user.role=="doctor"){
+    await removeDocFromRoom(user.doctorInfo.room)
   }
   ["users", "medicRecord"].map(async (e) => {
     await cloudinary.api.delete_resources_by_prefix(
@@ -46,7 +48,7 @@ const updateUser = catchAsyncError(async (req, res, next) => {
     new: true,
   });
   if (all.oldRoom) {
-    addDocToRoom({
+    await addDocToRoom({
       roomId: all.roomId,
       docId: all.id,
       oldRoomId: all.oldRoom,

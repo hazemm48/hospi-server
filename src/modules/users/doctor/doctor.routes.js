@@ -9,11 +9,9 @@ import noteRoutes from "../../notes/notes.routes.js";
 
 
 router.post("/reserve/:oper", patientReserve.reserveOperController);
-router.put("/updateDoc",doctorController.updateDoctor)
 router.put("/addReport",doctorController.addReport)
 router.put("/unavailableDate/add",doctorController.addUnavailableDates)
 router.put("/unavailableDate/remove",doctorController.removeUnavailableDates)
-router.delete("/deleteDoc",doctorController.deleteDoctor)
 router.post("/getAllUsers", userController.getAllUsers);
 router.post("/room/get", getRoom);
 router.post("/category/get", getCategories);
