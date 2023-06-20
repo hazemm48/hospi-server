@@ -85,7 +85,7 @@ const reserve = catchAsyncError(async (req, res, next) => {
       let add = await reserveModel.insertMany(all);
       res.json({ message: "booked", add });
     } else {
-      next(new AppError("already booked", 404));
+      next(new AppError("already booked on this day", 404));
     }
   };
 
