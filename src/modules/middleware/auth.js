@@ -1,15 +1,13 @@
 import jwt from "jsonwebtoken";
-import AppError from "../../utils/AppError.js";
-import catchAsyncError from "./catchAsyncError.js";
-const auth = catchAsyncError((req, res, next) => {
+const auth = (req, res, next) => {
   let auth = req.headers["authorization"];
   if (!auth || (auth && auth.startsWith("Bearer") == false)) {
-    next(new AppError("invalid token syntax"));
+    res.status(404).json({ message: "invalid token syntax" });
   } else {
     let token = auth.split(" ")[1];
     jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
       if (err) {
-        next(new AppError("invalid token"));
+        res.status(404).json({ message: "invalid token" });
       } else {
         if (decoded.isLoggedIn == true) {
           req.userId = decoded.userId;
@@ -17,22 +15,22 @@ const auth = catchAsyncError((req, res, next) => {
           req.email = decoded.email;
           next();
         } else {
-          next(new AppError("not logged in"));
+          res.status(404).json({ message: "not logged in" });
         }
       }
     });
   }
-});
+};
 
-const adminAuth = catchAsyncError((req, res, next) => {
+const adminAuth = (req, res, next) => {
   let auth = req.headers["authorization"];
   if (!auth || (auth && auth.startsWith("SIM") == false)) {
-    next(new AppError("invalid token syntax"));
+    res.json({ message: "invalid token syntax" });
   } else {
     let token = auth.split(" ")[1];
     jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
       if (err) {
-        next(new AppError("invalid token"));
+        res.status(404).json({ message: "invalid token" });
       } else {
         req.userId = decoded.userId;
         if (decoded.role == "admin") {
@@ -40,21 +38,21 @@ const adminAuth = catchAsyncError((req, res, next) => {
           req.email = decoded.email;
           next();
         } else {
-          next(new AppError("not authorized user"));
+          res.status(401).json({ message: "not authorized user" });
         }
       }
     });
   }
-});
+};
 
-const emailAuth = catchAsyncError((req, res, next) => {
+const emailAuth = (req, res, next) => {
   let token = req.params.email;
   if (!token) {
-    next(new AppError("invalid token syntax"));
+    res.status(404).json({ message: "invalid token syntax" });
   } else {
     jwt.verify(token, process.env.TOKEN_KEY_VERIFY, (err, decoded) => {
       if (err) {
-        next(new AppError("invalid token"));
+        res.status(404).json({ message: "invalid token" });
       } else {
         req.email = decoded.email;
         if (decoded.code) {
@@ -64,27 +62,27 @@ const emailAuth = catchAsyncError((req, res, next) => {
       }
     });
   }
-});
+};
 
-const verifyCodeAuth = catchAsyncError((req, res, next) => {
+const verifyCodeAuth = (req, res, next) => {
   let auth = req.headers["authorization"];
   if (!auth || (auth && auth.startsWith("Bearer") == false)) {
-    next(new AppError("invalid token syntax"));
+    res.status(404).json({ message: "invalid token syntax" });
   } else {
     let token = auth.split(" ")[1];
     jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
       if (err) {
-        next(new AppError("invalid token"));
+        res.status(404).json({ message: "invalid token" });
       } else {
         if (decoded.oper == "reset") {
           req.email = decoded.email;
           next();
         } else {
-          next(new AppError("not authorized"));
+          res.status(401).json({ message: "not authorized" });
         }
       }
     });
   }
-});
+};
 
 export { auth, adminAuth, emailAuth, verifyCodeAuth };
