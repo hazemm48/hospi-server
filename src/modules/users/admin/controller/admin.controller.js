@@ -1,32 +1,23 @@
 import userModel from "../../../../../database/models/user.model.js";
-import generalModel from "../../../../../database/models/general.model.js";
-import { addDocToRoom, removeDocFromRoom } from "../../../room/controller/room.controller.js";
-import fs from "fs";
+import {
+  addDocToRoom,
+  removeDocFromRoom,
+} from "../../../room/controller/room.controller.js";
 import bcrypt from "bcrypt";
 import { nanoid } from "nanoid";
 import catchAsyncError from "../../../middleware/catchAsyncError.js";
 import cloudinary from "../../../../utils/cloudinary.js";
 import medicRecordModel from "../../../../../database/models/medicRecord.model.js";
 
-const addGeneral = async (req, res) => {
-  let all = req.body;
-  try {
-    let added = await generalModel.insertMany(all);
-    res.json({ message: "added", added });
-  } catch (error) {
-    res.json({ message: "error", error });
-  }
-};
-
-const deleteUser = async (req, res) => {
+const deleteUser = catchAsyncError(async (req, res, next) => {
   let { id } = req.body;
   const user = await userModel.findById(id);
   if (user.role == "patient") {
     let record = await medicRecordModel.deleteMany({
       patientId: { $in: id },
     });
-  }else if(user.role=="doctor"){
-    await removeDocFromRoom(user.doctorInfo.room)
+  } else if (user.role == "doctor") {
+    await removeDocFromRoom(user.doctorInfo.room);
   }
   ["users", "medicRecord"].map(async (e) => {
     await cloudinary.api.delete_resources_by_prefix(
@@ -40,7 +31,7 @@ const deleteUser = async (req, res) => {
   });
   await user.remove();
   res.json({ message: "user deleted" });
-};
+});
 
 const updateUser = catchAsyncError(async (req, res, next) => {
   let all = req.body;
@@ -75,4 +66,4 @@ const resetPassword = catchAsyncError(async (req, res, next) => {
   }
 });
 
-export { addGeneral, deleteUser, updateUser, resetPassword };
+export { deleteUser, updateUser, resetPassword };
