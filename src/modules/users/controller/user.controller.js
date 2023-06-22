@@ -43,7 +43,7 @@ const signIn = catchAsyncError(async (req, res, next) => {
   let { email, password, rememberMe } = req.body;
   let check = await userModel.findOne({ email });
   if (check) {
-    let matched = bcrypt.compareSync(password, check.password[0]);
+    let matched = bcrypt.compareSync(password, check.password);
     if (matched) {
       if (check.confirmedEmail == true) {
         let token = "";
@@ -132,16 +132,15 @@ const resetPassword = catchAsyncError(async (req, res, next) => {
   let user = await userModel.findOne({ email });
   if (user) {
     let password = req.body.newPassword;
-    if (user.password[1] == password) {
+    if (bcrypt.compareSync(password, user.password)) {
       next(new AppError("Same old password"), 404);
     } else {
       let hashedPassword = bcrypt.hashSync(
         password,
         Number(process.env.ROUNDS)
       );
-      user.password[0] = hashedPassword;
-      user.password[1] = password;
-      user.save();
+      user.password = hashedPassword;
+      await user.save();
       res.json({ message: "user updated" });
     }
   } else {
@@ -153,12 +152,11 @@ const changePass = catchAsyncError(async (req, res, next) => {
   let { oldPass, newPass } = req.body;
   let check = await userModel.findById(req.userId);
   if (check) {
-    let matched = bcrypt.compareSync(oldPass, check.password[0]);
+    let matched = bcrypt.compareSync(oldPass, check.password);
     if (matched) {
       let newPassword = bcrypt.hashSync(newPass, Number(process.env.ROUNDS));
-      check.password[0] = newPassword;
-      check.password[1] = newPass;
-      check.save();
+      check.password = newPassword;
+      await check.save();
       res.json({ message: "password changed" });
     } else {
       next(new AppError("wrong old password", 404));

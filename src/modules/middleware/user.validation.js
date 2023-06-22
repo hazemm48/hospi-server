@@ -12,16 +12,9 @@ const signUpSchema = {
         .required(),
       password: joi
         .string()
-        .pattern(/^[A-Z][a-z0-9]{3,8}$/)
+        .min(6)
+        .max(15)
         .required(),
-      cPassword: joi.string().valid(joi.ref("password")).required(),
-      city: joi.string().min(3).required(),
-      address: joi.string().min(10),
-      age: joi.number().integer().min(18).max(100).required(),
-      phone: joi
-        .string()
-        .length(11)
-        .pattern(/^[0-9]+$/),
       role:joi.string(),
     }),
     
@@ -34,14 +27,12 @@ const signInSchema = {
     .keys({
       email: joi
         .string()
-        .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } }),
-      phone: joi
-        .string()
-        .length(11)
-        .pattern(/^[0-9]+$/),
+        .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
+        .required(),
       password: joi
         .string()
-        .pattern(/^[A-Z][a-z][a-z0-9]{3,13}$/)
+        .min(6)
+        .max(15)
         .required(),
       rememberMe: joi.boolean(),
     })
