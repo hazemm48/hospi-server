@@ -15,7 +15,7 @@ const signUp = catchAsyncError(async (req, res, next) => {
     next(new AppError("already registered", 404));
   } else {
     let hashedPass = bcrypt.hashSync(all.password, Number(process.env.ROUNDS));
-    all.password = [hashedPass, all.password];
+    all.password =hashedPass;
     if (all.role == "patient") {
       if (req.role == "admin") {
         all.confirmedEmail = true;
