@@ -58,4 +58,20 @@ const updateUserSchema = {
     }
 };
 
-export { signUpSchema, signInSchema, updateUserSchema };
+const reservationSchema = {body:joi.object().required().keys({
+  patName:joi.string().min(3).max(30).required(),
+  type: joi.string().valid('doctor', 'lab', 'rad').required(),
+  docName:joi.string().min(3).max(30).when('type',{is:'doctor',then:joi.required()}),
+  fees:joi.number().min(0).max(999).required(),
+  speciality:joi.string().when('type',{is:'doctor',then:joi.required()}),
+  visitType:joi.string().when('type',{is:'doctor',then:joi.required()}),
+  day:joi.string().when('type',{is:'doctor',then:joi.required()}),
+  doctorId: joi.string().when('type', { is: 'doctor', then: joi.required(),otherwise: joi.forbidden() }),
+  productId: joi.string().when('type', { is: ['lab','rad'], then: joi.required() }),
+  patientId: joi.string().optional(),
+  date: joi.string().pattern(/^\d{2}-\d{2}-\d{4}$/).required(),
+  anotherPerson: joi.boolean().optional(),
+  
+})};
+
+export { signUpSchema, signInSchema, updateUserSchema , reservationSchema};
