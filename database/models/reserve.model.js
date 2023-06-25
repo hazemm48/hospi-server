@@ -41,6 +41,10 @@ const reserveSchema = new mongoose.Schema(
         },
       ],
     },
+    productId: {
+      type: mongoose.Types.ObjectId,
+      ref: "Product",
+    },
     patientId: {
       type: mongoose.Types.ObjectId,
       ref: "User",

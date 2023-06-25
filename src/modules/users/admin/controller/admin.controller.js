@@ -57,8 +57,7 @@ const resetPassword = catchAsyncError(async (req, res, next) => {
   if (check) {
     let newPass = nanoid(8);
     let newPassword = bcrypt.hashSync(newPass, Number(process.env.ROUNDS));
-    check.password[0] = newPassword;
-    check.password[1] = newPass;
+    check.password= newPassword;
     check.save();
     res.json({ message: `new password is :${newPass}` });
   } else {

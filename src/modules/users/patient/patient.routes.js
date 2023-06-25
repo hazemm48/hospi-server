@@ -10,7 +10,7 @@ import { getFirstAid } from "../../firstAid/controller/firstAid.controller.js";
 
 const router = express.Router()
 
-router.post("/reserve/:oper",validation(validSchema.reservationSchema), patientReserve.reserveOperController);
+router.post("/reserve/:oper",patientReserve.reserveOperController);
 router.post("/favDoctors",patientController.addFavDoctors)
 router.post("/favDoctors/get",patientController.getFavDoctors)
 router.put("/updatePatient"/* ,validation(validSchema.updateUserSchema) */,patientController.updatePatient)

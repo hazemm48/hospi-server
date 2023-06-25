@@ -13,7 +13,7 @@ import productRoutes from "../../products/products.routes.js";
 
 router.post("/getAllUsers", userController.getAllUsers);
 router.post("/addUser", userController.signUp);
-router.post("/reserve/:oper",validation(validSchema.reservationSchema), patientReserve.reserveOperController);
+router.post("/reserve/:oper",/* validation(validSchema.reservationSchema), */ patientReserve.reserveOperController);
 router.put("/changePass", userController.changePass);
 router.put("/updateUser", adminController.updateUser);
 router.delete("/deleteUser", adminController.deleteUser);
