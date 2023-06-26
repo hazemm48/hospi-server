@@ -40,12 +40,15 @@ const reserve = catchAsyncError(async (req, res, next) => {
     if (!docInfo) {
       return next(new AppError("doctor not found", 404));
     }
-    if (
-      moment(docInfo.doctorInfo.unavailableDates).format("DD-MM-YYYY") ==
-      all.date
-    ) {
-      return next(new AppError("doctor not available in this date", 404));
-    }
+    docInfo.doctorInfo.unavailableDates.some((e)=>{
+
+      if (
+        moment(e).format("DD-MM-YYYY") ==
+        all.date
+      ) {
+        return next(new AppError("doctor not available in this date", 404));
+      }
+    })
     let scheduleIndex = docInfo.doctorInfo.schedule.findIndex(
       (e) => e.day == all.day
     );
