@@ -29,6 +29,9 @@ const productSchema = new mongoose.Schema(
     brand: {
       type: Number,
     },
+    precaution: {
+      type: String,
+    },
     images: [String],
     available: {
       type: Boolean,

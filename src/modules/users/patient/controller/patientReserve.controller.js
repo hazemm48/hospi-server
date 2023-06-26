@@ -82,6 +82,11 @@ const reserve = catchAsyncError(async (req, res, next) => {
           $addToSet: { "patientInfo.reservedDoctors": all.doctorId },
         });
       }
+      if (["lab", "rad"].includes(all.type)) {
+        await productModel.findByIdAndUpdate(all.productId, {
+          $inc: { sold: 1 },
+        });
+      }
       let add = await reserveModel.insertMany(all);
       res.json({ message: "booked", add });
     } else {
@@ -92,10 +97,6 @@ const reserve = catchAsyncError(async (req, res, next) => {
   let checkConditions = (e) => {
     let x = false;
     if (all.date == moment(e.date).tz("Africa/Cairo").format("DD-MM-YYYY")) {
-      console.log(
-        moment(e.date).tz("Africa/Cairo").format("DD-MM-YYYY"),
-        moment(e.date).format("DD-MM-YYYY")
-      );
       if (
         (all.anotherPerson && anotherPersonLength.length < apLength) ||
         (!all.anotherPerson && e.anotherPerson)
@@ -200,14 +201,15 @@ const cancelReserve = catchAsyncError(async (req, res, next) => {
           "DD/MM/YYYY HH:mm"
         );
         let date = moment();
-        console.log(date);
-        console.log(resDate);
-
-        console.log(resDate.diff(date, "minutes"));
         if (resDate.diff(date, "minutes") > 120 || req.role == "admin") {
           if (!reserve.anotherPerson) {
             await userModel.findByIdAndUpdate(reserve.patientId, {
               $pull: { "patientInfo.reservedDoctors": reserve.doctorId },
+            });
+          }
+          if (["lab", "rad"].includes(reserve.type)) {
+            await productModel.findByIdAndUpdate(reserve.productId, {
+              $inc: { sold: -1 },
             });
           }
           await reserve.remove();
@@ -226,11 +228,26 @@ const cancelReserve = catchAsyncError(async (req, res, next) => {
           next(new AppError("can't cancel reservation"));
         }
       } else {
+        if (["lab", "rad"].includes(reserve.type)) {
+          await productModel.findByIdAndUpdate(reserve.productId, {
+            $inc: { sold: -1 },
+          });
+        }
         await reserve.remove();
         res.json({ message: "reservation cancelled" });
       }
     } else {
-      next(new AppError("reservation status is done"));
+      if (req.role == "admin") {
+        if (["lab", "rad"].includes(reserve.type)) {
+          await productModel.findByIdAndUpdate(reserve.productId, {
+            $inc: { sold: -1 },
+          });
+        }
+        await reserve.remove();
+        res.json({ message: "reservation deleted" });
+      } else {
+        next(new AppError("reservation status is done"));
+      }
     }
   } else {
     next(new AppError("reservation already cancelled"));

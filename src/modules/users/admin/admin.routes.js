@@ -10,6 +10,7 @@ import noteRoutes from "../../notes/notes.routes.js";
 import firstAidRoutes from "../../firstAid/firstAid.routes.js";
 import categoryRoutes from "../../categories/categories.routes.js";
 import productRoutes from "../../products/products.routes.js";
+import { addUnavailableDates, removeUnavailableDates } from "../doctor/controller/doctor.controller.js";
 
 router.post("/getAllUsers", userController.getAllUsers);
 router.post("/addUser", userController.signUp);
@@ -18,6 +19,8 @@ router.put("/changePass", userController.changePass);
 router.put("/updateUser", adminController.updateUser);
 router.delete("/deleteUser", adminController.deleteUser);
 router.post("/resetPassword", adminController.resetPassword);
+router.put("/unavailableDate/add",addUnavailableDates)
+router.put("/unavailableDate/remove",removeUnavailableDates)
 router.use("/room", roomRoutes);
 router.use("/note", noteRoutes);
 router.use("/firstAid", firstAidRoutes);

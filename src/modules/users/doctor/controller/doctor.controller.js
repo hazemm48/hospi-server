@@ -29,12 +29,12 @@ const addUnavailableDates = catchAsyncError(async (req, res, next) => {
     },
     { new: true }
   );
-  res.json({ message: "added", add });
+  res.json({ message: "added", dates: [...add.doctorInfo.unavailableDates] });
 });
 
 const removeUnavailableDates = catchAsyncError(async (req, res, next) => {
   let all = req.body;
-  let add = await userModel.findByIdAndUpdate(
+  let remove = await userModel.findByIdAndUpdate(
     all.id,
     {
       $pull: {
@@ -43,11 +43,10 @@ const removeUnavailableDates = catchAsyncError(async (req, res, next) => {
     },
     { new: true }
   );
-  res.json({ message: "added", add });
+  res.json({
+    message: "deleted",
+    dates: [...remove.doctorInfo.unavailableDates],
+  });
 });
 
-export {
-  addReport,
-  addUnavailableDates,
-  removeUnavailableDates,
-};
+export { addReport, addUnavailableDates, removeUnavailableDates };
