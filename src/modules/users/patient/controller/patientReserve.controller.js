@@ -158,6 +158,7 @@ const getReserve = catchAsyncError(async (req, res, next) => {
     } else if (filter?.hasOwnProperty("patientId")) {
       search.patientId = mongoose.Types.ObjectId(filter.patientId);
     }
+    
     filter?.type ? (search.type = filter.type) : "";
     search.month = month;
     search.year = year;
@@ -290,7 +291,7 @@ const checkReserveStatus = catchAsyncError(async () => {
     e.time.to && (time = e.time.to);
     let resDate = moment(
       moment(e.date).format("DD/MM/YYYY") + " " + time,
-      "DD/MM/YYYY HH:mm A"
+      "DD/MM/YYYY hh:mm"
     );
     if (resDate.diff(date, "minutes") <= 0) {
       e.status = true;
@@ -299,7 +300,7 @@ const checkReserveStatus = catchAsyncError(async () => {
   await reserveModel.bulkSave(reserves);
 });
 
-setInterval(checkReserveStatus, 1000 * 60 * 10);
+setInterval(checkReserveStatus, 1000 * 15);
 
 export {
   reserve,
