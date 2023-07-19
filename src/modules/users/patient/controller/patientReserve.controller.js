@@ -299,7 +299,7 @@ const checkReserveStatus = catchAsyncError(async () => {
   await reserveModel.bulkSave(reserves);
 });
 
-setInterval(checkReserveStatus, 1000 * 60 * 30);
+setInterval(checkReserveStatus, 1000 * 60 * 10);
 
 export {
   reserve,
